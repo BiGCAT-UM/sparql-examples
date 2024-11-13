@@ -8,7 +8,11 @@ ex:metadata a sh:SPARQLExecutable,
        sh:SPARQLSelectExecutable ;
     rdfs:comment "Returns the title of the dataset, creation date, and license."@en ;
     sh:prefixes _:sparql_examples_prefixes ;
-    sh:select """SELECT DISTINCT ?dataset (str(?titleLit) as ?title) ?date ?license 
+    sh:select """PREFIX void: <http://rdfs.org/ns/void#>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+PREFIX pav: <http://purl.org/pav/>
+
+SELECT DISTINCT ?dataset (str(?titleLit) as ?title) ?date ?license
 WHERE {
    ?dataset a void:Dataset ;
    dcterms:title ?titleLit ;
