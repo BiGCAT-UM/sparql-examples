@@ -4,7 +4,7 @@
 @prefix schema: <https://schema.org/> .
 @prefix sh: <http://www.w3.org/ns/shacl#> .
 
-ex:1 a sh:SPARQLExecutable,
+ex:metadata a sh:SPARQLExecutable,
        sh:SPARQLSelectExecutable ;
     rdfs:comment "List all pathways in the AOP community portal and their title."@en ;
     sh:prefixes _:sparql_examples_prefixes ;
@@ -18,4 +18,5 @@ WHERE {
   a wp:Pathway ; 
   dc:title ?title .
 }""" ;
-    schema:target <https://sparql.wikipathways.org/sparql> .
+    schema:target <https://sparql.wikipathways.org/sparql> ;
+    schema:keywords "prefix", "namespace" .
