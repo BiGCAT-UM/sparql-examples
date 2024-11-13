@@ -4,7 +4,7 @@
 @prefix schema: <https://schema.org/> .
 @prefix sh: <http://www.w3.org/ns/shacl#> .
 
-ex:metadata a sh:SPARQLExecutable,
+ex:allPathways a sh:SPARQLExecutable,
        sh:SPARQLSelectExecutable ;
     rdfs:comment "List all pathways in the AOP community portal and their title."@en ;
     sh:prefixes _:sparql_examples_prefixes ;

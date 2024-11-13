@@ -4,7 +4,7 @@
 @prefix schema: <https://schema.org/> .
 @prefix sh: <http://www.w3.org/ns/shacl#> .
 
-ex:metadata a sh:SPARQLExecutable,
+ex:prefixes a sh:SPARQLExecutable,
        sh:SPARQLSelectExecutable ;
     rdfs:comment "Lists prefixes used in this database."@en ;
     sh:prefixes _:sparql_examples_prefixes ;
