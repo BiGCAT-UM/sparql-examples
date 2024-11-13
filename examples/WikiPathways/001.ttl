@@ -4,9 +4,9 @@
 @prefix schema: <https://schema.org/> .
 @prefix sh: <http://www.w3.org/ns/shacl#> .
 
-ex:linksets a sh:SPARQLExecutable,
+ex:001 a sh:SPARQLExecutable,
        sh:SPARQLSelectExecutable ;
-    rdfs:comment "Lists all linksets defined in this database with their titles, licenses, and creation dates."@en ;
+    rdfs:comment "Returns the title of the dataset, creation date, and license."@en ;
     sh:prefixes _:sparql_examples_prefixes ;
     sh:select """PREFIX void: <http://rdfs.org/ns/void#>
 PREFIX dcterms: <http://purl.org/dc/terms/>
@@ -14,13 +14,10 @@ PREFIX pav: <http://purl.org/pav/>
 
 SELECT DISTINCT ?dataset (str(?titleLit) as ?title) ?date ?license
 WHERE {
-   ?dataset a void:Linkset ;
-   dcterms:title ?titleLit .
-   OPTIONAL {
-     ?dataset dcterms:license ?license ;
-       pav:createdOn ?date .
-   }
-}
-""" ;
+   ?dataset a void:Dataset ;
+   dcterms:title ?titleLit ;
+   dcterms:license ?license ;
+   pav:createdOn ?date .
+}""" ;
     schema:target <https://sparql.wikipathways.org/sparql> ;
-    schema:keywords "linkset", "metadata" .
+    schema:keywords "license", "metadata" .

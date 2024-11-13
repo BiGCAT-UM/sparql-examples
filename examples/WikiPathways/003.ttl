@@ -4,19 +4,18 @@
 @prefix schema: <https://schema.org/> .
 @prefix sh: <http://www.w3.org/ns/shacl#> .
 
-ex:allPathways a sh:SPARQLExecutable,
+ex:003 a sh:SPARQLExecutable,
        sh:SPARQLSelectExecutable ;
-    rdfs:comment "List all pathways in the AOP community portal and their title."@en ;
+    rdfs:comment "Lists prefixes used in this database."@en ;
     sh:prefixes _:sparql_examples_prefixes ;
-    sh:select """PREFIX wp: <http://vocabularies.wikipathways.org/wp#>
-PREFIX dc: <http://purl.org/dc/elements/1.1/>
-PREFIX cur: <http://vocabularies.wikipathways.org/wp#Curation:>
+    sh:select """PREFIX sh: <http://www.w3.org/ns/shacl#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 
-SELECT DISTINCT ?pathway (str(?title) as ?PathwayTitle)
-WHERE {
-  ?pathway wp:ontologyTag cur:AOP ; 
-  a wp:Pathway ; 
-  dc:title ?title .
+SELECT ?prefix ?namespace WHERE {
+  [] sh:declare [
+    sh:prefix ?prefix ;
+    sh:namespace ?namespace
+  ] .
 }""" ;
     schema:target <https://sparql.wikipathways.org/sparql> ;
     schema:keywords "prefix", "namespace" .
