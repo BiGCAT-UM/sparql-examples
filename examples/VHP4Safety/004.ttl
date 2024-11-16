@@ -4,7 +4,7 @@
 @prefix schema: <https://schema.org/> .
 @prefix sh: <http://www.w3.org/ns/shacl#> .
 
-ex:001 a sh:SPARQLExecutable,
+ex:004 a sh:SPARQLExecutable,
        sh:SPARQLSelectExecutable ;
     rdfs:comment "List all compounds in the HBM4EU priority substances collection with identifier wd:Q56, optionally with their InChIKey and PubChem CID identifiers."@en ;
     sh:prefixes _:sparql_examples_prefixes ;

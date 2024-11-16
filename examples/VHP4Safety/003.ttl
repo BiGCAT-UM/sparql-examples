@@ -4,7 +4,7 @@
 @prefix schema: <https://schema.org/> .
 @prefix sh: <http://www.w3.org/ns/shacl#> .
 
-ex:001 a sh:SPARQLExecutable,
+ex:003 a sh:SPARQLExecutable,
        sh:SPARQLSelectExecutable ;
     rdfs:comment "List all compounds of which the xenometabolism is known."@en ;
     sh:prefixes _:sparql_examples_prefixes ;
