@@ -3,6 +3,7 @@
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix schema: <https://schema.org/> .
 @prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix spex: <https://purl.expasy.org/sparql-examples/ontology#> .
 
 ex:002 a sh:SPARQLExecutable,
        sh:SPARQLSelectExecutable ;
@@ -21,4 +22,5 @@ SELECT ?collectionLabel (COUNT(DISTINCT ?compound) AS ?count) WHERE {
 } GROUP BY ?collectionLabel
   ORDER BY DESC(?count)""" ;
     schema:target <https://compoundcloud.wikibase.cloud/query/> ;
+    spex:federatesWith <http://wikiba.se/ontology#label> ;
     schema:keywords "collection", "compound" .

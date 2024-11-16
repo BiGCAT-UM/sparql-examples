@@ -3,6 +3,7 @@
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix schema: <https://schema.org/> .
 @prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix spex: <https://purl.expasy.org/sparql-examples/ontology#> .
 
 ex:004 a sh:SPARQLExecutable,
        sh:SPARQLSelectExecutable ;
@@ -24,4 +25,5 @@ WHERE {
   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],en". }
 }""" ;
     schema:target <https://compoundcloud.wikibase.cloud/query/> ;
+    spex:federatesWith <http://wikiba.se/ontology#label> ;
     schema:keywords "HBM4EU", "compound", "collection", "InChIKey", "PubChem" .
