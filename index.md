@@ -8,6 +8,7 @@ In this github pages we have a HTML rendering for all them.
 
  * [AOP-Wiki](./examples/AOPWiki/)
  * [ChEMBL](./examples/ChEMBL/)
+ * [VHP4Safety](./examples/VHP4Safety/)
  * [WikiPathways](./examples/WikiPathways/)
 
 
