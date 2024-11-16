@@ -1,0 +1,27 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+[] sh:declare [ sh:prefix "dc" ;       sh:namespace "http://purl.org/dc/elements/1.1/"^^xsd:anyURI ] .
+[] sh:declare [ sh:prefix "cas" ;      sh:namespace "https://identifiers.org/cas/"^^xsd:anyURI ] .
+[] sh:declare [ sh:prefix "wprdf" ;    sh:namespace "http://rdf.wikipathways.org/"^^xsd:anyURI ] .
+[] sh:declare [ sh:prefix "prov" ;     sh:namespace "http://www.w3.org/ns/prov#"^^xsd:anyURI ] .
+[] sh:declare [ sh:prefix "foaf" ;     sh:namespace "http://xmlns.com/foaf/0.1/"^^xsd:anyURI ] .
+[] sh:declare [ sh:prefix "hmdb" ;     sh:namespace "https://identifiers.org/hmdb/"^^xsd:anyURI ] .
+[] sh:declare [ sh:prefix "freq" ;     sh:namespace "http://purl.org/cld/freq/"^^xsd:anyURI ] .
+[] sh:declare [ sh:prefix "pubmed" ;   sh:namespace "http://www.ncbi.nlm.nih.gov/pubmed/"^^xsd:anyURI ] .
+[] sh:declare [ sh:prefix "wp" ;       sh:namespace "http://vocabularies.wikipathways.org/wp#"^^xsd:anyURI ] .
+[] sh:declare [ sh:prefix "void" ;     sh:namespace "http://rdfs.org/ns/void#"^^xsd:anyURI ] .
+[] sh:declare [ sh:prefix "biopax" ;   sh:namespace "http://www.biopax.org/release/biopax-level3.owl#"^^xsd:anyURI ] .
+[] sh:declare [ sh:prefix "dcterms" ;  sh:namespace "http://purl.org/dc/terms/"^^xsd:anyURI ] .
+[] sh:declare [ sh:prefix "rdfs" ;     sh:namespace "http://www.w3.org/2000/01/rdf-schema#"^^xsd:anyURI ] .
+[] sh:declare [ sh:prefix "pav" ;      sh:namespace "http://purl.org/pav/"^^xsd:anyURI ] .
+[] sh:declare [ sh:prefix "ncbigene" ; sh:namespace "https://identifiers.org/ncbigene/"^^xsd:anyURI ] .
+[] sh:declare [ sh:prefix "xsd" ;      sh:namespace "http://www.w3.org/2001/XMLSchema#"^^xsd:anyURI ] .
+[] sh:declare [ sh:prefix "rdf" ;      sh:namespace "http://www.w3.org/1999/02/22-rdf-syntax-ns#"^^xsd:anyURI ] .
+[] sh:declare [ sh:prefix "gpml" ;     sh:namespace "http://vocabularies.wikipathways.org/gpml#"^^xsd:anyURI ] .
+[] sh:declare [ sh:prefix "skos" ;     sh:namespace "http://www.w3.org/2004/02/skos/core#"^^xsd:anyURI ] .
+[] sh:declare [ sh:prefix "owl" ;      sh:namespace "http://www.w3.org/2002/07/owl#"^^xsd:anyURI ] .
+[] sh:declare [ sh:prefix "efo" ;      sh:namespace "http://www.ebi.ac.uk/efo/"^^xsd:anyURI ] .
+[] sh:declare [ sh:prefix "xml" ;      sh:namespace "http://www.w3.org/XML/1998/namespace"^^xsd:anyURI ] .
+[] sh:declare [ sh:prefix "wiki" ;     sh:namespace "http://sparql.wikipathways.org/"^^xsd:anyURI ] .
+[] sh:declare [ sh:prefix "cur" ;      sh:namespace "http://vocabularies.wikipathways.org/wp#Curation:"^^xsd:anyURI ] .
