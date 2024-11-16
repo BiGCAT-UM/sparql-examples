@@ -1,0 +1,14 @@
+
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+_:vhp4safety_sparql_examples_prefixes a owl:Ontology ;
+  rdfs:comment """This is a collection of VHP4Safety SPARQL prefixes that are needed for the examples for use on different websites.""" ;
+  owl:imports sh: ;
+  sh:declare [ sh:prefix "wd"  ; sh:namespace "https://compoundcloud.wikibase.cloud/entity/"^^xsd:anyURI ] ;
+  sh:declare [ sh:prefix "wdt" ; sh:namespace "https://compoundcloud.wikibase.cloud/prop/direct/"^^xsd:anyURI ] ;
+  sh:declare [ sh:prefix "wikibase" ; sh:namespace "http://wikiba.se/ontology#"^^xsd:anyURI ] ;
+  sh:declare [ sh:prefix "bd" ; sh:namespace "http://www.bigdata.com/rdf#"^^xsd:anyURI ] ;
+  sh:declare [ sh:prefix "rdfs" ; sh:namespace "http://www.w3.org/1999/02/22-rdf-syntax-ns#"^^xsd:anyURI ] .
