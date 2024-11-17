@@ -3,6 +3,7 @@
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix schema: <https://schema.org/> .
 @prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix spex: <https://purl.expasy.org/sparql-examples/ontology#> .
 
 ex:001 a sh:SPARQLExecutable,
        sh:SPARQLSelectExecutable ;
@@ -29,4 +30,5 @@ SELECT ?journal ?journalLabel (CONCAT("/venue/", SUBSTR(STR(?journal), 32), "#ci
 } GROUP BY ?journal ?journalLabel
   ORDER BY DESC(?citations)""" ;
     schema:target <https://query.wikidata.org/sparql> ;
+    spex:federatesWith <http://wikiba.se/ontology#label> ;
     schema:keywords "journal", "CiTO", "citation" .
