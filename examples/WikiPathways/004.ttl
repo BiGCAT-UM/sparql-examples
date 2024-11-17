@@ -19,4 +19,4 @@ WHERE {
   dc:title ?title .
 }""" ;
     schema:target <https://sparql.wikipathways.org/sparql> ;
-    schema:keywords "prefix", "namespace" .
+    schema:keywords "AOP", "community" .
