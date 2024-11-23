@@ -17,6 +17,7 @@ WHERE {
   ?pathway wp:diseaseOntologyTag ?disease ; 
            a wp:Pathway .
   ?disease rdfs:label ?diseaseLabel .
-} ORDER BY DESC(?count)""" ;
+} GROUP BY ?diseaseLabel ?disease
+  ORDER BY DESC(?count)""" ;
     schema:target <https://sparql.wikipathways.org/sparql> ;
     schema:keywords "disease" .
