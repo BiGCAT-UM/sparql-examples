@@ -25,3 +25,4 @@
 [] sh:declare [ sh:prefix "xml" ;      sh:namespace "http://www.w3.org/XML/1998/namespace"^^xsd:anyURI ] .
 [] sh:declare [ sh:prefix "wiki" ;     sh:namespace "http://sparql.wikipathways.org/"^^xsd:anyURI ] .
 [] sh:declare [ sh:prefix "cur" ;      sh:namespace "http://vocabularies.wikipathways.org/wp#Curation:"^^xsd:anyURI ] .
+[] sh:declare [ sh:prefix "obo" ;      sh:namespace "http://purl.obolibrary.org/obo/"^^xsd:anyURI ] .
