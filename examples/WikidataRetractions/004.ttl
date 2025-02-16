@@ -6,37 +6,28 @@
 @prefix sh: <http://www.w3.org/ns/shacl#> .
 @prefix spex: <https://purl.expasy.org/sparql-examples/ontology#> .
 
-ex:003 a sh:SPARQLExecutable,
+ex:004 a sh:SPARQLExecutable,
        sh:SPARQLSelectExecutable ;
-    rdfs:comment "List of publishers with the most retractions."@en ;
+    rdfs:comment "List of 100 authors with the most retractions."@en ;
     sh:prefixes _:sparql_examples_prefixes ;
     sh:select """PREFIX wd: <http://wikidata.org/entity/>
 PREFIX wdt: <http://wikidata.org/prop/direct/>
 PREFIX wikibase: <http://wikiba.se/ontology#>
 PREFIX bd: <http://www.bigdata.com/rdf#>
 
-SELECT DISTINCT
-  (COUNT(DISTINCT ?work) AS ?works)
-  ?publisher ?publisherLabel
-  (CONCAT("#publisher/", SUBSTR(STR(?publisher), 32)) AS ?publisherUrl)
-  ?publisherDescription
-WHERE {
-  ?work wdt:P31 wd:Q45182324 ; 
-        wdt:P1433 ?venue .
-  SERVICE <https://query-main.wikidata.org/sparql> {
-    {
-      SELECT DISTINCT ?venue ?publisher ?publisherLabel  ?publisherDescription
-      WHERE {
-        ?venue wdt:P123 ?publisher .
-        SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en". }
-      }
-    }
-  }
-} GROUP BY ?publisher ?publisherLabel ?publisherUrl ?publisherDescription
-  ORDER BY DESC(?works)
-  LIMIT 200""";
+SELECT ?author ?authorLabel (COUNT(DISTINCT ?work) AS ?count) WHERE {
+  { ?work wdt:P31 wd:Q45182324 . } UNION
+  { ?work wdt:P793 wd:Q7316896 . } UNION
+  { ?work wdt:P5824 [] . }
+  ?work wdt:P50 ?author .
+  ?citation wdt:P2860 ?work .
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en". }
+} GROUP BY ?author ?authorLabel
+  ORDER BY DESC(?count)
+  LIMIT 100""";
     schema:target <https://query.wikidata.org/sparql> ;
     spex:federatesWith <http://wikiba.se/ontology#label> ;
     dc:contributor "Egon Willighagen" ;
     dcterms:license <http://creativecommons.org/publicdomain/zero/1.0/> ;
+    cito:usesMethodIn <https://www.wikidata.org/wiki/Wikidata:Synia:retraction-index> ;
     schema:keywords "retraction" .

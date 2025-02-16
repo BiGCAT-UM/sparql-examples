@@ -6,35 +6,26 @@
 @prefix sh: <http://www.w3.org/ns/shacl#> .
 @prefix spex: <https://purl.expasy.org/sparql-examples/ontology#> .
 
-ex:003 a sh:SPARQLExecutable,
+ex:005 a sh:SPARQLExecutable,
        sh:SPARQLSelectExecutable ;
-    rdfs:comment "List of publishers with the most retractions."@en ;
+    rdfs:comment "List of Maastricht University authors with retracted articles."@en ;
     sh:prefixes _:sparql_examples_prefixes ;
     sh:select """PREFIX wd: <http://wikidata.org/entity/>
 PREFIX wdt: <http://wikidata.org/prop/direct/>
 PREFIX wikibase: <http://wikiba.se/ontology#>
 PREFIX bd: <http://www.bigdata.com/rdf#>
 
-SELECT DISTINCT
-  (COUNT(DISTINCT ?work) AS ?works)
-  ?publisher ?publisherLabel
-  (CONCAT("#publisher/", SUBSTR(STR(?publisher), 32)) AS ?publisherUrl)
-  ?publisherDescription
-WHERE {
-  ?work wdt:P31 wd:Q45182324 ; 
-        wdt:P1433 ?venue .
-  SERVICE <https://query-main.wikidata.org/sparql> {
-    {
-      SELECT DISTINCT ?venue ?publisher ?publisherLabel  ?publisherDescription
-      WHERE {
-        ?venue wdt:P123 ?publisher .
-        SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en". }
-      }
-    }
-  }
-} GROUP BY ?publisher ?publisherLabel ?publisherUrl ?publisherDescription
-  ORDER BY DESC(?works)
-  LIMIT 200""";
+SELECT DISTINCT ?author ?authorLabel ?orcid (COUNT(DISTINCT ?work) AS ?count) WHERE {
+  VALUES ?institute { wd:Q1137652 } # Maastricht University
+  { ?work wdt:P31 wd:Q45182324 . } UNION
+  { ?work wdt:P793 wd:Q7316896 . } UNION
+  { ?work wdt:P5824 [] . }
+  ?work wdt:P50 ?author .
+  ?author ( wdt:P108 | wdt:P463 | wdt:P1416 ) / wdt:P361* ?institute .
+  OPTIONAL { ?author wdt:P496 ?orcid }
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en". }
+} GROUP BY ?author ?authorLabel ?orcid
+  ORDER BY DESC(?count)""";
     schema:target <https://query.wikidata.org/sparql> ;
     spex:federatesWith <http://wikiba.se/ontology#label> ;
     dc:contributor "Egon Willighagen" ;

@@ -6,37 +6,22 @@
 @prefix sh: <http://www.w3.org/ns/shacl#> .
 @prefix spex: <https://purl.expasy.org/sparql-examples/ontology#> .
 
-ex:003 a sh:SPARQLExecutable,
+ex:008 a sh:SPARQLExecutable,
        sh:SPARQLSelectExecutable ;
-    rdfs:comment "List of publishers with the most retractions."@en ;
+    rdfs:comment "The number of authors (by P50) citing retracted articles."@en ;
     sh:prefixes _:sparql_examples_prefixes ;
     sh:select """PREFIX wd: <http://wikidata.org/entity/>
 PREFIX wdt: <http://wikidata.org/prop/direct/>
 PREFIX wikibase: <http://wikiba.se/ontology#>
 PREFIX bd: <http://www.bigdata.com/rdf#>
 
-SELECT DISTINCT
-  (COUNT(DISTINCT ?work) AS ?works)
-  ?publisher ?publisherLabel
-  (CONCAT("#publisher/", SUBSTR(STR(?publisher), 32)) AS ?publisherUrl)
-  ?publisherDescription
-WHERE {
-  ?work wdt:P31 wd:Q45182324 ; 
-        wdt:P1433 ?venue .
-  SERVICE <https://query-main.wikidata.org/sparql> {
-    {
-      SELECT DISTINCT ?venue ?publisher ?publisherLabel  ?publisherDescription
-      WHERE {
-        ?venue wdt:P123 ?publisher .
-        SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en". }
-      }
-    }
-  }
-} GROUP BY ?publisher ?publisherLabel ?publisherUrl ?publisherDescription
-  ORDER BY DESC(?works)
-  LIMIT 200""";
+SELECT (COUNT(DISTINCT ?author) AS ?count) WHERE {
+  ?citingRetracted wdt:P2860 ?retracted ; wdt:P50 ?author .
+  ?retracted wdt:P31 wd:Q45182324 .
+}""";
     schema:target <https://query.wikidata.org/sparql> ;
     spex:federatesWith <http://wikiba.se/ontology#label> ;
     dc:contributor "Egon Willighagen" ;
     dcterms:license <http://creativecommons.org/publicdomain/zero/1.0/> ;
+    cito:usesMethodIn <https://www.wikidata.org/wiki/Wikidata:WikiProject_Retractions/SPARQL> ;
     schema:keywords "retraction" .
