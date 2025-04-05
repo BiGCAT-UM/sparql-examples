@@ -1,0 +1,1 @@
+/usr/lib/jvm/java-21-openjdk-amd64/bin/java -jar ../sparql-examples-utils/target/sparql-examples-utils-*-uber.jar convert -i examples -m
