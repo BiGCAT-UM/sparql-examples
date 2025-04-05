@@ -16,6 +16,8 @@ ex:010 a sh:SPARQLExecutable,
 PREFIX wdt: <http://wikidata.org/prop/direct/>
 PREFIX wikibase: <http://wikiba.se/ontology#>
 PREFIX bd: <http://www.bigdata.com/rdf#>
+PREFIX prov: <http://www.w3.org/ns/prov#>
+PREFIX pr: <http://www.wikidata.org/prop/reference/>
 
 SELECT DISTINCT ?entity ?entityLabel ?propertyLabel ?valueLabel ?retracted ?retractedLabel WITH {
   SELECT DISTINCT ?entity ?p ?statement ?retracted WHERE {

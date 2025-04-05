@@ -14,7 +14,11 @@
 q:001 a sh:SPARQLExecutable,
   sh:SPARQLSelectExecutable;
   sh:prefixes _:sparql_examples_prefixes ;
-  sh:select '''#defaultView:Graph
+  sh:select '''PREFIX bd: <http://www.bigdata.com/rdf#>
+PREFIX p: <http://www.wikidata.org/prop/>
+PREFIX wdt: <http://www.wikidata.org/prop/direct/>
+PREFIX wikibase: <http://wikiba.se/ontology#>
+#defaultView:Graph
 PREFIX target: <http://www.wikidata.org/entity/Q97270>
 
 # Doctoral student/advisor network with a source from a spectific researcher

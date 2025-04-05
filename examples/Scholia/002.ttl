@@ -14,7 +14,10 @@
 q:002 a sh:SPARQLExecutable,
   sh:SPARQLSelectExecutable;
   sh:prefixes _:sparql_examples_prefixes ;
-  sh:select '''#defaultView:ImageGrid
+  sh:select '''PREFIX p: <http://www.wikidata.org/prop/>
+PREFIX wdt: <http://www.wikidata.org/prop/direct/>
+PREFIX wd: <http://wikidata.org/entity/>
+#defaultView:ImageGrid
 PREFIX target: <http://www.wikidata.org/entity/Q97270>
 
 SELECT DISTINCT ?image WHERE {
