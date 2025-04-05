@@ -7,7 +7,9 @@
 @prefix scholia: <http://scholia.toolforge.org/ns/> .
 @prefix scholiaAspect: <http://scholia.toolforge.org/ns/aspect/> .
 @prefix wd: <http://wikidata.org/entity/> .
+@prefix wdt: <http://www.wikidata.org/prop/direct/> .
 @prefix spex: <https://purl.expasy.org/sparql-examples/ontology#> .
+@prefix wikibase: <http://wikiba.se/ontology#> .
 
 q:001 a sh:SPARQLExecutable,
   sh:SPARQLSelectExecutable;
