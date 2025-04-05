@@ -6,6 +6,7 @@
 @prefix sh: <http://www.w3.org/ns/shacl#> .
 @prefix scholia: <http://scholia.toolforge.org/ns/> .
 @prefix scholiaAspect: <http://scholia.toolforge.org/ns/aspect/> .
+@prefix scholiaView: <http://scholia.toolforge.org/ns/view/> .
 @prefix wd: <http://wikidata.org/entity/> .
 @prefix wdt: <http://www.wikidata.org/prop/direct/> .
 @prefix spex: <https://purl.expasy.org/sparql-examples/ontology#> .
@@ -97,6 +98,8 @@ WHERE {
 }
 
 ''';
+  scholia:defaultView scholiaView:Graph ;
+  rdfs:comment "[no title]"@en ;
   scholia:aspect scholiaAspect:Author ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;

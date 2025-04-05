@@ -13,41 +13,34 @@
 @prefix wikibase: <http://wikiba.se/ontology#> .
 @prefix cito: <http://purl.org/spar/cito/> .
 
-q:002 a sh:SPARQLExecutable,
+q:046 a sh:SPARQLExecutable,
   sh:SPARQLSelectExecutable;
   sh:prefixes _:sparql_examples_prefixes ;
   sh:select '''PREFIX p: <http://www.wikidata.org/prop/>
 PREFIX wdt: <http://www.wikidata.org/prop/direct/>
-PREFIX wd: <http://wikidata.org/entity/>
-#defaultView:ImageGrid
-PREFIX target: <http://www.wikidata.org/entity/Q97270>
+# title: Citation distribution for a venue
 
-SELECT DISTINCT ?image WHERE {
+PREFIX target: <http://www.wikidata.org/entity/Q6294930>
+
+#defaultView:LineChart
+SELECT
+  ?number_of_citations (COUNT(?work) AS ?count)
+WHERE {
   {
-    # Images of the person
-    target: wdt:P18 ?image .
+    SELECT ?work (COUNT(?citing_work) AS ?number_of_citations)
+    WHERE {
+      ?work wdt:P1433 target: .
+      OPTIONAL { ?citing_work wdt:P2860 ?work . }
+    }
+    GROUP BY ?work 
   }
-  UNION {
-    # Images from whatever property value is linked.
-    
-    # Excluded "different from" property and take all other properties
-    target: !wdt:P1889 ?item .
-
-    ?item wdt:P18 ?image . 
-    
-    # All people are humans, so these images are excluded.
-    FILTER (?item != wd:Q5)
-  }
-  UNION {
-    # Images associated with works of the author, both direct images,
-    # images of topics of the works and images of coauthors.
-    target: ^wdt:P50 / (wdt:P921* | wdt:P50) / wdt:P18 ?image .
-  }
-}   
+} 
+GROUP BY ?number_of_citations
+ORDER BY DESC(?number_of_citations)
 ''';
-  scholia:defaultView scholiaView:ImageGrid ;
-  rdfs:comment "[no title]"@en ;
-  scholia:aspect scholiaAspect:Author ;
+  rdfs:comment "Citation distribution for a venue"@en ;
+  scholia:defaultView scholiaView:LineChart ;
+  scholia:aspect scholiaAspect:Venue ;
   schema:target <https://query.wikidata.org/sparql> ;
-  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/author_associated-images.sparql> ;
+  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/venue_citation-distribution.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

@@ -13,41 +13,34 @@
 @prefix wikibase: <http://wikiba.se/ontology#> .
 @prefix cito: <http://purl.org/spar/cito/> .
 
-q:002 a sh:SPARQLExecutable,
+q:068 a sh:SPARQLExecutable,
   sh:SPARQLSelectExecutable;
   sh:prefixes _:sparql_examples_prefixes ;
-  sh:select '''PREFIX p: <http://www.wikidata.org/prop/>
+  sh:select '''PREFIX bd: <http://www.bigdata.com/rdf#>
+PREFIX p: <http://www.wikidata.org/prop/>
+PREFIX pq: <http://www.wikidata.org/prop/qualifier/>
+PREFIX ps: <http://www.wikidata.org/prop/statement/>
 PREFIX wdt: <http://www.wikidata.org/prop/direct/>
 PREFIX wd: <http://wikidata.org/entity/>
-#defaultView:ImageGrid
-PREFIX target: <http://www.wikidata.org/entity/Q97270>
+PREFIX wikibase: <http://wikiba.se/ontology#>
+#defaultView:BubbleChart
 
-SELECT DISTINCT ?image WHERE {
-  {
-    # Images of the person
-    target: wdt:P18 ?image .
-  }
-  UNION {
-    # Images from whatever property value is linked.
-    
-    # Excluded "different from" property and take all other properties
-    target: !wdt:P1889 ?item .
+PREFIX target: <http://www.wikidata.org/entity/Q28942417>
 
-    ?item wdt:P18 ?image . 
-    
-    # All people are humans, so these images are excluded.
-    FILTER (?item != wd:Q5)
-  }
-  UNION {
-    # Images associated with works of the author, both direct images,
-    # images of topics of the works and images of coauthors.
-    target: ^wdt:P50 / (wdt:P921* | wdt:P50) / wdt:P18 ?image .
-  }
-}   
+SELECT ?intention ?intentionLabel (COUNT(DISTINCT ?citingArticle) AS ?count) WHERE {
+  VALUES ?CITEDARTICLE { target: }
+  ?citingArticle p:P2860 ?citationStatement .
+  ?citationStatement pq:P3712 ?intention ;
+                     ps:P2860 ?CITEDARTICLE .
+  ?intention wdt:P31 wd:Q96471816 .
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en". }
+} GROUP BY ?intention ?intentionLabel
+  ORDER BY DESC(?count)
 ''';
-  scholia:defaultView scholiaView:ImageGrid ;
+  scholia:defaultView scholiaView:BubbleChart ;
   rdfs:comment "[no title]"@en ;
-  scholia:aspect scholiaAspect:Author ;
+  scholia:aspect scholiaAspect:Work ;
   schema:target <https://query.wikidata.org/sparql> ;
-  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/author_associated-images.sparql> ;
+  spex:federatesWith <http://wikiba.se/ontology#label> ;
+  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/work_cito-incoming-chart.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

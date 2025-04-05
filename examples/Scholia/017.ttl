@@ -13,41 +13,55 @@
 @prefix wikibase: <http://wikiba.se/ontology#> .
 @prefix cito: <http://purl.org/spar/cito/> .
 
-q:002 a sh:SPARQLExecutable,
+q:017 a sh:SPARQLExecutable,
   sh:SPARQLSelectExecutable;
   sh:prefixes _:sparql_examples_prefixes ;
-  sh:select '''PREFIX p: <http://www.wikidata.org/prop/>
+  sh:select '''PREFIX bd: <http://www.bigdata.com/rdf#>
+PREFIX p: <http://www.wikidata.org/prop/>
 PREFIX wdt: <http://www.wikidata.org/prop/direct/>
-PREFIX wd: <http://wikidata.org/entity/>
-#defaultView:ImageGrid
+PREFIX wikibase: <http://wikiba.se/ontology#>
+#defaultView:BubbleChart
 PREFIX target: <http://www.wikidata.org/entity/Q97270>
 
-SELECT DISTINCT ?image WHERE {
-  {
-    # Images of the person
-    target: wdt:P18 ?image .
+SELECT ?score ?topic ?topicLabel
+WITH {
+  SELECT
+    (SUM(?score_) AS ?score)
+    ?topic
+  WHERE {
+    { 
+      target: wdt:P101 ?topic .
+      BIND(20 AS ?score_)
+    }
+    UNION
+    {
+      SELECT (3 AS ?score_) ?topic WHERE {
+        ?work wdt:P50 target: ;
+              wdt:P921 ?topic . 
+      }
+    }
+    UNION
+    {
+      SELECT (1 AS ?score_) ?topic WHERE {
+        ?work wdt:P50 target: .
+        ?citing_work wdt:P2860 ?work .
+        ?citing_work wdt:P921 ?topic . 
+      }
+    }
   }
-  UNION {
-    # Images from whatever property value is linked.
-    
-    # Excluded "different from" property and take all other properties
-    target: !wdt:P1889 ?item .
-
-    ?item wdt:P18 ?image . 
-    
-    # All people are humans, so these images are excluded.
-    FILTER (?item != wd:Q5)
-  }
-  UNION {
-    # Images associated with works of the author, both direct images,
-    # images of topics of the works and images of coauthors.
-    target: ^wdt:P50 / (wdt:P921* | wdt:P50) / wdt:P18 ?image .
-  }
-}   
+  GROUP BY ?topic
+} AS %results 
+WHERE {
+  INCLUDE %results
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en,da,de,es,jp,no,ru,sv,zh". }
+}
+ORDER BY DESC(?score)
+LIMIT 200
 ''';
-  scholia:defaultView scholiaView:ImageGrid ;
+  scholia:defaultView scholiaView:BubbleChart ;
   rdfs:comment "[no title]"@en ;
   scholia:aspect scholiaAspect:Author ;
   schema:target <https://query.wikidata.org/sparql> ;
-  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/author_associated-images.sparql> ;
+  spex:federatesWith <http://wikiba.se/ontology#label> ;
+  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/author_topic-scores.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

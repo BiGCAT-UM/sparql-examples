@@ -13,41 +13,47 @@
 @prefix wikibase: <http://wikiba.se/ontology#> .
 @prefix cito: <http://purl.org/spar/cito/> .
 
-q:002 a sh:SPARQLExecutable,
+q:034 a sh:SPARQLExecutable,
   sh:SPARQLSelectExecutable;
   sh:prefixes _:sparql_examples_prefixes ;
-  sh:select '''PREFIX p: <http://www.wikidata.org/prop/>
+  sh:select '''PREFIX bd: <http://www.bigdata.com/rdf#>
+PREFIX p: <http://www.wikidata.org/prop/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX wdt: <http://www.wikidata.org/prop/direct/>
-PREFIX wd: <http://wikidata.org/entity/>
+PREFIX wikibase: <http://wikiba.se/ontology#>
 #defaultView:ImageGrid
-PREFIX target: <http://www.wikidata.org/entity/Q97270>
 
-SELECT DISTINCT ?image WHERE {
-  {
-    # Images of the person
-    target: wdt:P18 ?image .
-  }
-  UNION {
-    # Images from whatever property value is linked.
-    
-    # Excluded "different from" property and take all other properties
-    target: !wdt:P1889 ?item .
+PREFIX target: <http://www.wikidata.org/entity/Q73820>
 
-    ?item wdt:P18 ?image . 
-    
-    # All people are humans, so these images are excluded.
-    FILTER (?item != wd:Q5)
+SELECT
+  ?image
+  ?editor ?editorLabel 
+  ?venues
+WITH {
+  SELECT DISTINCT
+    (SAMPLE(?image_) AS ?image)
+    ?editor 
+    (GROUP_CONCAT(?venue_label; separator=" // ") AS ?venues)
+  WHERE {
+    # Find editors for journals published by publisher
+    ?venue_ wdt:P123 target: .
+    ?venue_ wdt:P98 | wdt:P5769 ?editor .
+    ?editor wdt:P18 ?image_ .
+    OPTIONAL {
+      ?venue_ rdfs:label ?venue_label . FILTER(LANG(?venue_label) = 'en')
+    }
   }
-  UNION {
-    # Images associated with works of the author, both direct images,
-    # images of topics of the works and images of coauthors.
-    target: ^wdt:P50 / (wdt:P921* | wdt:P50) / wdt:P18 ?image .
-  }
-}   
+  GROUP BY ?editor
+} AS %result
+WHERE {
+  INCLUDE %result 
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" . } 
+}
 ''';
   scholia:defaultView scholiaView:ImageGrid ;
   rdfs:comment "[no title]"@en ;
-  scholia:aspect scholiaAspect:Author ;
+  scholia:aspect scholiaAspect:Publisher ;
   schema:target <https://query.wikidata.org/sparql> ;
-  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/author_associated-images.sparql> ;
+  spex:federatesWith <http://wikiba.se/ontology#label> ;
+  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/publisher_editor-photos.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .
