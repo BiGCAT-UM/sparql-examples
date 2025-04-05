@@ -17,58 +17,44 @@ q:049 a sh:SPARQLExecutable,
   sh:SPARQLSelectExecutable;
   sh:prefixes _:sparql_examples_prefixes ;
   sh:select '''PREFIX bd: <http://www.bigdata.com/rdf#>
+PREFIX mwapi: <>
 PREFIX p: <http://www.wikidata.org/prop/>
 PREFIX wdt: <http://www.wikidata.org/prop/direct/>
-PREFIX wd: <http://wikidata.org/entity/>
 PREFIX wikibase: <http://wikiba.se/ontology#>
-# title: Co-author graph for a specific venue
+PREFIX target: <http://www.wikidata.org/entity/Q2270>
 
-PREFIX target: <http://www.wikidata.org/entity/Q6294930>
-
-#defaultView:Graph
-SELECT ?author1 ?author1Label ?rgb ?author2 ?author2Label
-WITH {
-  # Find works published in the given venue
-  SELECT ?work WHERE {
-    ?work wdt:P1433 target: .
+# title: related chemical structures
+SELECT ?mol ?molLabel ?InChIKey ?CAS ?ChemSpider ?PubChem_CID WITH {
+  SELECT ?queryKey ?srsearch ?filter WHERE {
+    target: wdt:P235 ?queryKey .
+    BIND (CONCAT(substr($queryKey,1,14), " haswbstatement:P235") AS ?srsearch)
+    BIND (CONCAT("^", substr($queryKey,1,14)) AS ?filter)
   }
-} AS %works
-WITH {
-  # Limit the number of authors
-  SELECT (COUNT(?work) AS ?count1) ?author1 WHERE {
-    INCLUDE %works
-    ?work wdt:P50 ?author1 .
+} AS %MOLS WITH {
+  SELECT ?mol ?InChIKey WHERE {
+    INCLUDE %MOLS
+    SERVICE wikibase:mwapi {
+        bd:serviceParam wikibase:endpoint "www.wikidata.org";
+        wikibase:api "Search";
+        mwapi:srsearch ?srsearch;
+        mwapi:srlimit "max".
+        ?mol wikibase:apiOutputItem mwapi:title.
+      }
+    ?mol wdt:P235 ?InChIKey .
+    FILTER (regex(str(?InChIKey), ?filter))
+    FILTER (?InChIKey != ?queryKey)
   }
-  GROUP BY ?author1
-  ORDER BY DESC(?count1)
-  LIMIT 15
-} AS %authors1
-WITH {
-  # Limit the number of coauthors
-  SELECT DISTINCT ?author2 ?author1  (COUNT(?work) AS ?count2)  WHERE {
-    INCLUDE %works
-    INCLUDE %authors1
-    ?work wdt:P50 ?author1 , ?author2 .
-    FILTER (?author1 != ?author2) 
-  }
-  GROUP BY ?author2 ?author1 
-  ORDER BY DESC(?count2)
-  LIMIT 150
-} AS %authors2
-WHERE {
-#  INCLUDE %authors1
-  INCLUDE %authors2
-  OPTIONAL { ?author1 wdt:P21 ?gender1 . }
-  BIND( IF(?gender1 = wd:Q6581097, "3182BD", "E6550D") AS ?rgb)
-  SERVICE wikibase:label {
-    bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" .
-  }
+} AS %MOLS2 {
+  INCLUDE %MOLS2
+  OPTIONAL { ?mol wdt:P231 ?CAS }
+  OPTIONAL { ?mol wdt:P661 ?ChemSpider }
+  OPTIONAL { ?mol wdt:P662 ?PubChem_CID }
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" . }
 }
 ''';
-  scholia:aspect scholiaAspect:Venue ;
-  rdfs:comment "Venue aspect: Co-author graph for a specific venue"@en ;
-  scholia:defaultView scholiaView:Graph ;
+  scholia:aspect scholiaAspect:Chemical ;
+  rdfs:comment "Chemical aspect: related chemical structures"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
-  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/venue_co-author-graph.sparql> ;
+  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/chemical_related.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

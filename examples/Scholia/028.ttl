@@ -16,61 +16,36 @@
 q:028 a sh:SPARQLExecutable,
   sh:SPARQLSelectExecutable;
   sh:prefixes _:sparql_examples_prefixes ;
-  sh:select '''PREFIX p: <http://www.wikidata.org/prop/>
-PREFIX prov: <http://www.w3.org/ns/prov#>
-PREFIX pr: <http://www.wikidata.org/prop/reference/>
+  sh:select '''PREFIX bd: <http://www.bigdata.com/rdf#>
+PREFIX p: <http://www.wikidata.org/prop/>
 PREFIX wdt: <http://www.wikidata.org/prop/direct/>
-PREFIX wd: <http://wikidata.org/entity/>
 PREFIX wikibase: <http://wikiba.se/ontology#>
-#defaultView:BarChart
-PREFIX target: <http://www.wikidata.org/entity/Q2270>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX target: <http://www.wikidata.org/entity/Q44585>
 
-# title: publications per year for this chemical
-# Inspired from LEGOLAS - http://abel.lis.illinois.edu/legolas/
-# Shubhanshu Mishra, Vetle Torvik
-select ?year (count(?work) as ?number_of_publications) where {
-  {
-    select (str(?year_) as ?year) (0 as ?pages) where {
-      # default values = 0
-      ?year_item wdt:P31 wd:Q577 . 
-      ?year_item wdt:P585 ?date .
-      bind(year(?date) as ?year_)
-      {
-        select (min(?year_) as ?earliest_year) where {
-          { ?work wdt:P921/wdt:P31*/wdt:P279* target: . }
-          union { ?work wdt:P921/(^wdt:P361)+ target: . }
-          union { ?work wdt:P921/wdt:P1269+ target: . }
-          union { target: ?propp ?statement .
-                  ?statement a wikibase:BestRank ;
-                             prov:wasDerivedFrom/pr:P248 ?work . }
-          ?work wdt:P577 ?publication_date . 
-          bind(year(?publication_date) as ?year_)
-        }
-      }
-      bind(year(now()) as ?next_year)
-      filter (?year_ >= ?earliest_year && ?year_ <= ?next_year)
-    }
+SELECT ?publication_date ?work ?workLabel ?recipient ?recipientLabel
+WITH {
+  SELECT
+    (MAX(?publication_datetimes) AS ?publication_datetime)
+    ?work ?recipient
+  WHERE {
+    ?recipient wdt:P166 target: .
+    ?work wdt:P50 ?recipient .
+    OPTIONAL { ?work wdt:P577 ?publication_datetimes . }
   }
-  union {
-    select ?work (min(?years) as ?year) where {
-      { ?work wdt:P921/wdt:P31*/wdt:P279* target: . }
-      union { ?work wdt:P921/wdt:P527+ target: . }
-      union { ?work wdt:P921/wdt:P1269+ target: . }
-      union { target: ?propp ?statement .
-              ?statement a wikibase:BestRank ;
-                         prov:wasDerivedFrom/pr:P248 ?work . }
-      ?work wdt:P577 ?dates .
-      bind(str(year(?dates)) as ?years) .
-    }
-    group by ?work 
-  }
+  GROUP BY ?work ?recipient
+} AS %result
+WHERE {
+  INCLUDE %result 
+  BIND(xsd:date(?publication_datetime) AS ?publication_date)
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en,da,de,es,fr,jp,no,ru,sv,zh" . }  
 }
-group by ?year 
-order by ?year
+ORDER BY DESC(?publication_date)
+LIMIT 500
 ''';
-  scholia:aspect scholiaAspect:Chemical ;
-  scholia:defaultView scholiaView:BarChart ;
-  rdfs:comment "Chemical aspect: publications per year for this chemical"@en ;
+  scholia:aspect scholiaAspect:Award ;
+  rdfs:comment "Award aspect: [no title]"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
-  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/chemical_publications-per-year.sparql> ;
+  spex:federatesWith <http://wikiba.se/ontology#label> ;
+  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/award_recent-publications-by-recipients.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

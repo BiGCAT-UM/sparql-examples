@@ -20,51 +20,69 @@ q:075 a sh:SPARQLExecutable,
 PREFIX p: <http://www.wikidata.org/prop/>
 PREFIX wdt: <http://www.wikidata.org/prop/direct/>
 PREFIX wikibase: <http://wikiba.se/ontology#>
-#defaultView:BubbleChart
+#defaultView:Graph
 
-PREFIX target: <http://www.wikidata.org/entity/Q28942417>
+PREFIX target: <http://www.wikidata.org/entity/Q133457282>
 
-SELECT ?score ?topic ?topicLabel
+SELECT 
+  ?author1 ?author1Label (SAMPLE(?image1_) AS ?image1) ?rgb
+  ?author2 ?author2Label (SAMPLE(?image2_) AS ?image2)
 WITH {
   SELECT
-    (SUM(?score_) AS ?score)
-    ?topic
+    ?author1
+    (SAMPLE(?dark_rgb_) AS ?dark_rgb)
+    (SAMPLE(?light_rgb_) AS ?light_rgb)
   WHERE {
+    # Find people at the event
     { 
-      target: wdt:P921 ?topic .
-      BIND(20 AS ?score_)
+      target: (wdt:P823 | wdt:P664 | ^wdt:P1344 | wdt:P710) ?author1 .
+      BIND ("EEEEEE" AS ?dark_rgb_)
     }
-    UNION
-    { 
-     target: wdt:P921/wdt:P279 ?topic .
-     BIND(3 AS ?score_)
+    UNION 
+    {
+      # author of article in proceedings, or program committee member
+      target:  (^wdt:P4745 / ^wdt:P1433 / wdt:P50) | wdt:P5804 ?author1 .
+      BIND ("FFFFFF" AS ?light_rgb_)
     }
     UNION
     {
-      # Topic of a cited work
-      target: wdt:P2860/wdt:P921 ?topic .
-      BIND(1 AS ?score_)
-    }
-    UNION
-    {
-      SELECT (1 AS ?score_) ?topic WHERE {
-        ?citing_work wdt:P2860 target: .
-        ?citing_work wdt:P921 ?topic . 
-      }
-    }
+      # author of article in proceedings, or program committee member
+      ?presentation wdt:P823 ?author1;
+      wdt:P5072 target:
+      BIND ("FFFFFF" AS ?light_rgb_)
+   }
   }
-  GROUP BY ?topic
-} AS %results 
+  GROUP BY ?author1
+} AS %authors
+WITH {
+  SELECT DISTINCT ?author1 ?author2 ?rgb WHERE {
+    INCLUDE %authors
+    {        
+    target: (wdt:P823 | wdt:P664 | ^wdt:P1344 | wdt:P710 | ^wdt:P4745 / ^wdt:P1433 / wdt:P50)  ?author2 .}
+    UNION
+    { ?presentation wdt:P823 ?author2; wdt:P5072 target:    }
+            
+    # Find co-authors
+    ?work wdt:P50 ?author1 , ?author2 .
+    FILTER (?author1 != ?author2)
+
+    BIND(COALESCE(?dark_rgb, ?light_rgb) AS ?rgb)
+  }
+} AS %result
 WHERE {
-  INCLUDE %results
-  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en,da,de,es,jp,no,ru,sv,zh". }
+  INCLUDE %result
+    
+  OPTIONAL { ?author1 wdt:P18 ?image1_ . }
+  OPTIONAL { ?author2 wdt:P18 ?image2_ . }
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" .
+  }
 }
-ORDER BY DESC(?score)
-LIMIT 200''';
-  scholia:aspect scholiaAspect:Work ;
-  scholia:defaultView scholiaView:BubbleChart ;
-  rdfs:comment "Work aspect: [no title]"@en ;
+GROUP BY ?author1 ?author1Label ?rgb ?author2 ?author2Label  
+''';
+  scholia:aspect scholiaAspect:Event ;
+  scholia:defaultView scholiaView:Graph ;
+  rdfs:comment "Event aspect: [no title]"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
-  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/work_topic-scores.sparql> ;
+  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/event_co-authors.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

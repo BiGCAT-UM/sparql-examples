@@ -20,32 +20,20 @@ q:043 a sh:SPARQLExecutable,
 PREFIX p: <http://www.wikidata.org/prop/>
 PREFIX wdt: <http://www.wikidata.org/prop/direct/>
 PREFIX wikibase: <http://wikiba.se/ontology#>
-# title: Author images for a specific venue
+PREFIX target: <http://www.wikidata.org/entity/Q2270>
 
-PREFIX target: <http://www.wikidata.org/entity/Q6294930>
-
-#defaultView:ImageGrid
-SELECT (SAMPLE(?image_) AS ?image) ?author ?authorLabel ?count
-WITH {
-  SELECT ?author (COUNT(?work) AS ?count) WHERE {
-    ?work wdt:P1433 target:;
-          wdt:P50 ?author .
-  }
-  GROUP BY ?author
-} AS %authors
-WHERE {
-  INCLUDE %authors
-  ?author wdt:P18 ?image_ .
-  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" . } 
-}
-GROUP BY ?author ?authorLabel ?count
-ORDER BY DESC(?count)
-LIMIT 50  
+SELECT DISTINCT ?matrix ?matrixLabel ?taxon ?taxonLabel (CONCAT("/taxon/", SUBSTR(STR(?taxon), 32)) AS ?taxonUrl) WHERE {
+  VALUES ?chemical { target: }
+  ?chemical wdt:P361 ?matrix.
+  ?matrix (wdt:P279*/wdt:P1582) ?taxon .
+  ?matrix wdt:P527 ?chemical.
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en". }
+} ORDER BY ASC(?taxonLabel)
+  LIMIT 250
 ''';
-  scholia:aspect scholiaAspect:Venue ;
-  rdfs:comment "Venue aspect: Author images for a specific venue"@en ;
-  scholia:defaultView scholiaView:ImageGrid ;
+  scholia:aspect scholiaAspect:Chemical ;
+  rdfs:comment "Chemical aspect: [no title]"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
-  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/venue_author-images.sparql> ;
+  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/chemical_found-in-matrix-np.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

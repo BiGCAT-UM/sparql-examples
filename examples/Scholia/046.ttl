@@ -16,31 +16,62 @@
 q:046 a sh:SPARQLExecutable,
   sh:SPARQLSelectExecutable;
   sh:prefixes _:sparql_examples_prefixes ;
-  sh:select '''PREFIX p: <http://www.wikidata.org/prop/>
+  sh:select '''PREFIX bd: <http://www.bigdata.com/rdf#>
+PREFIX p: <http://www.wikidata.org/prop/>
+PREFIX prov: <http://www.w3.org/ns/prov#>
+PREFIX pr: <http://www.wikidata.org/prop/reference/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX wdt: <http://www.wikidata.org/prop/direct/>
-# title: Citation distribution for a venue
+PREFIX wd: <http://wikidata.org/entity/>
+PREFIX wikibase: <http://wikiba.se/ontology#>
+PREFIX target: <http://www.wikidata.org/entity/Q2270>
 
-PREFIX target: <http://www.wikidata.org/entity/Q6294930>
-
-#defaultView:LineChart
-SELECT
-  ?number_of_citations (COUNT(?work) AS ?count)
-WHERE {
-  {
-    SELECT ?work (COUNT(?citing_work) AS ?number_of_citations)
-    WHERE {
-      ?work wdt:P1433 target: .
-      OPTIONAL { ?citing_work wdt:P2860 ?work . }
+# title: physicochemical properties of this chemical
+SELECT DISTINCT ?propEntity ?propEntityLabel ?value ?units ?unitsLabel ?qualifiers ?source ?sourceLabel ?doi
+WITH {
+  SELECT DISTINCT ?propEntity ?value ?units ?source ?doi (GROUP_CONCAT(?qualifierStr; separator=", ") AS ?qualifiers) WHERE {
+    target: ?propp ?statement .
+    ?statement a wikibase:BestRank ;
+      ?proppsv [
+        wikibase:quantityAmount ?value ;
+        wikibase:quantityUnit ?units
+      ] .
+    OPTIONAL {
+      ?statement prov:wasDerivedFrom/pr:P248 ?source .
+      OPTIONAL { ?source wdt:P356 ?doi . }
     }
-    GROUP BY ?work 
-  }
+    ?property wikibase:claim ?propp ;
+            wikibase:statementValue ?proppsv ;
+            wdt:P1629 ?propEntity ;
+            wdt:P31 wd:Q21077852 .
+    OPTIONAL {
+      {
+        ?qualifierProp wikibase:qualifier ?qualifier ;
+                       rdfs:label ?qProplabel; FILTER (lang(?qProplabel) = "en") .
+        ?qualifier a owl:DatatypeProperty .
+        ?statement ?qualifier ?qualifierVal .
+        BIND (CONCAT(str(?qProplabel), ": ", str(?qualifierVal)) AS ?qualifierStr)
+      } UNION {
+        ?qualifierProp wikibase:qualifier ?qualifier ;
+                       rdfs:label ?qProplabel; FILTER (lang(?qProplabel) = "en") .
+        ?qualifier a owl:ObjectProperty .
+        ?statement ?qualifier ?qualifierVal .
+        ?qualifierVal rdfs:label ?qVallabel; FILTER (lang(?qVallabel) = "en") .
+        BIND (CONCAT(str(?qProplabel), ": ", str(?qVallabel)) AS ?qualifierStr)
+      }
+    }
+  } GROUP BY ?propEntity ?value ?units ?source ?doi
+} AS %result
+WHERE {
+  INCLUDE %result
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en". }
 } 
-GROUP BY ?number_of_citations
-ORDER BY DESC(?number_of_citations)
+ORDER BY ASC(?propEntityLabel)
+
 ''';
-  scholia:aspect scholiaAspect:Venue ;
-  rdfs:comment "Venue aspect: Citation distribution for a venue"@en ;
-  scholia:defaultView scholiaView:LineChart ;
+  scholia:aspect scholiaAspect:Chemical ;
+  rdfs:comment "Chemical aspect: physicochemical properties of this chemical"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
-  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/venue_citation-distribution.sparql> ;
+  spex:federatesWith <http://wikiba.se/ontology#label> ;
+  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/chemical_physchem-properties.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

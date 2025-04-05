@@ -17,91 +17,49 @@ q:063 a sh:SPARQLExecutable,
   sh:SPARQLSelectExecutable;
   sh:prefixes _:sparql_examples_prefixes ;
   sh:select '''PREFIX p: <http://www.wikidata.org/prop/>
-PREFIX pq: <http://www.wikidata.org/prop/qualifier/>
-PREFIX ps: <http://www.wikidata.org/prop/statement/>
-PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX wdt: <http://www.wikidata.org/prop/direct/>
-PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
-#defaultView:Graph
+PREFIX wd: <http://wikidata.org/entity/>
+#defaultView:BarChart
+PREFIX target: <http://www.wikidata.org/entity/Q917357>
 
-PREFIX target: <http://www.wikidata.org/entity/Q28942417>
-
-SELECT
-  ?citing_work ?citing_workLabel ?rgb 
-  ?cited_work ?cited_workLabel
-WITH { 
-  SELECT (COUNT(*) AS ?count) ?citing_work WHERE {
-    target: (^wdt:P2860 | wdt:P2860) / (^wdt:P2860 | wdt:P2860)? ?citing_work .
+# Inspired from LEGOLAS - http://abel.lis.illinois.edu/legolas/
+# Shubhanshu Mishra, Vetle Torvik
+select ?year (count(?work) as ?number_of_publications) where {
+  {
+    select (str(?year_) as ?year) (0 as ?pages) where {
+      # default values = 0
+      ?year_item wdt:P31 wd:Q577 . 
+      ?year_item wdt:P585 ?date .
+      bind(year(?date) as ?year_)
+      {
+        select (min(?year_) as ?earliest_year) where {
+          { ?work wdt:P921/wdt:P31*/wdt:P279* target: . }
+          union { ?work wdt:P921/wdt:P361+ target: . }
+          union { ?work wdt:P921/wdt:P1269+ target: . }
+          ?work wdt:P577 ?publication_date . 
+          bind(year(?publication_date) as ?year_)
+        }
+      }
+      bind(year(now()) as ?next_year)
+      filter (?year_ >= ?earliest_year && ?year_ <= ?next_year)
+    }
   }
-  GROUP BY ?citing_work
-  ORDER BY DESC(?count)
-  LIMIT 40
-} AS %citing_works
-WITH { 
-  SELECT (COUNT(*) AS ?count_) ?cited_work WHERE {
-    target: (^wdt:P2860 | wdt:P2860) / (^wdt:P2860 | wdt:P2860)? ?cited_work .
+  union {
+    select ?work (min(?years) as ?year) where {
+      { ?work wdt:P921/wdt:P31*/wdt:P279* target: . }
+      union { ?work wdt:P921/wdt:P361+ target: . }
+      union { ?work wdt:P921/wdt:P1269+ target: . }
+      ?work wdt:P577 ?dates .
+      bind(str(year(?dates)) as ?years) .
+    }
+    group by ?work 
   }
-  GROUP BY ?cited_work
-  ORDER BY DESC(?count_)
-  LIMIT 40
-} AS %cited_works
-WITH {
-  SELECT (MAX(?count) AS ?max_count) WHERE {
-    INCLUDE %citing_works
-    BIND(1 AS ?dummy)
-  } 
-  GROUP BY ?dummy
-} AS %max_count
-WHERE {
-  INCLUDE %citing_works
-  INCLUDE %max_count
-  INCLUDE %cited_works
-  
-  ?citing_work wdt:P2860 ?cited_work .
-  
-  BIND(STR(xsd:integer(99 * (1 - ?count / ?max_count))) AS ?grey)
-  BIND(CONCAT(SUBSTR("0", 1, 2 - STRLEN(?grey)), ?grey) AS ?padded_grey)
-  BIND(CONCAT(?padded_grey, ?padded_grey, ?padded_grey) AS ?rgb)
-
-  { 
-      ?citing_work (p:P50) ?citing_author_statement . 
-      ?citing_author_statement pq:P1545 "1" .
-      ?citing_author_statement ps:P50 ?citing_author .
-      ?citing_author rdfs:label ?citing_author_name .
-      filter(lang(?citing_author_name) = 'en')
-    }
-    union 
-  	{ 
-      ?citing_work (p:P2093) ?citing_author_statement . 
-      ?citing_author_statement pq:P1545 "1" .
-      ?citing_author_statement ps:P2093 ?citing_author_name .
-    }
-  
-    { 
-      ?cited_work (p:P50) ?cited_author_statement . 
-      ?cited_author_statement pq:P1545 "1" .
-      ?cited_author_statement ps:P50 ?cited_author .
-      ?cited_author rdfs:label ?cited_author_name .
-      filter(lang(?cited_author_name) = 'en')
-    }
-    union 
-  	{ 
-      ?cited_work (p:P2093) ?cited_author_statement . 
-      ?cited_author_statement pq:P1545 "1" .
-      ?cited_author_statement ps:P2093 ?cited_author_name .
-    }
-
-    ?citing_work wdt:P577 ?citing_date . 
-    ?cited_work wdt:P577 ?cited_date . 
-    bind(year(?citing_date) as ?citing_year)
-    bind(year(?cited_date) as ?cited_year)
-    bind(concat(?citing_author_name, ", ", str(?citing_year)) as ?citing_workLabel)
-    bind(concat(?cited_author_name, ", ", str(?cited_year)) as ?cited_workLabel)
 }
-ORDER BY DESC(?count)''';
-  scholia:aspect scholiaAspect:Work ;
-  scholia:defaultView scholiaView:Graph ;
-  rdfs:comment "Work aspect: [no title]"@en ;
+group by ?year 
+order by ?year''';
+  scholia:aspect scholiaAspect:Disease ;
+  scholia:defaultView scholiaView:BarChart ;
+  rdfs:comment "Disease aspect: [no title]"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
-  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/work_citation-graph.sparql> ;
+  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/disease_publications-per-year.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

@@ -19,26 +19,29 @@ q:023 a sh:SPARQLExecutable,
   sh:select '''PREFIX bd: <http://www.bigdata.com/rdf#>
 PREFIX p: <http://www.wikidata.org/prop/>
 PREFIX wdt: <http://www.wikidata.org/prop/direct/>
-PREFIX wd: <http://wikidata.org/entity/>
 PREFIX wikibase: <http://wikiba.se/ontology#>
-PREFIX target: <http://www.wikidata.org/entity/Q2270>
+PREFIX target: <http://www.wikidata.org/entity/Q44585>
 
-SELECT DISTINCT
-  ?pathway ?pathwayLabel
-  (CONCAT("/pathway/", SUBSTR(STR(?pathway), 32)) AS ?pathwayUrl)
-  ?pathwayDescription
+SELECT
+  ?number_of_corecipients
+  ?award ?awardLabel ?awardDescription
+WITH {
+     SELECT DISTINCT ?award (COUNT(?recipient) AS ?number_of_corecipients) WHERE {
+    ?recipient wdt:P166 target: .
+	?recipient wdt:P166 ?award .
+			       FILTER (?award != target:)
+     }
+     GROUP BY ?award
+} AS %result
 WHERE {
-  ?pathway wdt:P527 target: ;
-           wdt:P31 wd:Q2996394 .
-  target: wdt:P361 ?pathway .
-  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en". }
+  INCLUDE %result 
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en,da,de,es,fr,jp,no,ru,sv,zh" . }  
 }
-ORDER BY ASC(?pathwayLabel)
-LIMIT 250
+ORDER BY DESC(?number_of_corecipients)
 ''';
-  scholia:aspect scholiaAspect:Chemical ;
-  rdfs:comment "Chemical aspect: [no title]"@en ;
+  scholia:aspect scholiaAspect:Award ;
+  rdfs:comment "Award aspect: [no title]"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
-  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/chemical_biological-processes.sparql> ;
+  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/award_coawards.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

@@ -18,33 +18,38 @@ q:038 a sh:SPARQLExecutable,
   sh:prefixes _:sparql_examples_prefixes ;
   sh:select '''PREFIX bd: <http://www.bigdata.com/rdf#>
 PREFIX p: <http://www.wikidata.org/prop/>
+PREFIX pq: <http://www.wikidata.org/prop/qualifier/>
+PREFIX ps: <http://www.wikidata.org/prop/statement/>
+PREFIX psv: <http://www.wikidata.org/prop/statement/value/>
 PREFIX wdt: <http://www.wikidata.org/prop/direct/>
 PREFIX wd: <http://wikidata.org/entity/>
 PREFIX wikibase: <http://wikiba.se/ontology#>
-#defaultView:Timeline
+PREFIX target: <http://www.wikidata.org/entity/Q1098>
 
-PREFIX target: <http://www.wikidata.org/entity/Q73820>
-
-SELECT DISTINCT ?datetime ?venue ?venueLabel WHERE {
-  # Publisher
-  ?venue wdt:P123 target: .
-  
-  # Periodic literature
-  ?venue wdt:P31 / wdt:P279* wd:Q1002697 .
-  
-  # When the journal was started 
-  ?venue wdt:P571 ?datetime.
-  
-  # Label the journal
+SELECT DISTINCT ?allotrope ?allotropeLabel ?density ?densityUnit ?densityUnitLabel WITH {
+  SELECT ?allotrope (SAMPLE(?densityStats) AS ?densityStat) WHERE {
+    ?allotrope wdt:P31|wdt:P279 ?allotropeType .
+    ?allotropeType p:P279 ?allotropeSpecsStatement .
+    ?allotropeSpecsStatement ps:P279 wd:Q21198401 ;
+                             pq:P642 target: .
+    OPTIONAL {
+      ?allotrope p:P2054 ?densityStats .
+    }
+  } GROUP BY ?allotrope
+} AS %ALLOTROPES {
+  INCLUDE %ALLOTROPES
+  OPTIONAL {
+    ?allotrope p:P2054 ?densityStat .
+    ?densityStat psv:P2054 ?densityValNode .
+    ?densityValNode wikibase:quantityAmount ?density ;
+                    wikibase:quantityUnit ?densityUnit .
+  }
   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en". }
-}
-ORDER BY DESC(?datetime)
-LIMIT 50
+} ORDER BY ASC(?allotropeLabel)
 ''';
-  scholia:aspect scholiaAspect:Publisher ;
-  scholia:defaultView scholiaView:Timeline ;
-  rdfs:comment "Publisher aspect: [no title]"@en ;
+  scholia:aspect scholiaAspect:Chemical-element ;
+  rdfs:comment "Chemical-element aspect: [no title]"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
-  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/publisher_timeline.sparql> ;
+  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/chemical-element_allotropes.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

@@ -18,41 +18,43 @@ q:033 a sh:SPARQLExecutable,
   sh:prefixes _:sparql_examples_prefixes ;
   sh:select '''PREFIX bd: <http://www.bigdata.com/rdf#>
 PREFIX p: <http://www.wikidata.org/prop/>
+PREFIX ps: <http://www.wikidata.org/prop/statement/>
 PREFIX wdt: <http://www.wikidata.org/prop/direct/>
 PREFIX wikibase: <http://wikiba.se/ontology#>
-#defaultView:ScatterChart
+PREFIX target: <http://www.wikidata.org/entity/Q46995757>
 
-PREFIX target: <http://www.wikidata.org/entity/Q73820>
+SELECT
+  ?chemicals
 
-SELECT ?work_count ?citation_count ?journal ?journalLabel 
+  ?example_chemical ?example_chemicalLabel
+  (CONCAT("/chemical/", SUBSTR(STR(?example_chemical), 32)) AS ?example_chemicalUrl)
+
+  ?taxon ?taxonLabel
+  (CONCAT("/taxon/", SUBSTR(STR(?taxon), 32)) AS ?taxonUrl)
+  ?taxonDescription
 WITH {
-  SELECT ?work_count ?citation_count ?journal {
-    {
-      SELECT ?journal (COUNT(?work) AS ?work_count) {
-  	    ?journal wdt:P123 target: .
-  	    ?work wdt:P1433 ?journal .
-      }
-      GROUP BY ?journal 
-    }
-    {
-      SELECT ?journal (COUNT(?citing_work) AS ?citation_count) {
-  	    ?journal wdt:P123 target: .
-  	    ?work wdt:P1433 ?journal .
-        ?citing_work wdt:P2860 ?work . 
-      }
-      GROUP BY ?journal 
-    } 
+  SELECT DISTINCT 
+    (COUNT(DISTINCT(?chemical)) AS ?chemicals)
+    ?taxon
+    (SAMPLE(?chemical) AS ?example_chemical)
+  WHERE {
+    ?chemical wdt:P279* target: ;
+              p:P703 ?taxonStatement .
+    ?taxonStatement ps:P703 ?taxon .
   }
-} AS %result
+  GROUP BY ?taxon
+  ORDER BY DESC(?chemicals)
+  LIMIT 250
+} AS %taxons
 WHERE {
-  INCLUDE %result
-  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" . } 
-}
+  INCLUDE %taxons
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en". }
+} 
+ORDER BY DESC(?chemicals)
 ''';
-  scholia:aspect scholiaAspect:Publisher ;
-  scholia:defaultView scholiaView:ScatterChart ;
-  rdfs:comment "Publisher aspect: [no title]"@en ;
+  scholia:aspect scholiaAspect:Chemical-class ;
+  rdfs:comment "Chemical-class aspect: [no title]"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
-  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/publisher_citations-works.sparql> ;
+  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/chemical-class_found-in-taxon.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

@@ -18,43 +18,36 @@ q:057 a sh:SPARQLExecutable,
   sh:prefixes _:sparql_examples_prefixes ;
   sh:select '''PREFIX bd: <http://www.bigdata.com/rdf#>
 PREFIX p: <http://www.wikidata.org/prop/>
+PREFIX pq: <http://www.wikidata.org/prop/qualifier/>
+PREFIX ps: <http://www.wikidata.org/prop/statement/>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX wdt: <http://www.wikidata.org/prop/direct/>
 PREFIX wikibase: <http://wikiba.se/ontology#>
-PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
-#title: Recent works published in venue
+PREFIX target: <http://www.wikidata.org/entity/Q90012272>
 
-PREFIX target: <http://www.wikidata.org/entity/Q6294930>
-
-SELECT
-  ?publication_date
-  ?work ?workLabel
-  (GROUP_CONCAT(DISTINCT ?author_label; separator=", ") AS ?authors)
-  (CONCAT("../authors/", GROUP_CONCAT(DISTINCT SUBSTR(STR(?author), 32); separator=",")) AS ?authorsUrl)
+SELECT ?quantity ?part ?partLabel ?partDescription ?type
 WITH {
-  SELECT DISTINCT ?work (MIN(?publication_date_) AS ?publication_date) WHERE {
-    ?work wdt:P1433 target: .
-    OPTIONAL {
-      ?work wdt:P577 ?publication_datetime .
-      BIND(xsd:date(?publication_datetime) AS ?publication_date_)
+  SELECT ?part ?quantity (GROUP_CONCAT(DISTINCT ?type_label; separator=", ") AS ?type)
+  WHERE {
+    VALUES ?complex { target: }
+    ?complex p:P527 ?partStatement .
+    ?partStatement ps:P527 ?part .
+    OPTIONAL { ?partStatement pq:P1114 ?quantity }
+    OPTIONAL { 
+      ?part wdt:P31 ?type_ .
+      ?type_ rdfs:label ?type_label .
+      FILTER (LANG(?type_label) = 'en')
     }
-  } GROUP BY ?work
-    ORDER BY DESC(?publication_date)
-    LIMIT 1000
-} AS %ARTICLES WHERE {
-  INCLUDE %ARTICLES
-  OPTIONAL {
-    ?work wdt:P50 ?author .
-    ?author rdfs:label ?author_label .
-    FILTER (LANG(?author_label) = 'en')
-  }
+  } GROUP BY ?part ?quantity 
+} AS %result
+WHERE {
+  INCLUDE %result
   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" . }
-} GROUP BY ?publication_date ?work ?workLabel
-ORDER BY DESC(?publication_date)
+} ORDER BY ASC(?partLabel)
 ''';
-  scholia:aspect scholiaAspect:Venue ;
-  rdfs:comment "Venue aspect: [no title]"@en ;
+  scholia:aspect scholiaAspect:Complex ;
+  rdfs:comment "Complex aspect: [no title]"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
-  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/venue_recently-published-works.sparql> ;
+  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/complex_participants.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

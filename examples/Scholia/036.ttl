@@ -17,43 +17,92 @@ q:036 a sh:SPARQLExecutable,
   sh:SPARQLSelectExecutable;
   sh:prefixes _:sparql_examples_prefixes ;
   sh:select '''PREFIX bd: <http://www.bigdata.com/rdf#>
+PREFIX hint: <http://www.bigdata.com/queryHints#>
 PREFIX p: <http://www.wikidata.org/prop/>
+PREFIX prov: <http://www.w3.org/ns/prov#>
+PREFIX pr: <http://www.wikidata.org/prop/reference/>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX wdt: <http://www.wikidata.org/prop/direct/>
 PREFIX wikibase: <http://wikiba.se/ontology#>
-PREFIX target: <http://www.wikidata.org/entity/Q73820>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX target: <http://www.wikidata.org/entity/Q46995757>
 
 SELECT
-  (SAMPLE(?number_of_works_) AS ?number_of_works)
-  (MAX(?bfi) AS ?BFI)
-  ?journal ?journalLabel
-  (GROUP_CONCAT(?themes_labels; separator=", ") as ?theme)
+  ?publication_date
+  ?work ?workLabel
+  ?type
+  ?via
+  ?topics
 WITH {
-  SELECT 
-    ?journal
-    (COUNT(?work) AS ?number_of_works_)
+  SELECT DISTINCT
+    (MAX(?publication_datetime_) AS ?publication_datetime)
+    ?work ?via
   WHERE {
-    ?journal wdt:P123 target: .
-    OPTIONAL { ?work wdt:P1433 ?journal . }
+    {
+      ?work wdt:P921 target: .
+      BIND ("main topic" AS ?via)
+    }
+    UNION
+    {
+      ?work wdt:P921 / wdt:P361+ target: .
+      BIND ("part" AS ?via)
+    }
+    UNION
+    {
+      ?work wdt:P921 / wdt:P279+ target: .
+      BIND ("subclass" AS ?via)
+      FILTER (?topic != target:)
+    }
+    UNION
+    {
+      ?work wdt:P921 / wdt:P1269+ target: .
+      BIND ("facet" AS ?via)
+    }
+    
+    # This seems to be expensive
+    # UNION
+    # {
+    #    target: ?propp ?statement .
+    #    ?statement a wikibase:BestRank ;
+    #               prov:wasDerivedFrom / pr:P248 ?work .
+    #    BIND ("statement" AS ?via)
+    # }
+    
+    # Force the UNION before the publication datetime
+    hint:Prior hint:runFirst true .
+    
+    ?work wdt:P577 ?publication_datetime_ .
   }
-  GROUP BY ?journal 
-} AS %journals
+  GROUP BY ?work ?via
+  ORDER BY DESC(?publication_datetime)
+  LIMIT 250
+} AS %works
+WITH {
+  SELECT
+    ?publication_date
+    ?work
+    (GROUP_CONCAT(DISTINCT ?type_label; separator=", ") AS ?type)
+    ?via
+    (GROUP_CONCAT(DISTINCT ?topic_label; separator=" // ") AS ?topics)
+  WHERE {
+    INCLUDE %works
+    ?work wdt:P921 ?topic . 
+    BIND(xsd:date(?publication_datetime) AS ?publication_date)
+    OPTIONAL { ?work wdt:P31 ?type_ . ?type_ rdfs:label ?type_label . FILTER (LANG(?type_label) = 'en') }
+    ?topic rdfs:label ?topic_label .  FILTER (lang(?topic_label) = 'en')
+  }
+  GROUP BY ?publication_date ?work ?via
+} AS %result
 WHERE {
-  INCLUDE %journals
-  OPTIONAL {
-    ?journal wdt:P921 ?themes .
-    ?themes rdfs:label ?themes_labels .
-    FILTER (LANG(?themes_labels) = 'en')
-  }
-  OPTIONAL { ?journal wdt:P1240 ?bfi . }
-  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" . } 
-} 
-GROUP BY ?journal ?journalLabel
-ORDER BY DESC(?number_of_works)
+  INCLUDE %result
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" . }
+}
+ORDER BY DESC(?publication_date)
+LIMIT 500
 ''';
-  scholia:aspect scholiaAspect:Publisher ;
-  rdfs:comment "Publisher aspect: [no title]"@en ;
+  scholia:aspect scholiaAspect:Chemical-class ;
+  rdfs:comment "Chemical-class aspect: [no title]"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
-  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/publisher_journals.sparql> ;
+  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/chemical-class_recent-literature.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

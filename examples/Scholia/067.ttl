@@ -20,35 +20,21 @@ q:067 a sh:SPARQLExecutable,
 PREFIX p: <http://www.wikidata.org/prop/>
 PREFIX wdt: <http://www.wikidata.org/prop/direct/>
 PREFIX wikibase: <http://wikiba.se/ontology#>
-PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
-#defaultView:Table
+#defaultView:Map
 
-PREFIX target: <http://www.wikidata.org/entity/Q28942417>
+PREFIX target: <http://www.wikidata.org/entity/Q47501052>
 
-# List of works that is cited by the specified work
-SELECT ?citations ?publication_date ?cited_work ?cited_workLabel 
-WITH {
-  SELECT (MIN(?date) AS ?publication_date) (COUNT(DISTINCT ?citing_cited_work) AS ?citations) ?cited_work 
-  WHERE {
-    target: wdt:P2860 ?cited_work .
-    OPTIONAL {
-      ?cited_work wdt:P577 ?datetime .
-      BIND(xsd:date(?datetime) AS ?date)
-    }
-    OPTIONAL { ?citing_cited_work wdt:P2860 ?cited_work }
-  }
-  GROUP BY ?cited_work
-} AS %result
-WHERE {
-  INCLUDE %result
-  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" . } 
-} 
-ORDER BY DESC(?citations) DESC(?date)
+SELECT ?event ?eventLabel ?geo ?image WHERE {
+  ?event (wdt:P179 | wdt:P31) target: .
+  ?event wdt:P276? / wdt:P625 ?geo .
+  OPTIONAL { ?event wdt:P18 ?image . }
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" . }
+}
 ''';
-  scholia:aspect scholiaAspect:Work ;
-  scholia:defaultView scholiaView:Table ;
-  rdfs:comment "Work aspect: [no title]"@en ;
+  scholia:aspect scholiaAspect:Event-series ;
+  scholia:defaultView scholiaView:Map ;
+  rdfs:comment "Event-series aspect: [no title]"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
-  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/work_cited-works.sparql> ;
+  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/event-series_map.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

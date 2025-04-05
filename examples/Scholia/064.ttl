@@ -16,70 +16,54 @@
 q:064 a sh:SPARQLExecutable,
   sh:SPARQLSelectExecutable;
   sh:prefixes _:sparql_examples_prefixes ;
-  sh:select '''PREFIX p: <http://www.wikidata.org/prop/>
+  sh:select '''PREFIX bd: <http://www.bigdata.com/rdf#>
+PREFIX p: <http://www.wikidata.org/prop/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX wdt: <http://www.wikidata.org/prop/direct/>
-#defaultView:BarChart
-
-PREFIX target: <http://www.wikidata.org/entity/Q28942417>
+PREFIX wikibase: <http://wikiba.se/ontology#>
+PREFIX target: <http://www.wikidata.org/entity/Q917357>
 
 SELECT
-  (STR(?year_) AS ?year)
-  (SUM(?count_) AS ?count)
-  ?kind
-WHERE {
+  ?count
+  ?gene_count
+  ?symptom_count
+  ?disease ?diseaseLabel
+  ?genes
+  ?symptoms
+{
   {
-    VALUES ?year_ { 2004 2005 2006 2007 2008 2009 2010 2011 2012 2013
-                    2014 2015 2016 2017 2018 2019 2020 2021 2022 2023 }
-    BIND(0 AS ?count_)
-    BIND("_" AS ?kind)
+    SELECT ?disease (COUNT(?gene) AS ?gene_count) (GROUP_CONCAT(?gene_label; separator=" // ") AS ?genes) WHERE {
+      target: wdt:P2293 ?gene .
+      ?gene wdt:P2293 ?disease . 
+      FILTER (target: != ?disease)
+      ?gene rdfs:label ?gene_label
+      FILTER(lang(?gene_label) = "en")
+    }
+    GROUP BY ?disease
   }
-  UNION 
+  UNION
   {
     SELECT
-      ?year_
-      (COUNT(DISTINCT ?citing_work) AS ?count_)
-      ?kind
-    WHERE {
-      ?citing_work wdt:P2860 target: .
-  
-      # Detect self-citations
-      BIND(IF(EXISTS { target: wdt:P50 ?selfauthor . ?citing_work  wdt:P50 ?selfauthor } ,
-        "detected incoming self-citations",
-        "citations from others or non-detected self-citations") AS ?kind)
-
-      # Year of citation
-      ?citing_work wdt:P577 ?date .
-      BIND(YEAR(?date) AS ?year_)
+      ?disease (COUNT(?symptom) AS ?symptom_count) (GROUP_CONCAT(?symptom_label; separator=" // ") AS ?symptoms)
+    {
+      target: wdt:P780 ?symptom .
+      ?disease wdt:P780 ?symptom . 
+      FILTER (target: != ?disease)
+      ?symptom rdfs:label ?symptom_label . FILTER(lang(?symptom_label) = "en")
     }
-    GROUP BY ?year_ ?kind
+    GROUP BY ?disease
   }
-  UNION 
-  {
-    SELECT
-      ?year_
-      (COUNT(DISTINCT ?cited_work) AS ?count_)
-      ?kind
-    WHERE {
-      target: wdt:P2860 ?cited_work .
-  
-      # Detect self-citations
-      BIND(IF(EXISTS { ?cited_work wdt:P50 ?selfauthor . target: wdt:P50 ?selfauthor },
-        "detected outgoing self-citations",
-        "outgoing citations to others or non-detected self-citations") AS ?kind)
 
-      # Year of citation
-      ?cited_work wdt:P577 ?date .
-      BIND(YEAR(?date) AS ?year_)
-    }
-    GROUP BY ?year_ ?kind
-  }
+  # Aggregate count
+  BIND((COALESCE(?symptom_count, 0) + COALESCE(?gene_count, 0)) AS ?count)
+
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" . }
 }
-GROUP BY ?year_ ?kind
-ORDER BY DESC(?year_)
+ORDER BY DESC(?count)
 ''';
-  scholia:aspect scholiaAspect:Work ;
-  scholia:defaultView scholiaView:BarChart ;
-  rdfs:comment "Work aspect: [no title]"@en ;
+  scholia:aspect scholiaAspect:Disease ;
+  rdfs:comment "Disease aspect: [no title]"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
-  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/work_citations-per-year.sparql> ;
+  spex:federatesWith <http://wikiba.se/ontology#label> ;
+  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/disease_related-diseases.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

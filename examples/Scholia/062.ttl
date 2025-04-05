@@ -16,25 +16,35 @@
 q:062 a sh:SPARQLExecutable,
   sh:SPARQLSelectExecutable;
   sh:prefixes _:sparql_examples_prefixes ;
-  sh:select '''PREFIX p: <http://www.wikidata.org/prop/>
+  sh:select '''PREFIX bd: <http://www.bigdata.com/rdf#>
+PREFIX p: <http://www.wikidata.org/prop/>
 PREFIX wdt: <http://www.wikidata.org/prop/direct/>
-#defaultView:ImageGrid
-PREFIX target: <http://www.wikidata.org/entity/Q28942417>
+PREFIX wd: <http://wikidata.org/entity/>
+PREFIX wikibase: <http://wikiba.se/ontology#>
+PREFIX target: <http://www.wikidata.org/entity/Q917357>
 
-SELECT DISTINCT ?image WHERE {
-  {
-    # Images from whatever property value is linked.
-    
-    # Excluded "different from" property and take all other properties
-    target: !wdt:P1889 ?item .
-
-    ?item wdt:P18 ?image . 
+SELECT
+  DISTINCT
+  ?start_date
+  ?trial ?trialLabel
+  ?intervention ?interventionLabel
+  ?sponsor ?sponsorLabel
+WHERE {
+  ?trial wdt:P31 wd:Q30612 ;
+  wdt:P1050 / wdt:P279* target: .
+  OPTIONAL {
+    ?trial wdt:P580 ?starttime
+    BIND(SUBSTR(STR(?starttime), 0, 11) AS ?start_date)
   }
-}   
+  OPTIONAL { ?trial wdt:P4844 ?intervention }
+  OPTIONAL { ?trial wdt:P859 ?sponsor }
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" . }
+}
+ORDER BY DESC(?starttime)
 ''';
-  scholia:aspect scholiaAspect:Work ;
-  scholia:defaultView scholiaView:ImageGrid ;
-  rdfs:comment "Work aspect: [no title]"@en ;
+  scholia:aspect scholiaAspect:Disease ;
+  rdfs:comment "Disease aspect: [no title]"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
-  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/work_associated-images.sparql> ;
+  spex:federatesWith <http://wikiba.se/ontology#label> ;
+  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/disease_clinical-trials.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

@@ -18,50 +18,40 @@ q:026 a sh:SPARQLExecutable,
   sh:prefixes _:sparql_examples_prefixes ;
   sh:select '''PREFIX bd: <http://www.bigdata.com/rdf#>
 PREFIX p: <http://www.wikidata.org/prop/>
+PREFIX pq: <http://www.wikidata.org/prop/qualifier/>
+PREFIX ps: <http://www.wikidata.org/prop/statement/>
 PREFIX wdt: <http://www.wikidata.org/prop/direct/>
-PREFIX wd: <http://wikidata.org/entity/>
 PREFIX wikibase: <http://wikiba.se/ontology#>
-PREFIX target: <http://www.wikidata.org/entity/Q2270>
+PREFIX target: <http://www.wikidata.org/entity/Q44585>
 
-# title: identifiers for this chemical
 SELECT
-  ?Identifier ?IdentifierLabel
-  ?Value (SAMPLE(?idUrls) as ?ValueUrl)
-  ?IdentifierDescription
+  ?year
+  ?recipient ?recipientLabel ?recipientDescription
+  ?example_work ?example_workLabel
 WITH {
-  SELECT ?Identifier ?Value ?formatterurl WHERE {
-    target: ?IDdir ?Value .
-    ?Identifier wikibase:directClaim ?IDdir ;
-            wdt:P31 wd:Q19833835 .
-    OPTIONAL { 
-      ?Identifier wdt:P1630 ?formatterurl .
+  SELECT DISTINCT ?recipient ?year (SAMPLE(?work) AS ?example_work) WHERE {
+    ?recipient p:P166 ?award_statement . 
+    ?award_statement ps:P166 target: .
+    OPTIONAL {
+      { ?award_statement pq:P585 ?time }
+      UNION
+      { ?award_statement pq:P580 ?time }
+      BIND(YEAR(?time) AS ?year)
     }
-    FILTER (?Identifier != wd:P233)
-    FILTER (?Identifier != wd:P234)
-    FILTER (?Identifier != wd:P2017)
-  } LIMIT 500
-} AS %RESULTS {
-  { SELECT * WHERE {
-      INCLUDE %RESULTS
-      FILTER (?Identifier = wd:P234)
-      BIND(IRI(REPLACE(?formatterurl, '\\\\$1', ENCODE_FOR_URI(str(?Value)))) AS ?idUrls).
-    }
-  } UNION {
-    SELECT * WHERE {
-      INCLUDE %RESULTS
-      FILTER (?Identifier != wd:P234)
-      BIND(IRI(REPLACE(?formatterurl, '\\\\$1', str(?Value))) AS ?idUrls).
-    }
+    OPTIONAL { ?work wdt:P50 ?recipient . }
   }
-  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en". }
+  GROUP BY ?recipient ?year
+} AS %result
+WHERE {
+  INCLUDE %result 
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en,da,de,es,fr,jp,no,ru,sv,zh" . }  
 }
-GROUP BY ?Identifier ?IdentifierLabel ?IdentifierDescription ?Value
-ORDER BY ASC(?IdentifierLabel)
-
+ORDER BY DESC(?year)
+LIMIT 10000
 ''';
-  scholia:aspect scholiaAspect:Chemical ;
-  rdfs:comment "Chemical aspect: identifiers for this chemical"@en ;
+  scholia:aspect scholiaAspect:Award ;
+  rdfs:comment "Award aspect: [no title]"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
-  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/chemical_identifiers.sparql> ;
+  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/award_list-of-recipients.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

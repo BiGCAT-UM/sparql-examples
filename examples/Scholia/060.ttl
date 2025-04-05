@@ -16,35 +16,72 @@
 q:060 a sh:SPARQLExecutable,
   sh:SPARQLSelectExecutable;
   sh:prefixes _:sparql_examples_prefixes ;
-  sh:select '''PREFIX bd: <http://www.bigdata.com/rdf#>
-PREFIX p: <http://www.wikidata.org/prop/>
+  sh:select '''PREFIX p: <http://www.wikidata.org/prop/>
+PREFIX pq: <http://www.wikidata.org/prop/qualifier/>
+PREFIX ps: <http://www.wikidata.org/prop/statement/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX schema: <http://schema.org/>
 PREFIX wdt: <http://www.wikidata.org/prop/direct/>
-PREFIX wikibase: <http://wikiba.se/ontology#>
-# title: Count of topics in published work in specified venue
+PREFIX wd: <http://wikidata.org/entity/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+# List of authors for a work
+PREFIX target: <http://www.wikidata.org/entity/Q4203254>
 
-PREFIX target: <http://www.wikidata.org/entity/Q6294930>
+SELECT DISTINCT
+  # Author order
+  ?order
 
-SELECT ?count ?topic ?topicLabel ?example_work ?example_workLabel
-WITH {
-  SELECT 
-    (COUNT(?work) as ?count)
-    ?topic
-    (SAMPLE(?work) AS ?example_work)
-  WHERE {
-    ?work wdt:P1433 target: .
-    ?work wdt:P921 ?topic .
-  }
-  GROUP BY ?topic
-} AS %result
+  ?academic_age
+
+  # Author item and label
+  ?author ?authorUrl ?authorDescription
+  
+  ?orcid
 WHERE {
-  INCLUDE %result
-  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" . } 
+  {
+    target: p:P50 ?author_statement .
+    ?author_statement ps:P50 ?author_ .
+    ?author_ rdfs:label ?author .
+    FILTER (LANG(?author) = 'en')
+    BIND(CONCAT("../author/", SUBSTR(STR(?author_), 32)) AS ?authorUrl)
+    OPTIONAL {
+      ?author_statement pq:P1545 ?order_ .
+      BIND(xsd:integer(?order_) AS ?order)
+    }
+    OPTIONAL { ?author_ wdt:P496 ?orcid_ . }
+    # Either show the ORCID iD or construct part of a URL to search on the ORCID homepage
+    BIND(COALESCE(?orcid_, CONCAT("orcid-search/search/?searchQuery=", ENCODE_FOR_URI(?author))) AS ?orcid)
+    OPTIONAL {
+      ?author_ schema:description ?authorDescription .
+      FILTER (LANG(?authorDescription) = "en")
+    }
+  }
+  UNION
+  {
+    target: p:P2093 ?authorstring_statement .
+    ?authorstring_statement ps:P2093 ?author_
+    BIND(CONCAT("UNRESOLVED: ", ?author_) AS ?author)
+    OPTIONAL {
+      ?authorstring_statement pq:P1545 ?order_ .
+      BIND(xsd:integer(?order_) AS ?order)
+    }
+    BIND(CONCAT("https://author-disambiguator.toolforge.org/names_oauth.php?doit=Look+for+author&name=", ENCODE_FOR_URI(?author_)) AS ?authorUrl)
+  }
+  OPTIONAL {
+    SELECT ?author_ (MAX(?academic_age_) AS ?academic_age) {
+      target: wdt:P50 ?author_ ;
+                 wdt:P577 ?publication_date .
+      [] wdt:P31 wd:Q13442814 ;
+         wdt:P50 ?author_ ;
+         wdt:P577 ?other_publication_date .
+      BIND(YEAR(?publication_date) - YEAR(?other_publication_date) AS ?academic_age_)
+    }
+    GROUP BY ?author_
+  }
 }
-ORDER BY DESC(?count)
-''';
-  scholia:aspect scholiaAspect:Venue ;
-  rdfs:comment "Venue aspect: Count of topics in published work in specified venue"@en ;
+ORDER BY ?order''';
+  scholia:aspect scholiaAspect:Dataset ;
+  rdfs:comment "Dataset aspect: [no title]"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
-  spex:federatesWith <http://wikiba.se/ontology#label> ;
-  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/venue_topics.sparql> ;
+  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/dataset_list-of-authors.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

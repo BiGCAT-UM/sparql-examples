@@ -20,35 +20,51 @@ q:061 a sh:SPARQLExecutable,
 PREFIX p: <http://www.wikidata.org/prop/>
 PREFIX wdt: <http://www.wikidata.org/prop/direct/>
 PREFIX wikibase: <http://wikiba.se/ontology#>
-PREFIX target: <http://www.wikidata.org/entity/Q6294930>
+#defaultView:BubbleChart
 
-SELECT
-  ?count
-  ?use ?useLabel (CONCAT("/use/", SUBSTR(STR(?use), 32)) AS ?useUrl)
-  ("🔎" AS ?zoom)
-  (CONCAT("Q6294930/use/", SUBSTR(STR(?use), 32)) AS ?zoomUrl)
-  ?useDescription
+PREFIX target: <http://www.wikidata.org/entity/Q4203254>
 
-  ?example_work ?example_workLabel
+SELECT ?score ?topic ?topicLabel
 WITH {
   SELECT
-    (COUNT(?work) AS ?count)
-    ?use
-    (SAMPLE(?work) AS ?example_work)
-  {
-    ?work wdt:P1433 target: ;
-          wdt:P4510 ?use .
+    (SUM(?score_) AS ?score)
+    ?topic
+  WHERE {
+    { 
+      target: wdt:P921 ?topic .
+      BIND(20 AS ?score_)
+    }
+    UNION
+    { 
+     target: wdt:P921/wdt:P279 ?topic .
+     BIND(3 AS ?score_)
+    }
+    UNION
+    {
+      # Topic of a cited work
+      target: wdt:P2860/wdt:P921 ?topic .
+      BIND(1 AS ?score_)
+    }
+    UNION
+    {
+      SELECT (1 AS ?score_) ?topic WHERE {
+        ?citing_work wdt:P2860 target: .
+        ?citing_work wdt:P921 ?topic . 
+      }
+    }
   }
-  GROUP BY ?use
-} AS %result
+  GROUP BY ?topic
+} AS %results 
 WHERE {
-  INCLUDE %result
-  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en". }
+  INCLUDE %results
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en,da,de,es,jp,no,ru,sv,zh". }
 }
-ORDER BY DESC(?count)''';
-  scholia:aspect scholiaAspect:Venue ;
-  rdfs:comment "Venue aspect: [no title]"@en ;
+ORDER BY DESC(?score)
+LIMIT 200''';
+  scholia:aspect scholiaAspect:Dataset ;
+  scholia:defaultView scholiaView:BubbleChart ;
+  rdfs:comment "Dataset aspect: [no title]"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
-  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/venue_uses.sparql> ;
+  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/dataset_topic-scores.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .
