@@ -7,102 +7,89 @@
 @prefix scholia: <http://scholia.toolforge.org/ns/> .
 @prefix scholiaAspect: <http://scholia.toolforge.org/ns/aspect/> .
 @prefix wd: <http://wikidata.org/entity/> .
-@prefix spex: <https://purl.expasy.org/sparql-examples/ontology#> .
-@prefix scholiaView: <http://scholia.toolforge.org/ns/view/> .
 
 q:001 a sh:SPARQLExecutable,
   sh:SPARQLSelectExecutable;
   sh:prefixes _:sparql_examples_prefixes ;
-  sh:select '''#defaultView:Timeline
-PREFIX wd: <http://wikidata.org/entity/>
-PREFIX wdt: <http://www.wikidata.org/prop/direct/>
-PREFIX p: <http://www.wikidata.org/prop/>
-PREFIX pq: <http://www.wikidata.org/prop/qualifier/>
-PREFIX ps: <http://www.wikidata.org/prop/statement/>
+  sh:select '''#defaultView:Graph
+PREFIX target: <http://www.wikidata.org/entity/Q97270>
 
-PREFIX target: <http://www.wikidata.org/entity/{{ q }}>
+# Doctoral student/advisor network with a source from a spectific researcher
+PREFIX gas: <http://www.bigdata.com/rdf/gas#>
 
-SELECT DISTINCT ?datetime ?description WHERE {
-  {
-    target: wdt:P577 ?datetime .
-    BIND("🌞 publication date" AS ?description)
-  }
-  UNION 
-  {
-    target: wdt:P2507 / wdt:P577 ?datetime .
-    BIND("❗ erratum" AS ?description)
-  }
-  UNION 
-  {
-    target: wdt:P5824 / wdt:P577 ?datetime .
-    BIND("⛔ retracted" AS ?description)
-  }
-  UNION 
-  {
-    target: p:P793 ?event_statement .
-    ?event_statement ps:P793 ?event_type .
-    ?event_type rdfs:label ?description_ .
-    ?event_statement pq:P585 ?datetime .
-    FILTER (LANG(?description_) = "en")
-    
-    # Warning icon for retraction
-    BIND(
-      IF(
-        ?event_type = wd:Q45203135,
-        CONCAT("⛔ ", ?description_),
-        IF(
-          ?event_type = wd:Q56478588,
-          CONCAT("❓ ", ?description_),
-          ?description_
-          )
-        ) AS ?description)
+SELECT DISTINCT ?student1 ?student1Label ?rgb ?supervisor1 ?supervisor1Label
+WHERE {
+  { 
+    SELECT ?student1 ?supervisor1 (MIN(?depth1) as ?depth)
+    WHERE {
+      SERVICE gas:service {
+        gas:program gas:gasClass "com.bigdata.rdf.graph.analytics.BFS" ;
+                gas:in target: ;
+                gas:traversalDirection "Forward" ;
+                gas:out ?student1 ;
+                gas:out1 ?depth1 ;
+                gas:out2 ?supervisor1 ;
+                gas:linkType wdt:P185 ;
+      }
+    }
+    GROUP BY ?student1 ?supervisor1
   }
   UNION
-  {
-    SELECT ?datetime ?description WHERE {
-      target: wdt:P2860 / wdt:P577 ?datetime
-      BIND("📖➡️ cited work with earliest publication date" AS ?description)
+  { 
+    SELECT ?student1 ?supervisor1 (MIN(?depth1) as ?depth)
+    WHERE {
+      service gas:service {
+        gas:program gas:gasClass "com.bigdata.rdf.graph.analytics.BFS" ;
+                gas:in target: ;
+                gas:traversalDirection "Forward" ;
+                gas:out ?supervisor1 ;
+                gas:out1 ?depth1 ;
+                gas:out2 ?student1 ;
+                gas:linkType wdt:P184 ;
+      }
     }
-    ORDER BY ?datetime
-    LIMIT 1
+    GROUP BY ?student1 ?supervisor1
   }
   UNION
-  {
-    SELECT ?datetime ?description WHERE {
-      target: wdt:P2860 / wdt:P577 ?datetime
-      BIND("📖➡️ cited work with latest publication date" AS ?description)
+  { 
+    SELECT ?student1 ?supervisor1 (MIN(?depth1) as ?depth)
+    WHERE {
+      SERVICE gas:service {
+        gas:program gas:gasClass "com.bigdata.rdf.graph.analytics.BFS" ;
+                gas:in target: ;
+                gas:traversalDirection "Reverse" ;
+                gas:out ?student1 ;
+                gas:out1 ?depth1 ;
+                gas:out2 ?supervisor1 ;
+                gas:linkType wdt:P184 ;
+      }
     }
-    ORDER BY DESC(?datetime)
-    LIMIT 1
+    GROUP BY ?student1 ?supervisor1
   }
   UNION
-  {
-    SELECT ?datetime ?description WHERE {
-      target: ^wdt:P2860 / wdt:P577 ?datetime
-      BIND("📖⬅️ citing work with earliest publication date" AS ?description)
+  { 
+    SELECT ?student1 ?supervisor1 (MIN(?depth1) as ?depth)
+    WHERE {
+      SERVICE gas:service {
+        gas:program gas:gasClass "com.bigdata.rdf.graph.analytics.BFS" ;
+                gas:in target: ;
+                gas:traversalDirection "Reverse" ;
+                gas:out ?supervisor1 ;
+                gas:out1 ?depth1 ;
+                gas:out2 ?student1 ;
+                gas:linkType wdt:P185 ;
+      }
     }
-    ORDER BY ?datetime
-    LIMIT 1
+    GROUP BY ?student1 ?supervisor1
   }
-  UNION
-  {
-    SELECT ?datetime ?description WHERE {
-      target: ^wdt:P2860 / wdt:P577 ?datetime
-      BIND("📖⬅️ citing work with latest publication date" AS ?description)
-    }
-    ORDER BY DESC(?datetime)
-    LIMIT 1
-  }
-    UNION
-  {
-    target: (wdt:P747 | ^wdt:P629) / wdt:P577 ?datetime
-    BIND("🌞 Publication of edition" AS ?description)
-  }
-}''';
-  scholia:variable "{{ q }}" ;
-  scholia:aspect scholiaAspect:Work ;
-  scholia:aspectExample wd:Q28942417 ;
-  scholia:variableExample "Q28942417" ;
+  
+  BIND( IF( ?student1 = target:, "3080BB", "ffffff") AS ?rgb)
+
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" .  } 
+}
+
+''';
+  scholia:aspect scholiaAspect:Author ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .
