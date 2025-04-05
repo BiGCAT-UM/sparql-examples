@@ -52,8 +52,7 @@ SELECT DISTINCT ?start_time ?end_time ?description WHERE {
   }
 }''';
   scholia:aspect scholiaAspect:Project ;
-  scholia:defaultView scholiaView:Timeline{"hide" ;
-  rdfs:comment "Project aspect: [no title]"@en ;
+  scholia:defaultView scholiaView:Timeline"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/project_timeline.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .
