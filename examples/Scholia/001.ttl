@@ -7,10 +7,12 @@
 @prefix scholia: <http://scholia.toolforge.org/ns/> .
 @prefix scholiaAspect: <http://scholia.toolforge.org/ns/aspect/> .
 @prefix wd: <http://wikidata.org/entity/> .
-#@prefix scholiaView: <http://scholia.toolforge.org/ns/view/> .
+@prefix spex: <https://purl.expasy.org/sparql-examples/ontology#> .
+@prefix scholiaView: <http://scholia.toolforge.org/ns/view/> .
 
 q:001 a sh:SPARQLExecutable,
   sh:SPARQLSelectExecutable;
+  sh:prefixes _:sparql_examples_prefixes ;
   sh:select '''#defaultView:Timeline
 PREFIX wd: <http://wikidata.org/entity/>
 PREFIX wdt: <http://www.wikidata.org/prop/direct/>
@@ -102,4 +104,5 @@ SELECT DISTINCT ?datetime ?description WHERE {
   scholia:aspectExample wd:Q28942417 ;
   scholia:variableExample "Q28942417" ;
   schema:target <https://query.wikidata.org/sparql> ;
+  spex:federatesWith <http://wikiba.se/ontology#label> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

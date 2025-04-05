@@ -12,6 +12,7 @@
 
 q:002 a sh:SPARQLExecutable,
   sh:SPARQLSelectExecutable;
+  sh:prefixes _:sparql_examples_prefixes ;
   sh:select '''#defaultView:Timeline
 PREFIX wd: <http://wikidata.org/entity/>
 PREFIX wdt: <http://www.wikidata.org/prop/direct/>
