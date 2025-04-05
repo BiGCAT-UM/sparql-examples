@@ -30,9 +30,9 @@ SELECT ?year (count(distinct ?citing_work) as ?count) ?kind  WHERE {
 } group by ?year ?kind
 order by desc(?year)
 ''';
-  scholia:defaultView scholiaView:BarChart ;
-  rdfs:comment "[no title]"@en ;
   scholia:aspect scholiaAspect:Author ;
+  scholia:defaultView scholiaView:BarChart ;
+  rdfs:comment "Author aspect: [no title]"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/author_citations-by-year.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

@@ -52,9 +52,9 @@ WHERE {
 GROUP BY ?work ?workLabel ?venue ?venueLabel
 ORDER BY DESC(?date)
 ''';
-  scholia:defaultView scholiaView:Table ;
-  rdfs:comment "[no title]"@en ;
   scholia:aspect scholiaAspect:Author ;
+  scholia:defaultView scholiaView:Table ;
+  rdfs:comment "Author aspect: [no title]"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
   cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/author_list-of-retracted-articles.sparql> ;

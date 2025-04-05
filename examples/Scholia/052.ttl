@@ -51,9 +51,9 @@ WHERE {
 }
 ORDER BY DESC(?count)
 ''';
-  rdfs:comment "Most cited articles published in specific venue"@en ;
-  scholia:defaultView scholiaView:Table ;
   scholia:aspect scholiaAspect:Venue ;
+  rdfs:comment "Venue aspect: Most cited articles published in specific venue"@en ;
+  scholia:defaultView scholiaView:Table ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
   cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/venue_most-cited-articles.sparql> ;

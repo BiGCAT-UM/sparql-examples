@@ -52,8 +52,8 @@ SELECT ?mol ?molLabel ?InChIKey ?CAS ?ChemSpider ?PubChem_CID WITH {
   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" . }
 }
 ''';
-  rdfs:comment "related chemical structures"@en ;
   scholia:aspect scholiaAspect:Chemical ;
+  rdfs:comment "Chemical aspect: related chemical structures"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
   cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/chemical_related.sparql> ;

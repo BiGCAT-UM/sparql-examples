@@ -32,9 +32,9 @@ SELECT DISTINCT ?image WHERE {
   }
 }   
 ''';
-  scholia:defaultView scholiaView:ImageGrid ;
-  rdfs:comment "[no title]"@en ;
   scholia:aspect scholiaAspect:Work ;
+  scholia:defaultView scholiaView:ImageGrid ;
+  rdfs:comment "Work aspect: [no title]"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/work_associated-images.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

@@ -55,9 +55,9 @@ select ?year ?number_of_pages ?work_label where {
   }
 }
 ''';
-  scholia:defaultView scholiaView:BarChart ;
-  rdfs:comment "[no title]"@en ;
   scholia:aspect scholiaAspect:Author ;
+  scholia:defaultView scholiaView:BarChart ;
+  rdfs:comment "Author aspect: [no title]"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/author_pages-per-year.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

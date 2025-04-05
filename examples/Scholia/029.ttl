@@ -65,8 +65,8 @@ WHERE {
 ORDER BY DESC(?date)
 LIMIT 500
 ''';
-  rdfs:comment "recent literature about this chemical"@en ;
   scholia:aspect scholiaAspect:Chemical ;
+  rdfs:comment "Chemical aspect: recent literature about this chemical"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
   cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/chemical_recent-literature.sparql> ;

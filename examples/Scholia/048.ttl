@@ -51,9 +51,9 @@ WHERE {
 }
 ORDER BY DESC(?count)
 ''';
-  rdfs:comment "Venues citing articles from this specific journal"@en ;
-  scholia:defaultView scholiaView:Table ;
   scholia:aspect scholiaAspect:Venue ;
+  rdfs:comment "Venue aspect: Venues citing articles from this specific journal"@en ;
+  scholia:defaultView scholiaView:Table ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
   cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/venue_citing-venues.sparql> ;

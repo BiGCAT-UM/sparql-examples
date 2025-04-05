@@ -68,9 +68,9 @@ select ?year (count(?work) as ?number_of_publications) where {
 group by ?year 
 order by ?year
 ''';
-  scholia:defaultView scholiaView:BarChart ;
-  rdfs:comment "publications per year for this chemical"@en ;
   scholia:aspect scholiaAspect:Chemical ;
+  scholia:defaultView scholiaView:BarChart ;
+  rdfs:comment "Chemical aspect: publications per year for this chemical"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/chemical_publications-per-year.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

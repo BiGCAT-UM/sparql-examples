@@ -31,8 +31,8 @@ SELECT DISTINCT ?matrix ?matrixLabel ?taxon ?taxonLabel (CONCAT("/taxon/", SUBST
 } ORDER BY ASC(?taxonLabel)
   LIMIT 250
 ''';
-  rdfs:comment "[no title]"@en ;
   scholia:aspect scholiaAspect:Chemical ;
+  rdfs:comment "Chemical aspect: [no title]"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
   cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/chemical_found-in-matrix-np.sparql> ;

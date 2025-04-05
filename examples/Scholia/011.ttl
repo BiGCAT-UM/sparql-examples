@@ -37,9 +37,9 @@ WHERE {
   ?property_item rdfs:label ?property_item_label . FILTER(LANG(?property_item_label) = 'en')
 }
 ''';
-  scholia:defaultView scholiaView:Map ;
-  rdfs:comment "[no title]"@en ;
   scholia:aspect scholiaAspect:Author ;
+  scholia:defaultView scholiaView:Map ;
+  rdfs:comment "Author aspect: [no title]"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
   cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/author_other-locations.sparql> ;

@@ -56,8 +56,8 @@ WHERE {
 ORDER BY DESC(?count)
 LIMIT 100
 ''';
-  rdfs:comment "Most cited authors published in venue"@en ;
   scholia:aspect scholiaAspect:Venue ;
+  rdfs:comment "Venue aspect: Most cited authors published in venue"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
   cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/venue_most-cited-authors.sparql> ;

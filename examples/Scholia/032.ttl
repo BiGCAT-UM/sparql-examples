@@ -45,8 +45,8 @@ WITH {
 GROUP BY ?Structural_identifier ?Structural_identifierLabel ?idLit
 ORDER BY ASC(?ID_TypeLabel)
 ''';
-  rdfs:comment "structural identifiers for this chemical structure"@en ;
   scholia:aspect scholiaAspect:Chemical ;
+  rdfs:comment "Chemical aspect: structural identifiers for this chemical structure"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
   cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/chemical_structural-identifiers.sparql> ;

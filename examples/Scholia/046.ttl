@@ -38,9 +38,9 @@ WHERE {
 GROUP BY ?number_of_citations
 ORDER BY DESC(?number_of_citations)
 ''';
-  rdfs:comment "Citation distribution for a venue"@en ;
-  scholia:defaultView scholiaView:LineChart ;
   scholia:aspect scholiaAspect:Venue ;
+  rdfs:comment "Venue aspect: Citation distribution for a venue"@en ;
+  scholia:defaultView scholiaView:LineChart ;
   schema:target <https://query.wikidata.org/sparql> ;
   cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/venue_citation-distribution.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

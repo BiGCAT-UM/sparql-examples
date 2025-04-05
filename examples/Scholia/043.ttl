@@ -42,9 +42,9 @@ GROUP BY ?author ?authorLabel ?count
 ORDER BY DESC(?count)
 LIMIT 50  
 ''';
-  rdfs:comment "Author images for a specific venue"@en ;
-  scholia:defaultView scholiaView:ImageGrid ;
   scholia:aspect scholiaAspect:Venue ;
+  rdfs:comment "Venue aspect: Author images for a specific venue"@en ;
+  scholia:defaultView scholiaView:ImageGrid ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
   cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/venue_author-images.sparql> ;

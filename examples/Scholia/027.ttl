@@ -69,8 +69,8 @@ WHERE {
 ORDER BY ASC(?propEntityLabel)
 
 ''';
-  rdfs:comment "physicochemical properties of this chemical"@en ;
   scholia:aspect scholiaAspect:Chemical ;
+  rdfs:comment "Chemical aspect: physicochemical properties of this chemical"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
   cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/chemical_physchem-properties.sparql> ;

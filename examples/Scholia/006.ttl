@@ -59,8 +59,8 @@ WHERE {
 GROUP BY ?event ?eventLabel
 ORDER BY DESC(?date) 
 ''';
-  rdfs:comment "[no title]"@en ;
   scholia:aspect scholiaAspect:Author ;
+  rdfs:comment "Author aspect: [no title]"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
   cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/author_events.sparql> ;

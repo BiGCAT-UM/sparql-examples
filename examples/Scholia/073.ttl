@@ -54,9 +54,9 @@ WHERE {
 } 
 ORDER BY DESC(?itemLabel)
 ''';
-  scholia:defaultView scholiaView:Table ;
-  rdfs:comment "[no title]"@en ;
   scholia:aspect scholiaAspect:Work ;
+  scholia:defaultView scholiaView:Table ;
+  rdfs:comment "Work aspect: [no title]"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
   cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/work_statements.sparql> ;

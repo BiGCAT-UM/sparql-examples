@@ -54,9 +54,9 @@ WHERE {
   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" . }
 }
 ORDER BY DESC(?cited_works)''';
-  scholia:defaultView scholiaView:Table ;
-  rdfs:comment "[no title]"@en ;
   scholia:aspect scholiaAspect:Work ;
+  scholia:defaultView scholiaView:Table ;
+  rdfs:comment "Work aspect: [no title]"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
   cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/work_cited-work-authors.sparql> ;

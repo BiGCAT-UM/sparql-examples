@@ -50,9 +50,9 @@ WHERE {
   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" . } 
 }
 ''';
-  scholia:defaultView scholiaView:ImageGrid ;
-  rdfs:comment "[no title]"@en ;
   scholia:aspect scholiaAspect:Publisher ;
+  scholia:defaultView scholiaView:ImageGrid ;
+  rdfs:comment "Publisher aspect: [no title]"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
   cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/publisher_editor-photos.sparql> ;

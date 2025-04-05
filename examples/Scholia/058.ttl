@@ -36,8 +36,8 @@ SELECT DISTINCT ?work ?workLabel ?doi (COUNT(DISTINCT ?citing) AS ?citations) WH
   ORDER BY DESC(?citations)
   LIMIT 100
 ''';
-  rdfs:comment "[no title]"@en ;
   scholia:aspect scholiaAspect:Venue ;
+  rdfs:comment "Venue aspect: [no title]"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
   cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/venue_retractions.sparql> ;
