@@ -10,6 +10,7 @@
 @prefix wdt: <http://www.wikidata.org/prop/direct/> .
 @prefix spex: <https://purl.expasy.org/sparql-examples/ontology#> .
 @prefix wikibase: <http://wikiba.se/ontology#> .
+@prefix cito: <http://purl.org/spar/cito/> .
 
 q:002 a sh:SPARQLExecutable,
   sh:SPARQLSelectExecutable;
@@ -45,4 +46,5 @@ SELECT DISTINCT ?image WHERE {
 ''';
   scholia:aspect scholiaAspect:Author ;
   schema:target <https://query.wikidata.org/sparql> ;
+  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/author_associated-images.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .
