@@ -18,35 +18,30 @@ q:149 a sh:SPARQLExecutable,
   sh:prefixes _:sparql_examples_prefixes ;
   sh:select '''PREFIX bd: <http://www.bigdata.com/rdf#>
 PREFIX p: <http://www.wikidata.org/prop/>
-PREFIX wdt: <http://www.wikidata.org/prop/direct/>
 PREFIX wikibase: <http://wikiba.se/ontology#>
-PREFIX target: <http://www.wikidata.org/entity/Q1635410>
+#defaultView:BubbleChart
 
-SELECT 
-  ?count 
-  ?software ?softwareLabel ?softwareDescription (CONCAT("/software/", SUBSTR(STR(?software), 32)) AS ?softwareUrl)
+PREFIX target: <http://www.wikidata.org/prop/direct/{{ p }}>
+
+SELECT ?count ?o ?oLabel 
 WITH {
-  SELECT 
-    (COUNT(?other_software) AS ?count)
-    ?software 
-  {
-    ?software wdt:P1547+ target: .
-    OPTIONAL {
-      ?other_software wdt:P1547+ ?software .
-    } 
+  SELECT (COUNT(?s) AS ?count) ?o WHERE {
+    ?s target: ?o .
   }
-  GROUP BY ?software
+  GROUP BY ?o
   ORDER BY DESC(?count)
-  LIMIT 500
+  LIMIT 100
 } AS %result
 WHERE {
   INCLUDE %result
-  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en". }
+  SERVICE wikibase:label { bd:serviceParam wikibase:language  "[AUTO_LANGUAGE],mul,en" . }
 }
-ORDER BY DESC(?count)''';
-  scholia:aspect scholiaAspect:Software ;
-  rdfs:comment "Software aspect: [no title]"@en ;
+ORDER BY DESC(?count)
+''';
+  scholia:aspect scholiaAspect:Property ;
+  scholia:defaultView scholiaView:BubbleChart ;
+  rdfs:comment "Property aspect: [no title]"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
-  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/software_dependent-software.sparql> ;
+  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/property_property-value-counts.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

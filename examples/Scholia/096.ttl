@@ -19,34 +19,28 @@ q:096 a sh:SPARQLExecutable,
   sh:select '''PREFIX bd: <http://www.bigdata.com/rdf#>
 PREFIX p: <http://www.wikidata.org/prop/>
 PREFIX wdt: <http://www.wikidata.org/prop/direct/>
+PREFIX wd: <http://wikidata.org/entity/>
 PREFIX wikibase: <http://wikiba.se/ontology#>
-PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
-PREFIX target: <http://www.wikidata.org/entity/Q116446479>
+PREFIX target: <http://www.wikidata.org/entity/Q14860818>
 
 SELECT
-  ?publication_date
-  ?work ?workLabel
-WITH{
-  SELECT
-    ?publication_datetime
-    ?work
+  ?ortholog ?orthologLabel ?orthologDescription
+  ?taxon ?taxonLabel ?taxonDescription
+WITH {
+  SELECT ?ortholog ?taxon
   WHERE {
-    ?work wdt:P4510 / wdt:P279* target: ;
-          wdt:P577 ?publication_datetime .
+    target: wdt:P31 wd:Q7187;
+         wdt:P684 ?ortholog .
+    ?ortholog wdt:P703 ?taxon .
   }
-  ORDER BY DESC(?publication_datetime)
-  LIMIT 500
-} AS %result
+} AS %result 
 WHERE {
   INCLUDE %result
-  BIND(xsd:date(?publication_datetime) AS ?publication_date)
-  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" . }
-}
-ORDER BY DESC(?publication_date)
-''';
-  scholia:aspect scholiaAspect:Ontology ;
-  rdfs:comment "Ontology aspect: [no title]"@en ;
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en". }
+}''';
+  scholia:aspect scholiaAspect:Gene ;
+  rdfs:comment "Gene aspect: [no title]"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
-  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/ontology_recent-works.sparql> ;
+  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/gene_orthologs.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

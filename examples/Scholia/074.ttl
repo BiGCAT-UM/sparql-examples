@@ -22,72 +22,78 @@ PREFIX wdt: <http://www.wikidata.org/prop/direct/>
 PREFIX wikibase: <http://wikiba.se/ontology#>
 PREFIX target: <http://www.wikidata.org/entity/Q47501052>
 
-SELECT ?score ?topic ?topicLabel ?topicDescription
-(CONCAT("/topic/", SUBSTR(STR(?topic), 32)) AS ?topicUrl)
+SELECT
+  ?number_of_roles
+  # (?number_of_publications AS ?works)
+  ?person ?personLabel ?personDescription
+  (CONCAT("/author/", SUBSTR(STR(?person), 32)) AS ?personUrl)
+  ?roles
+  ?example_work ?example_workLabel
 WITH {
   SELECT
-    DISTINCT ?person
+    (COUNT(?role) AS ?number_of_roles)
+    (GROUP_CONCAT(DISTINCT ?role; separator=", ") AS ?roles) ?person
   WHERE {
-    ?event (wdt:P179 | wdt:P31) target: .
     {
       # speaker
-      ?event wdt:P823 ?person .
+      target: ^wdt:P179 / wdt:P823 ?person .
+      BIND("speaker" AS ?role)
     }
     UNION
     {
       # organizer
-      ?event wdt:P664 ?person .
+      target: ^wdt:P179 / wdt:P664 ?person .
+      BIND("organizer" AS ?role)
     }
     UNION
     {
       # participant
-      ?person wdt:P1344 | ^wdt:P710 ?event .
+      ?person (wdt:P1344 | ^wdt:P710) / wdt:P179 target: .
+      BIND("participant" AS ?role)
+    }
+    UNION
+    {
+      # editor
+      ?person (^wdt:P98 / wdt:P4745) / wdt:P179 target: .
+      BIND("editor of proceedings" AS ?role)
     }
     UNION
     {
       # author
-      ?person ^wdt:P50 / wdt:P1433 / wdt:P4745 ?event .
+      ?person (^wdt:P50 / wdt:P1433 / wdt:P4745) / wdt:P179 target: .
+      BIND("author" AS ?role)
+    }
+    UNION
+    {
+      # program committee member
+      target: ^wdt:P179 / wdt:P5804 ?person .
+      BIND("program committee member" AS ?role)
     }
   }
+  GROUP BY ?person
 } AS %people  
 WITH {
   SELECT
-    (SUM(?score_) AS ?score) ?topic
+    ?number_of_roles
+    # (COUNT(?work) AS ?number_of_publications)
+    ?roles
+    ?person (SAMPLE(?work) AS ?example_work)
   WHERE {
-
-    # For some reason a path query does not work here.
-    { ?event wdt:P179 target: . }
-    UNION
-    { ?event wdt:P31 target: . }
-
-    {
-      ?event wdt:P921 ?topic .
-      BIND(50 AS ?score_)
-    }
-    UNION
-    {
-      INCLUDE %people
-      ?person ^wdt:P50 / wdt:P921 ?topic .
-      BIND(1 AS ?score_)
-    }
-    UNION
-    {
-      ?event ^wdt:P4745 / ^wdt:P1433 / wdt:P921 ?topic .
-      BIND(7 AS ?score_)
-    }
+    INCLUDE %people .
+    OPTIONAL { ?work wdt:P50 ?person . }
   }
-  GROUP BY ?topic
+  GROUP BY ?number_of_roles ?roles ?person
 } AS %results
 WHERE {
   INCLUDE %results
   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en,da,de,es,fr,jp,no,ru,sv,zh". }
 }
-ORDER BY DESC(?score)
-LIMIT 200
+ORDER BY DESC(?number_of_roles)
+LIMIT 500
 ''';
   scholia:aspect scholiaAspect:Event-series ;
   rdfs:comment "Event-series aspect: [no title]"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
-  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/event-series_topics.sparql> ;
+  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/event-series_people.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

@@ -17,48 +17,59 @@ q:078 a sh:SPARQLExecutable,
   sh:SPARQLSelectExecutable;
   sh:prefixes _:sparql_examples_prefixes ;
   sh:select '''PREFIX bd: <http://www.bigdata.com/rdf#>
+PREFIX p: <http://www.wikidata.org/prop/>
 PREFIX wdt: <http://www.wikidata.org/prop/direct/>
-PREFIX wd: <http://wikidata.org/entity/>
 PREFIX wikibase: <http://wikiba.se/ontology#>
-PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
-SELECT ?time ?short_name 
-?event ?eventLabel (CONCAT("/event/", SUBSTR(STR(?event), 32)) AS ?eventUrl)
-?location ?locationLabel (CONCAT("/location/", SUBSTR(STR(?location), 32)) AS ?locationUrl)
-WITH {
-  SELECT DISTINCT ?event WHERE {
-    # This union seems to be faster than a VALUES-based query
-    { ?event wdt:P31 / wdt:P279* wd:Q52260246 . }
-    UNION 
-    { ?event wdt:P31 / wdt:P279* wd:Q46855 . }
-  }
-} AS %events
+#defaultView:AreaChart
+
+PREFIX target: <http://www.wikidata.org/entity/Q47501052>
+
+SELECT
+  ?year
+  ?works
+  ?topic ?topicLabel
 WITH {
   SELECT 
-    ?event 
-    (xsd:date(MIN(?times)) AS ?time)
-    (SAMPLE(?locations) AS ?location)
-    (SAMPLE(?short_names) AS ?short_name)
+    ?work
   WHERE {
-    INCLUDE %events
-    
-    ?event wdt:P580 | wdt:P585 ?times .
-    FILTER (?times < NOW())
-  
-    OPTIONAL { ?event wdt:P276 ?locations }
-    OPTIONAL { ?event wdt:P1813 ?short_names }
+    ?work wdt:P1433 / wdt:P4745 / (wdt:P179 | wdt:P31) target: .
   }
-  GROUP BY ?event
+} AS %works
+WITH {
+  SELECT
+    (COUNT(?work) AS ?count)
+    ?topic
+  WHERE {
+    INCLUDE %works
+    ?work wdt:P921 ?topic .
+  }
+  GROUP BY ?topic
+  ORDER BY DESC(?count)
+  LIMIT 5
+} AS %topics
+WITH {
+  SELECT
+    ?year 
+    (COUNT(?work) AS ?works)
+    ?topic
+  WHERE {
+    INCLUDE %works
+    INCLUDE %topics
+    ?work wdt:P921 ?topic ;
+          wdt:P577 ?publication_datetime .
+    BIND(STR(YEAR(?publication_datetime)) AS ?year)
+  }
+  GROUP BY ?year ?topic
 } AS %result
 WHERE {
   INCLUDE %result
-  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en,da,de,fr,jp,nl,no,pl,ru,sv,zh". }
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en". }
 }
-ORDER BY DESC(?time)
-LIMIT 200
-''';
-  scholia:aspect scholiaAspect:Event ;
-  rdfs:comment "Event aspect: [no title]"@en ;
+ORDER BY ?year''';
+  scholia:aspect scholiaAspect:Event-series ;
+  scholia:defaultView scholiaView:AreaChart ;
+  rdfs:comment "Event-series aspect: [no title]"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
-  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/event_past-events.sparql> ;
+  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/event-series_top-topics-through-time.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

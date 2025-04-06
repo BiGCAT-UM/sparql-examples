@@ -20,38 +20,31 @@ q:170 a sh:SPARQLExecutable,
 PREFIX p: <http://www.wikidata.org/prop/>
 PREFIX wdt: <http://www.wikidata.org/prop/direct/>
 PREFIX wikibase: <http://wikiba.se/ontology#>
-PREFIX target: <http://www.wikidata.org/entity/Q45340488>
+PREFIX target: <http://www.wikidata.org/entity/Q1200258>
 
-SELECT ?number_of_citations 
-?author ?authorLabel (CONCAT("/author/", SUBSTR(STR(?author), 32)) AS ?authorUrl)
-?cited_work_example ?cited_work_exampleLabel (CONCAT("/work/", SUBSTR(STR(?cited_work_example), 32)) AS ?cited_work_exampleUrl)
+# title: Co-funders to a specific funder including an example funded work
+SELECT ?count 
+?sponsor ?sponsorLabel (CONCAT("/sponsor/", SUBSTR(STR(?sponsor), 32)) AS ?sponsorUrl)
+?example_work ?example_workLabel (CONCAT("/work/", SUBSTR(STR(?example_work), 32)) AS ?example_workUrl)
 WITH {
-  # Find works about the topic
-  SELECT DISTINCT ?work WHERE {
-	  ?work wdt:P921 / (wdt:P361+ | wdt:P1269+ | (wdt:P31* / wdt:P279*) ) target: .
-  }
-} AS %works
-WITH {
-  # Find cited works
-  SELECT (COUNT(?work) AS ?number_of_citations) ?author (SAMPLE(?cited_work) AS ?cited_work_example)
+  SELECT (COUNT(?work) AS ?count) ?sponsor (SAMPLE(?work) AS ?example_work)
   WHERE {
-    INCLUDE %works
-    ?cited_work wdt:P50 ?author . 
-    ?work wdt:P2860 ?cited_work .
-  } 
-  GROUP BY ?author
+    ?work wdt:P859+ target: .
+    ?work wdt:P859+ ?sponsor .
+    FILTER (target: != ?sponsor)
+  }
+  GROUP BY ?sponsor
 } AS %result
 WHERE {
-  # Label the results
+  # Label the result
   INCLUDE %result
-  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" . }
-} 
-ORDER BY DESC(?number_of_citations)
-LIMIT 200
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" }
+}
+ORDER BY DESC(?count)
 ''';
-  scholia:aspect scholiaAspect:Topic ;
-  rdfs:comment "Topic aspect: [no title]"@en ;
+  scholia:aspect scholiaAspect:Sponsor ;
+  rdfs:comment "Sponsor aspect: Co-funders to a specific funder including an example funded work"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
-  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/topic_most-cited-authors.sparql> ;
+  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/sponsor_co-sponsors.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

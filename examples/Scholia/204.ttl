@@ -16,70 +16,54 @@
 q:204 a sh:SPARQLExecutable,
   sh:SPARQLSelectExecutable;
   sh:prefixes _:sparql_examples_prefixes ;
-  sh:select '''PREFIX bd: <http://www.bigdata.com/rdf#>
-PREFIX p: <http://www.wikidata.org/prop/>
+  sh:select '''PREFIX p: <http://www.wikidata.org/prop/>
+PREFIX pq: <http://www.wikidata.org/prop/qualifier/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX wdt: <http://www.wikidata.org/prop/direct/>
 PREFIX wd: <http://wikidata.org/entity/>
-PREFIX wikibase: <http://wikiba.se/ontology#>
-PREFIX target: <http://www.wikidata.org/entity/Q60687720>
-#defaultView:Graph
-SELECT ?node ?nodeLabel ?nodeImage ?childNode ?childNodeLabel ?childNodeImage ?rgb 
-WITH {
-  SELECT DISTINCT ?property WHERE {
-      ?property a wikibase:Property;
-                wdt:P31 wd:Q18610173 ;
-                wdt:P31 wd:Q26940804 . 
-    }
-} AS %properties
-WITH {
-  SELECT DISTINCT ?node ?childNode WHERE {
-      BIND(target: AS ?node)
-      ?node ?p ?i.
-      ?childNode ?x ?p.
-      ?childNode rdf:type wikibase:Property.
-      FILTER(STRSTARTS(STR(?i), "http://www.wikidata.org/entity/Q"))
-      FILTER(STRSTARTS(STR(?childNode), "http://www.wikidata.org/entity/P"))
-    }
-  LIMIT 5000
-} AS %nodes
-WITH {
-  SELECT DISTINCT ?childNode ?node ?rgb WHERE {
-      BIND("EFFBD8" AS ?rgb)
-      target: ?p ?childNode.
-      ?node ?x ?p.
-      ?node rdf:type wikibase:Property.
-      FILTER(STRSTARTS(STR(?childNode), "http://www.wikidata.org/entity/Q"))
-    }
-  LIMIT 5000
-} AS %childNodes
-WHERE {
-  {
-    INCLUDE %nodes
-  }
-  UNION
-  {
-    INCLUDE %childNodes
-  }
+#defaultView:BarChart
 
-  OPTIONAL { 
-    INCLUDE %properties
-    ?property wikibase:directClaim ?nodeclaim.
-    ?node ?nodeclaim ?nodeImage. 
-  }
+PREFIX target: <http://www.wikidata.org/entity/Q6294930>
 
-  OPTIONAL { 
-    INCLUDE %properties
-    ?property wikibase:directClaim ?childNodeclaim.
-    ?childNode ?childNodeclaim ?childNodeImage. 
+# Inspired from LEGOLAS - http://abel.lis.illinois.edu/legolas/
+# Shubhanshu Mishra, Vetle Torvik
+select ?year (count(?work) as ?number_of_publications) ?intention where {
+  {
+    select (str(?year_) as ?year) (0 as ?pages) ("_" as ?intention) where {
+      # default values = 0
+      ?year_item wdt:P31 wd:Q577 . 
+      ?year_item wdt:P585 ?date .
+      bind(year(?date) as ?year_)
+      {
+        select (min(?year_) as ?earliest_year)  (max(?year_) as ?latest_year) where {
+          VALUES ?JOURNAL { target: }
+          ?work wdt:P1433 ?JOURNAL .
+          ?work wdt:P577 ?publication_date . 
+          bind(year(?publication_date) as ?year_)
+        }
+      }
+      bind(year(now())+1 as ?next_year)
+      filter (?year_ >= ?earliest_year && ?year_ <= ?latest_year)
+    }
   }
-  
-  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en". }        
+  union {
+    select ?work ?intention (min(?years) as ?year) where {
+      VALUES ?JOURNAL { target: }
+      ?work wdt:P577 ?dates ;
+            p:P2860 / pq:P3712 / rdfs:label ?intention ;
+            wdt:P1433 ?JOURNAL .
+      bind(str(year(?dates)) as ?years) .
+      FILTER (LANG(?intention) = "en")
+    }
+    group by ?work ?intention
+  }
 }
+group by ?year ?intention
+order by ?year
 ''';
-  scholia:aspect scholiaAspect:Wikiproject ;
-  scholia:defaultView scholiaView:Graph ;
-  rdfs:comment "Wikiproject aspect: [no title]"@en ;
+  scholia:aspect scholiaAspect:Venue ;
+  scholia:defaultView scholiaView:BarChart ;
+  rdfs:comment "Venue aspect: [no title]"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
-  spex:federatesWith <http://wikiba.se/ontology#label> ;
-  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/wikiproject_context.sparql> ;
+  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/venue_articles-by-intention.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

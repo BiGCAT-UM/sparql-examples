@@ -19,38 +19,52 @@ q:112 a sh:SPARQLExecutable,
   sh:select '''PREFIX bd: <http://www.bigdata.com/rdf#>
 PREFIX p: <http://www.wikidata.org/prop/>
 PREFIX wdt: <http://www.wikidata.org/prop/direct/>
+PREFIX wd: <http://wikidata.org/entity/>
 PREFIX wikibase: <http://wikiba.se/ontology#>
-PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
-#defaultView:Table
+#defaultView:Graph
 
-PREFIX target: <http://www.wikidata.org/entity/Q28031254>
+PREFIX target: <http://www.wikidata.org/entity/Q104785223>
 
-SELECT ?citations ?publication_date ?citing_work ?citing_workLabel
+SELECT
+  ?author1 ?author1Label ?image1 ?rgb
+  ?author2 ?author2Label ?image2 
 WITH {
   SELECT
-    (MIN(?date) AS ?publication_date)
-    (COUNT(?citing_citing_work) AS ?citations)
-    ?citing_work
+    ?author1 (SAMPLE(?image1_) AS ?image1)
+    ?author2 (SAMPLE(?image2_) AS ?image2)
+    (SAMPLE(?rgb_) AS ?rgb)
   WHERE {
-    ?citing_work wdt:P2860 target: .
-    OPTIONAL {
-      ?citing_work wdt:P577 ?datetime .
-      BIND(xsd:date(?datetime) AS ?date)
-    }
-    OPTIONAL { ?citing_citing_work wdt:P2860 ?citing_work }
+    target: ^wdt:P361* / ^( wdt:P108 | wdt:P1416 | wdt:P463 ) ?author1 , ?author2 .
+    ?work wdt:P50 ?author1 , ?author2 .
+
+    # Only display co-authorship for certain types of documents
+    # Journal and conference articles, books, not (yet?) software
+    VALUES ?publication_type { wd:Q13442814 wd:Q571 wd:Q26973022 wd:Q17928402 wd:Q947859 wd:Q54670950 }
+    FILTER EXISTS { ?work wdt:P31 ?publication_type . }
+
+    # No self-links.
+    FILTER (?author1 != ?author2)
+
+    # Images
+    OPTIONAL { ?author1 wdt:P18 ?image1_ }
+    OPTIONAL { ?author2 wdt:P18 ?image2_ }
+
+    # Coloring of the nodes
+    BIND("FFFFFF" AS ?rgb_)
   }
-  GROUP BY ?citing_work
+  GROUP BY ?author1 ?author2
 } AS %result
 WHERE {
   INCLUDE %result
-  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" . }
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" .
+  }
 }
-ORDER BY DESC(?citations) DESC(?date)
+
 ''';
-  scholia:aspect scholiaAspect:Pathway ;
-  scholia:defaultView scholiaView:Table ;
-  rdfs:comment "Pathway aspect: [no title]"@en ;
+  scholia:aspect scholiaAspect:Organization ;
+  scholia:defaultView scholiaView:Graph ;
+  rdfs:comment "Organization aspect: [no title]"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
-  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/pathway_citing-articles.sparql> ;
+  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/organization_co-author-graph.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

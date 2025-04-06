@@ -19,68 +19,44 @@ q:167 a sh:SPARQLExecutable,
   sh:select '''PREFIX bd: <http://www.bigdata.com/rdf#>
 PREFIX p: <http://www.wikidata.org/prop/>
 PREFIX wdt: <http://www.wikidata.org/prop/direct/>
-PREFIX wd: <http://wikidata.org/entity/>
 PREFIX wikibase: <http://wikiba.se/ontology#>
-PREFIX target: <http://www.wikidata.org/entity/Q45340488>
+#description: Show software library, programming language and developer dependencies
+
+PREFIX target: <http://www.wikidata.org/entity/Q1635410>
 
 #defaultView:Graph
-SELECT ?node ?nodeLabel ?nodeImage ?childNode ?childNodeLabel ?childNodeImage ?rgb 
+SELECT ?resource1 ?resource1Label ?image1 ?rgb ?resource2 ?resource2Label ?image2
 WITH {
-  SELECT DISTINCT ?property WHERE {
-      ?property a wikibase:Property;
-                wdt:P31 wd:Q18610173 ;
-                wdt:P31 wd:Q26940804 . 
+  SELECT
+    ?resource1 (SAMPLE(?image1_) AS ?image1) ?rgb
+    ?resource2 (SAMPLE(?image2_) AS ?image2)
+    {
+      {
+        # root node with coloring
+        BIND(target: AS ?resource1)
+        BIND("3080BB" AS ?rgb)
+      }
+      UNION
+      {
+        # dependencies, programming language, developer
+        target: ( wdt:P1547 | wdt:P277 | wdt:P178 | wdt:P2283 | wdt:P275 )+ ?resource1 .
+        OPTIONAL { ?resource1 wdt:P18 ?image1_ }
+      }
+      target: ( wdt:P1547 | wdt:P277 | wdt:P178 | wdt:P2283 | wdt:P275 )+ ?resource2 .
+      OPTIONAL { ?resource2 wdt:P18 ?image2_ }
+      ?resource1 ( wdt:P1547 | wdt:P277 | wdt:P178 | wdt:P2283 | wdt:P275 ) ?resource2 .
     }
-} AS %properties
-WITH {
-  SELECT DISTINCT ?node ?childNode WHERE {
-      BIND(target: AS ?node)
-      ?node ?p ?i.
-      ?childNode ?x ?p.
-      ?childNode rdf:type wikibase:Property.
-      FILTER(STRSTARTS(STR(?i), "http://www.wikidata.org/entity/Q"))
-      FILTER(STRSTARTS(STR(?childNode), "http://www.wikidata.org/entity/P"))
-    }
-  LIMIT 5000
-} AS %nodes
-WITH {
-  SELECT DISTINCT ?childNode ?node ?rgb WHERE {
-      BIND("EFFBD8" AS ?rgb)
-      target: ?p ?childNode.
-      ?node ?x ?p.
-      ?node rdf:type wikibase:Property.
-      FILTER(STRSTARTS(STR(?childNode), "http://www.wikidata.org/entity/Q"))
-    }
-  LIMIT 5000
-} AS %childNodes
-WHERE {
-  {
-    INCLUDE %nodes
-  }
-  UNION
-  {
-    INCLUDE %childNodes
-  }
-
-  OPTIONAL { 
-    INCLUDE %properties
-    ?property wikibase:directClaim ?nodeclaim.
-    ?node ?nodeclaim ?nodeImage. 
-  }
-
-  OPTIONAL { 
-    INCLUDE %properties
-    ?property wikibase:directClaim ?childNodeclaim.
-    ?childNode ?childNodeclaim ?childNodeImage. 
-  }
-  
-  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en". }        
+    GROUP BY ?resource1 ?resource2 ?rgb
+} AS %result
+{
+  INCLUDE %result
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" . }
 }
 ''';
-  scholia:aspect scholiaAspect:Topic ;
+  scholia:aspect scholiaAspect:Software ;
   scholia:defaultView scholiaView:Graph ;
-  rdfs:comment "Topic aspect: [no title]"@en ;
+  rdfs:comment "Software aspect: [no title]"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
-  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/topic_context.sparql> ;
+  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/software_software-dependencies.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

@@ -20,44 +20,41 @@ q:217 a sh:SPARQLExecutable,
 PREFIX p: <http://www.wikidata.org/prop/>
 PREFIX wdt: <http://www.wikidata.org/prop/direct/>
 PREFIX wikibase: <http://wikiba.se/ontology#>
+# title: Most cited articles published in specific venue
+
+PREFIX target: <http://www.wikidata.org/entity/Q6294930>
+
 #defaultView:Table
-
-PREFIX target: <http://www.wikidata.org/entity/Q28942417>
-
-# List of authors with works that are cited by the specified work
 SELECT
-  ?cited_works
-
-  ?author ?authorLabel ?authorDescription
-  (CONCAT("/author/", SUBSTR(STR(?author), 32)) AS ?authorUrl)
-
-  ?cited_work_example ?cited_work_exampleLabel
-   (CONCAT("/work/", SUBSTR(STR(?cited_work_example), 32)) AS ?cited_work_exampleUrl)
+  ?count
+  ?work ?workLabel
+  ?example_citing_work ?example_citing_workLabel
 WITH {
+  # Count citations
   SELECT
-    (COUNT(?cited_work) AS ?cited_works)
-    ?author
-    (SAMPLE(?cited_work) AS ?cited_work_example)
+    (COUNT(?citing_work) AS ?count)
+    ?work
+    (SAMPLE(?citing_work) AS ?example_citing_work)
   WHERE {
-    # Find works that are cited by the queried work
-    target: wdt:P2860 ?cited_work .
-    ?cited_work wdt:P50 ?author .
+    ?work wdt:P1433 target: .
+    ?citing_work wdt:P2860 ?work.
   }
-  GROUP BY ?author
-  # Limit the number of results to avoid downloading too much data
-  ORDER BY DESC(?cited_works)
-  LIMIT 1000
+  GROUP BY ?work
+  ORDER BY DESC(?count)
+  LIMIT 1000  
 } AS %result
 WHERE {
-  # Label the result
+  # Label results
   INCLUDE %result
-  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" . }
+  SERVICE wikibase:label {
+    bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" . } 
 }
-ORDER BY DESC(?cited_works)''';
-  scholia:aspect scholiaAspect:Work ;
+ORDER BY DESC(?count)
+''';
+  scholia:aspect scholiaAspect:Venue ;
+  rdfs:comment "Venue aspect: Most cited articles published in specific venue"@en ;
   scholia:defaultView scholiaView:Table ;
-  rdfs:comment "Work aspect: [no title]"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
-  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/work_cited-work-authors.sparql> ;
+  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/venue_most-cited-articles.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

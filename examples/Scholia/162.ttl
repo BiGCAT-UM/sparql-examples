@@ -20,50 +20,34 @@ q:162 a sh:SPARQLExecutable,
 PREFIX p: <http://www.wikidata.org/prop/>
 PREFIX wdt: <http://www.wikidata.org/prop/direct/>
 PREFIX wikibase: <http://wikiba.se/ontology#>
-PREFIX target: <http://www.wikidata.org/entity/Q45340488>
+PREFIX target: <http://www.wikidata.org/entity/Q1635410>
 
-SELECT ?score 
-?author ?authorLabel (CONCAT("/author/", SUBSTR(STR(?author), 32)) AS ?authorUrl)
-?example_work ?example_workLabel (CONCAT("/work/", SUBSTR(STR(?example_work), 32)) AS ?example_workUrl)
-WITH {
+SELECT
+  ?count
+  ?author ?authorLabel ?authorDescription
+  ?example_work ?example_workLabel
+WITH{
   SELECT
-    (SUM(?score_) AS ?score)
+    (COUNT(?work) AS ?count)
     ?author
     (SAMPLE(?work) AS ?example_work)
   WHERE {
-    { 
-      ?author wdt:P101/wdt:P279* target: .
-      BIND(20 AS ?score_)
-    }
-    UNION
-    {
-      SELECT (3 AS ?score_) ?author ?work WHERE {
-        ?work wdt:P50 ?author ;
-              wdt:P921/wdt:P279* target: .
-      }
-    }
-    UNION
-    {
-      SELECT (1 AS ?score_) ?author ?work WHERE {
-        ?work wdt:P50 ?author .
-        ?citing_work wdt:P2860 ?work .
-        ?citing_work wdt:P921/wdt:P279* target: .
-      }
-    }
+    ?work (wdt:P2283 | wdt:P4510) / wdt:P279* target: ;
+          wdt:P50 ?author .
   }
   GROUP BY ?author
-  ORDER BY DESC(?score)
-  LIMIT 200
-} AS %results 
+  ORDER BY DESC(?count)
+  LIMIT 500
+} AS %result
 WHERE {
-  INCLUDE %results
-  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en,da,de,es,jp,no,ru,sv,zh". }
+  INCLUDE %result
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" . }
 }
-ORDER BY DESC(?score)
+ORDER BY DESC(?count)
 ''';
-  scholia:aspect scholiaAspect:Topic ;
-  rdfs:comment "Topic aspect: [no title]"@en ;
+  scholia:aspect scholiaAspect:Software ;
+  rdfs:comment "Software aspect: [no title]"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
-  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/topic_author-scores.sparql> ;
+  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/software_authors.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

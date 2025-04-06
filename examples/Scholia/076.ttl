@@ -18,115 +18,66 @@ q:076 a sh:SPARQLExecutable,
   sh:prefixes _:sparql_examples_prefixes ;
   sh:select '''PREFIX bd: <http://www.bigdata.com/rdf#>
 PREFIX p: <http://www.wikidata.org/prop/>
-PREFIX pq: <http://www.wikidata.org/prop/qualifier/>
-PREFIX ps: <http://www.wikidata.org/prop/statement/>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX wdt: <http://www.wikidata.org/prop/direct/>
-PREFIX wd: <http://wikidata.org/entity/>
 PREFIX wikibase: <http://wikiba.se/ontology#>
-PREFIX target: <http://www.wikidata.org/entity/Q133457282>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX target: <http://www.wikidata.org/entity/Q47501052>
 
 SELECT
-  ?description ?descriptionLabel ?descriptionUrl
+  ?publication_date
+  ?work ?workLabel (CONCAT("/work/", SUBSTR(STR(?work), 32)) AS ?workUrl)
+  ?authors ?authorsUrl
+WITH {
+  SELECT
+    DISTINCT ?person
+  WHERE {
+    ?event wdt:P179 | wdt:P31 target: .
 
-  ?value ?valueLabel ?valueUrl
-
-WHERE {
-  {
-    BIND(1 AS ?order)
-    BIND("Event series" AS ?description)
-    BIND("/event-series" AS ?descriptionUrl)
-    target: wdt:P179 ?value .
-    BIND(CONCAT("/event-series/", SUBSTR(STR(?value), 32)) AS ?valueUrl)
-  }
-  UNION
-  {
-    BIND(2 AS ?order)
-    BIND("Short name" AS ?description)
-    target: wdt:P1813 ?value .
-  }
-  UNION
-  {
-    BIND(5 AS ?order)
-    BIND(wd:Q34770 AS ?description)
-    BIND("/language" AS ?descriptionUrl)
-    
-    target: wdt:P2936 ?value .
-    BIND(CONCAT("/language/", SUBSTR(STR(?value), 32)) AS ?valueUrl)
-  }
-  UNION
-  {
-    SELECT
-      (10 AS ?order)
-      ("Organizers" AS ?description)
-      (GROUP_CONCAT(?value_; separator=", ") AS ?value)
-      (CONCAT("/authors/", GROUP_CONCAT(?q; separator=",")) AS ?valueUrl)      
     {
-      BIND(1 AS ?dummy)
-      target: wdt:P664 ?iri .
-      BIND(SUBSTR(STR(?iri), 32) AS ?q) 
-      ?iri rdfs:label ?value_string .
-      FILTER (LANG(?value_string) = 'en')
-      BIND(COALESCE(?value_string, ?q) AS ?value_)
+      # speaker
+      ?event wdt:P823 ?person .
     }
-    GROUP BY ?dummy
-  }
-  UNION
-  {
-    BIND(20 AS ?order)
-    BIND("Number of participants" AS ?description)
-    
-    target: wdt:P1132 ?value .
-  }
-  UNION
-  {
-    # number of submissions
-    BIND(21 AS ?order)
-    BIND("number of submissions"  AS ?description)
-    
-    target: p:P12655 ?value_statement .
-    ?value_statement ps:P12655 ?submissions.
-    OPTIONAL {
-      ?value_statement  pq:P518 / rdfs:label ?track .
-      FILTER (LANG(?track) = "en")
+    UNION
+    {
+      # organizer
+      ?event wdt:P664 ?person .
     }
-    BIND(IF(BOUND(?track), CONCAT(STR(?submissions), " (", ?track, ")"), STR(?submissions)) AS ?value)
-  }
-  UNION
-  {
-    # number of accepted contributions
-    BIND(22 AS ?order)
-    BIND("number of accepted contributions"  AS ?description)
-    
-    target: p:P12649 ?value_statement .
-    ?value_statement ps:P12649 ?accepted .
-    OPTIONAL {
-      ?value_statement  pq:P518 / rdfs:label ?track .
-      FILTER (LANG(?track) = "en")
+    UNION
+    {
+      # participant
+      ?person wdt:P1344 | ^wdt:P710 ?event .
     }
-    BIND(IF(BOUND(?track), CONCAT(STR(?accepted), " (", ?track, ")"), STR(?accepted)) AS ?value)
-  }
-  UNION
-  {
-    BIND(23 AS ?order)
-    BIND("Acceptance&nbsp;rate" AS ?description)
-    
-    target: p:P5822 ?value_statement .
-    ?value_statement ps:P5822 ?acceptance_rate .
-    OPTIONAL {
-      ?value_statement  pq:P518 / rdfs:label ?track .
-      FILTER (LANG(?track) = "en")
+    UNION
+    {
+      # author
+      ?person ^wdt:P50 / wdt:P1433 / wdt:P4745 ?event .
     }
-    BIND(IF(BOUND(?track), CONCAT(STR(?acceptance_rate * 100), " % (", ?track, ")"), CONCAT(STR(?acceptance_rate * 100), " %")) AS ?value)
   }
-
-  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en". }
-} 
-ORDER BY ?order
+} AS %people  
+WITH {
+  SELECT
+    (xsd:date(MAX(?publication_datetime)) AS ?publication_date)
+    ?work
+    (GROUP_CONCAT(DISTINCT ?person_label; separator=", ") AS ?authors)
+    (CONCAT("../authors/", GROUP_CONCAT(DISTINCT SUBSTR(STR(?person), 32); separator=",")) AS ?authorsUrl)
+  WHERE {
+    INCLUDE %people .
+    ?work wdt:P50 ?person ; wdt:P577 ?publication_datetime .
+    ?person rdfs:label ?person_label . FILTER(LANG(?person_label) = 'en')
+  }
+  GROUP BY ?work
+} AS %results
+WHERE {
+  INCLUDE %results
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en,da,de,es,fr,jp,no,ru,sv,zh". }
+}
+ORDER BY DESC(?publication_date)
+LIMIT 500
 ''';
-  scholia:aspect scholiaAspect:Event ;
-  rdfs:comment "Event aspect: [no title]"@en ;
+  scholia:aspect scholiaAspect:Event-series ;
+  rdfs:comment "Event-series aspect: [no title]"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
-  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/event_data.sparql> ;
+  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/event-series_recent-publications.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

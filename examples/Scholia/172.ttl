@@ -16,69 +16,43 @@
 q:172 a sh:SPARQLExecutable,
   sh:SPARQLSelectExecutable;
   sh:prefixes _:sparql_examples_prefixes ;
-  sh:select '''PREFIX p: <http://www.wikidata.org/prop/>
-PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+  sh:select '''PREFIX bd: <http://www.bigdata.com/rdf#>
+PREFIX p: <http://www.wikidata.org/prop/>
+PREFIX prov: <http://www.w3.org/ns/prov#>
+PREFIX pr: <http://www.wikidata.org/prop/reference/>
+PREFIX ps: <http://www.wikidata.org/prop/statement/>
 PREFIX wdt: <http://www.wikidata.org/prop/direct/>
-PREFIX wd: <http://wikidata.org/entity/>
+PREFIX wikibase: <http://wikiba.se/ontology#>
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
-#defaultView:BarChart
+PREFIX target: <http://www.wikidata.org/entity/Q1200258>
 
-PREFIX target: <http://www.wikidata.org/entity/Q45340488>
-
-SELECT
-  (STR(?year_) AS ?year)
-  (COUNT(?work) AS ?number_of_publications)
-
-  # Work type used to color the bar chart
-  ?type
+SELECT ?publication_date ?number_of_citations 
+?work ?workLabel (CONCAT("/work/", SUBSTR(STR(?work), 32)) AS ?workUrl)
+?quote
 WITH {
-  # Find works with the topic. Also report the year
-  SELECT
-    ?work (MIN(?years) AS ?year_) (1 AS ?dummy) (SAMPLE(?article_type_) AS ?article_type)
+  SELECT (MIN(?date) AS ?publication_date) (COUNT(?citing_work) as ?number_of_citations) ?work (SAMPLE(?quote_) AS ?quote)
   WHERE {
-    ?work wdt:P921 / (wdt:P31*/wdt:P279* | wdt:P361+ | wdt:P1269+) target: .
-    ?work wdt:P577 ?dates .
-    BIND(YEAR(?dates) AS ?years) .
-
-    ?work wdt:P31 ?article_type_ .
-  }
-  GROUP BY ?work 
-} AS %works
-WITH {
-  SELECT ?year_ WHERE {
-    # default values = 0
-    ?year_item wdt:P31 wd:Q577 . 
-    ?year_item wdt:P585 ?date .
-    BIND(YEAR(?date) AS ?year_)
-  }
-} AS %default_counts
-WITH {
-  # Find earliest publication year
-  SELECT (MIN(?year_) AS ?earliest_year) WHERE {
-    INCLUDE %works
-  }
-  GROUP BY ?dummy
-} AS %earliest  
+    ?work p:P859+ ?sponsor_statement .
+    ?sponsor_statement ps:P859+ target: .
+    OPTIONAL { ?sponsor_statement prov:wasDerivedFrom/pr:P1683 ?quote_ . }
+    OPTIONAL {
+      ?work wdt:P577 ?datetime .
+      BIND(xsd:date(?datetime) AS ?date)
+    }
+    OPTIONAL { ?citing_work wdt:P2860 ?work }
+  } 
+  GROUP BY ?work
+} AS %result
 WHERE {
-  {
-    INCLUDE %works
-    ?article_type rdfs:label ?type . FILTER (LANG(?type) = "en")
-  }
-  UNION
-  {
-    INCLUDE %default_counts
-    BIND("_" AS ?type)
-  }
-  INCLUDE %earliest
-  BIND(YEAR(NOW()) AS ?this_year)
-  FILTER (?year_ >= ?earliest_year && ?year_ <= ?this_year && ?year_ >= YEAR("1900-01-01"^^xsd:dateTime))
-}
-GROUP BY ?year_ ?type
-ORDER BY ?year
+  INCLUDE %result
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" }
+} 
+ORDER BY DESC(?publication_date) DESC(?number_of_citations)
+LIMIT 1000
 ''';
-  scholia:aspect scholiaAspect:Topic ;
-  scholia:defaultView scholiaView:BarChart ;
-  rdfs:comment "Topic aspect: [no title]"@en ;
+  scholia:aspect scholiaAspect:Sponsor ;
+  rdfs:comment "Sponsor aspect: [no title]"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
-  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/topic_publications-per-year.sparql> ;
+  spex:federatesWith <http://wikiba.se/ontology#label> ;
+  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/sponsor_recently-published-sponsored-works.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

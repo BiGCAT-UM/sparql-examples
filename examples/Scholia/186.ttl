@@ -20,42 +20,47 @@ q:186 a sh:SPARQLExecutable,
 PREFIX p: <http://www.wikidata.org/prop/>
 PREFIX wdt: <http://www.wikidata.org/prop/direct/>
 PREFIX wikibase: <http://wikiba.se/ontology#>
-PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
-PREFIX target: <http://www.wikidata.org/entity/Q6294930>
+#defaultView:Graph
 
-# title: Cited venues from specific journal
+PREFIX target: <http://www.wikidata.org/entity/Q45340488>
+
 SELECT
-  ?count
-  ?short_name
-  ?cited_journal ?cited_journalLabel
+  ?topic1 ?topic1Label ?topic2 ?topic2Label
 WITH {
   SELECT
-    (COUNT(?cited_work) AS ?count)
-    ?cited_journal
-    (SAMPLE(?short_name_) AS ?short_name)
+    (COUNT(DISTINCT ?work) AS ?count) ?topic1 ?topic2
   WHERE {
-    ?work wdt:P1433 target: .
-    ?work wdt:P2860 ?cited_work .
-    ?cited_work wdt:P1433 ?cited_journal . 
-    OPTIONAL {
-      ?work wdt:P577 ?publication_datetime .
-      BIND(xsd:date(?publication_datetime) AS ?publication_date)
-    }
-    OPTIONAL { ?cited_journal wdt:P1813 ?short_name_ . }
+    # Find works that are marked with main subject of the topic.
+    ?work wdt:P921 / ( wdt:P31*/wdt:P279* | wdt:P361+ | wdt:P1269+ ) target: .
+    
+    # Identify co-occuring topics. 
+    ?work wdt:P921 ?topic1, ?topic2 . 
+
+    # Exclude the topic it self
+    FILTER (target: != ?topic1 && target: != ?topic2 && ?topic1 != ?topic2)
   }
-  GROUP BY ?cited_journal
-} AS %result
+  GROUP BY ?topic1 ?topic2
+  ORDER BY DESC(?count)
+
+  # There a performance problems in the browser: We cannot show large graphs,
+  # so we put a limit on the number of links displayed.
+  LIMIT 400
+
+} AS %results
 WHERE {
-  INCLUDE %result
+  INCLUDE %results
+  
+  # Label the results
   SERVICE wikibase:label {
-    bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" . } 
+    bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" .
+  }
 }
-ORDER BY DESC(?count)
-LIMIT 200
+
 ''';
-  scholia:aspect scholiaAspect:Venue ;
-  rdfs:comment "Venue aspect: Cited venues from specific journal"@en ;
+  scholia:aspect scholiaAspect:Topic ;
+  scholia:defaultView scholiaView:Graph ;
+  rdfs:comment "Topic aspect: [no title]"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
-  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/venue_cited-venues.sparql> ;
+  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/topic_co-occurring.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

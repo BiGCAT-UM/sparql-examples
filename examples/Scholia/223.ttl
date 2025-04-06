@@ -19,32 +19,26 @@ q:223 a sh:SPARQLExecutable,
   sh:select '''PREFIX bd: <http://www.bigdata.com/rdf#>
 PREFIX p: <http://www.wikidata.org/prop/>
 PREFIX wdt: <http://www.wikidata.org/prop/direct/>
+PREFIX wd: <http://wikidata.org/entity/>
 PREFIX wikibase: <http://wikiba.se/ontology#>
-#defaultView:Table
+PREFIX target: <http://www.wikidata.org/entity/Q6294930>
 
-PREFIX target: <http://www.wikidata.org/entity/Q28942417>
-
-# List of related works by co-citation analysis
-SELECT ?count ?work ?workLabel
-WITH {
-  SELECT ?work (COUNT(?work) AS ?count)
-  WHERE {
-    target: (^wdt:P2860 | wdt:P2860) / (^wdt:P2860 | wdt:P2860)? ?work .
-    FILTER (target: != ?work)
-  }
-  GROUP BY ?work
-  LIMIT 500
-} AS %result
-WHERE {
-  INCLUDE %result
-  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" . } 
-} 
-ORDER BY DESC(?count) 
+SELECT DISTINCT ?work ?workLabel ?doi (COUNT(DISTINCT ?citing) AS ?citations) WHERE {
+  { ?work wdt:P31 wd:Q45182324 . }
+  UNION
+  { ?work wdt:P793 wd:Q7316896 . }
+  UNION
+  { ?work wdt:P5824 [] . }
+  OPTIONAL { ?citing wdt:P2860 ?work . }
+  ?work wdt:P1433 target: ; wdt:P356 ?doi .
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en". }
+} GROUP BY ?work ?workLabel ?doi
+  ORDER BY DESC(?citations)
+  LIMIT 100
 ''';
-  scholia:aspect scholiaAspect:Work ;
-  scholia:defaultView scholiaView:Table ;
-  rdfs:comment "Work aspect: [no title]"@en ;
+  scholia:aspect scholiaAspect:Venue ;
+  rdfs:comment "Venue aspect: [no title]"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
-  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/work_related-works.sparql> ;
+  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/venue_retractions.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

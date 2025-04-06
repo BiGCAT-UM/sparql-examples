@@ -19,55 +19,34 @@ q:166 a sh:SPARQLExecutable,
   sh:select '''PREFIX bd: <http://www.bigdata.com/rdf#>
 PREFIX p: <http://www.wikidata.org/prop/>
 PREFIX wdt: <http://www.wikidata.org/prop/direct/>
-PREFIX wd: <http://wikidata.org/entity/>
 PREFIX wikibase: <http://wikiba.se/ontology#>
-#defaultView:Graph
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX target: <http://www.wikidata.org/entity/Q1635410>
 
-PREFIX target: <http://www.wikidata.org/entity/Q45340488>
-
-SELECT ?author1 ?author1Label ?rgb ?author2 ?author2Label
-WITH {
-  # Find works with the topic
-  SELECT ?work WHERE {
-    ?work wdt:P921 / (wdt:P31* / wdt:P279* | wdt:P361+ | wdt:P1269+) target: .
+SELECT
+  ?publication_date
+  ?work ?workLabel
+WITH{
+  SELECT
+    ?publication_datetime
+    ?work
+  WHERE {
+    ?work wdt:P4510 / wdt:P279* target: ;
+          wdt:P577 ?publication_datetime .
   }
-} AS %works
-WITH {
-  # Limit the number of authors
-  SELECT (COUNT(?work) AS ?count1) ?author1 WHERE {
-    INCLUDE %works
-    ?work wdt:P50 ?author1 .
-  }
-  GROUP BY ?author1
-  ORDER BY DESC(?count1)
-  LIMIT 25
-} AS %authors1
-WITH {
-  # Limit the number of coauthors
-  SELECT DISTINCT ?author2 ?author1  (COUNT(?work) AS ?count2)  WHERE {
-    INCLUDE %works
-    INCLUDE %authors1
-    ?work wdt:P50 ?author1 , ?author2 .
-    FILTER (?author1 != ?author2) 
-  }
-  GROUP BY ?author2 ?author1 
-  ORDER BY DESC(?count2)
-  LIMIT 250
-} AS %authors2
+  ORDER BY DESC(?publication_datetime)
+  LIMIT 500
+} AS %result
 WHERE {
-#  INCLUDE %authors1
-  INCLUDE %authors2
-  OPTIONAL { ?author1 wdt:P21 ?gender1 . }
-  BIND( IF(?gender1 = wd:Q6581097, "3182BD", "E6550D") AS ?rgb)
-  SERVICE wikibase:label {
-    bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" .
-  }
+  INCLUDE %result
+  BIND(xsd:date(?publication_datetime) AS ?publication_date)
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" . }
 }
+ORDER BY DESC(?publication_date)
 ''';
-  scholia:aspect scholiaAspect:Topic ;
-  scholia:defaultView scholiaView:Graph ;
-  rdfs:comment "Topic aspect: [no title]"@en ;
+  scholia:aspect scholiaAspect:Software ;
+  rdfs:comment "Software aspect: [no title]"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
-  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/topic_coauthor-graph.sparql> ;
+  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/software_recent-works.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

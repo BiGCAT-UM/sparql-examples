@@ -16,68 +16,41 @@
 q:122 a sh:SPARQLExecutable,
   sh:SPARQLSelectExecutable;
   sh:prefixes _:sparql_examples_prefixes ;
-  sh:select '''PREFIX p: <http://www.wikidata.org/prop/>
-PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+  sh:select '''PREFIX bd: <http://www.bigdata.com/rdf#>
+PREFIX p: <http://www.wikidata.org/prop/>
 PREFIX wdt: <http://www.wikidata.org/prop/direct/>
-PREFIX target: <http://www.wikidata.org/entity/Q124262264>
+PREFIX wikibase: <http://wikiba.se/ontology#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+#defaultView:Table
 
-SELECT DISTINCT ?description ?value ?valueUrl
-WHERE {
-  BIND(target: AS ?podcast)
-  {
-    BIND(1 AS ?order)
-    BIND("Title" AS ?description)
-    ?podcast wdt:P1476 ?value .
-  }
-  UNION
-  {
-    SELECT
-      (2 AS ?order)
-      ("Presenters" AS ?description)
-      (GROUP_CONCAT(?value_; separator=", ") AS ?value)
-      (CONCAT("../authors/", GROUP_CONCAT(?q; separator=",")) AS ?valueUrl)
-    {
-      BIND(1 AS ?dummy)
-      target: wdt:P371 ?iri .
-      BIND(SUBSTR(STR(?iri), 32) AS ?q) 
-      ?iri rdfs:label ?value_string . 
-      FILTER (LANG(?value_string) = 'en')
-      BIND(COALESCE(?value_string, ?q) AS ?value_)
+PREFIX target: <http://www.wikidata.org/entity/Q28031254>
+
+SELECT ?citations ?publication_date ?citing_work ?citing_workLabel
+WITH {
+  SELECT
+    (MIN(?date) AS ?publication_date)
+    (COUNT(?citing_citing_work) AS ?citations)
+    ?citing_work
+  WHERE {
+    ?citing_work wdt:P2860 target: .
+    OPTIONAL {
+      ?citing_work wdt:P577 ?datetime .
+      BIND(xsd:date(?datetime) AS ?date)
     }
-    GROUP BY ?dummy
+    OPTIONAL { ?citing_citing_work wdt:P2860 ?citing_work }
   }
-  UNION
-  {
-    BIND(3 AS ?order)
-    BIND("Language" AS ?description)
-    ?podcast wdt:P407 ?iri .
-    BIND(SUBSTR(STR(?iri), 32) AS ?q) 
-    ?iri rdfs:label ?value_string .
-    FILTER (LANG(?value_string) = 'en')
-    BIND(STR(?value_string) AS ?value)
-    BIND(CONCAT("../language/", ?q, "/podcast") AS ?valueUrl)
-  }
-  UNION
-  {
-    SELECT ?description ?order (MAX(?value_) AS ?value) WHERE {
-      BIND(target: AS ?podcast)
-      ?podcast wdt:P1113 ?value_ .
-      BIND(4 AS ?order)
-      BIND("Number of episodes" AS ?description)
-    } GROUP BY ?description ?order
-  }
-  UNION
-  {
-    BIND(5 AS ?order)
-    BIND("Web feed" AS ?description)
-    ?podcast wdt:P1019 ?valueUrl .
-    BIND("feed" AS ?value)
-  }
-} 
-ORDER BY ?order
+  GROUP BY ?citing_work
+} AS %result
+WHERE {
+  INCLUDE %result
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" . }
+}
+ORDER BY DESC(?citations) DESC(?date)
 ''';
-  scholia:aspect scholiaAspect:Podcast ;
-  rdfs:comment "Podcast aspect: [no title]"@en ;
+  scholia:aspect scholiaAspect:Pathway ;
+  scholia:defaultView scholiaView:Table ;
+  rdfs:comment "Pathway aspect: [no title]"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
-  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/podcast_data.sparql> ;
+  spex:federatesWith <http://wikiba.se/ontology#label> ;
+  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/pathway_citing-articles.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

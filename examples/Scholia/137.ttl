@@ -21,26 +21,22 @@ PREFIX p: <http://www.wikidata.org/prop/>
 PREFIX wdt: <http://www.wikidata.org/prop/direct/>
 PREFIX wd: <http://wikidata.org/entity/>
 PREFIX wikibase: <http://wikiba.se/ontology#>
-PREFIX target: <http://www.wikidata.org/entity/Q21109365>
+PREFIX target: <http://www.wikidata.org/entity/Q124262264>
 
-SELECT ?type ?complex_or_process ?complex_or_processLabel
-WITH {
-  SELECT DISTINCT ?type ?complex_or_process WHERE {
-    VALUES ?part { target: }
-    VALUES ?process { wd:Q2996394 wd:Q4915012 }
-    { ?part ^wdt:P527 ?complex_or_process . ?complex_or_process wdt:P31 wd:Q22325163 ; BIND ("complex" AS ?type ) }
-    UNION
-    { ?part ^wdt:P527 ?complex_or_process . ?complex_or_process wdt:P31 ?process ; BIND ("biological process" AS ?type ) }
-  }
-} AS %result
+SELECT DISTINCT ?season ?seasonLabel
+  (CONCAT("/podcast-season/", SUBSTR(STR(?season), 32)) AS ?seasonUrl)
+  (MAX(?count) AS ?episodeCount)
 WHERE {
-  INCLUDE %result
-  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" . }
-} ORDER BY ASC(?partLabel)
+  ?season wdt:P31 wd:Q69154911 ; wdt:P179 target: .
+  OPTIONAL {
+    ?season wdt:P1113 ?count .
+  }
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en". }
+} GROUP BY ?season ?seasonLabel ?seasonUrl
 ''';
-  scholia:aspect scholiaAspect:Protein ;
-  rdfs:comment "Protein aspect: [no title]"@en ;
+  scholia:aspect scholiaAspect:Podcast ;
+  rdfs:comment "Podcast aspect: [no title]"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
-  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/protein_participates-in.sparql> ;
+  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/podcast_seasons.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

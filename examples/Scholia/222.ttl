@@ -16,68 +16,45 @@
 q:222 a sh:SPARQLExecutable,
   sh:SPARQLSelectExecutable;
   sh:prefixes _:sparql_examples_prefixes ;
-  sh:select '''PREFIX p: <http://www.wikidata.org/prop/>
-PREFIX pq: <http://www.wikidata.org/prop/qualifier/>
-PREFIX ps: <http://www.wikidata.org/prop/statement/>
+  sh:select '''PREFIX bd: <http://www.bigdata.com/rdf#>
+PREFIX p: <http://www.wikidata.org/prop/>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-PREFIX schema: <http://schema.org/>
 PREFIX wdt: <http://www.wikidata.org/prop/direct/>
-PREFIX wd: <http://wikidata.org/entity/>
+PREFIX wikibase: <http://wikiba.se/ontology#>
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
-PREFIX target: <http://www.wikidata.org/entity/Q28942417>
+#title: Recent works published in venue
 
-# List of authors for a work
-SELECT DISTINCT
-  # Author order
-  ?order
+PREFIX target: <http://www.wikidata.org/entity/Q6294930>
 
-  ?academic_age
-
-  # Author item and label
-  ?author ?authorUrl ?authorDescription
-
-WHERE {
-  {
-    target: p:P50 ?author_statement .
-    ?author_statement ps:P50 ?author_ .
-    ?author_ rdfs:label ?author .
-    FILTER (LANG(?author) = 'en')
-    BIND(CONCAT("../author/", SUBSTR(STR(?author_), 32)) AS ?authorUrl)
+SELECT
+  ?publication_date
+  ?work ?workLabel
+  (GROUP_CONCAT(DISTINCT ?author_label; separator=", ") AS ?authors)
+  (CONCAT("../authors/", GROUP_CONCAT(DISTINCT SUBSTR(STR(?author), 32); separator=",")) AS ?authorsUrl)
+WITH {
+  SELECT DISTINCT ?work (MIN(?publication_date_) AS ?publication_date) WHERE {
+    ?work wdt:P1433 target: .
     OPTIONAL {
-      ?author_statement pq:P1545 ?order_ .
-      BIND(xsd:integer(?order_) AS ?order)
+      ?work wdt:P577 ?publication_datetime .
+      BIND(xsd:date(?publication_datetime) AS ?publication_date_)
     }
-    OPTIONAL {
-      ?author_ schema:description ?authorDescription .
-      FILTER (LANG(?authorDescription) = "en")
-    }
-  }
-  UNION
-  {
-    target: p:P2093 ?authorstring_statement .
-    ?authorstring_statement ps:P2093 ?author_
-    BIND(CONCAT(?author_, " ↗") AS ?author)
-    OPTIONAL {
-      ?authorstring_statement pq:P1545 ?order_ .
-      BIND(xsd:integer(?order_) AS ?order)
-    }
-    BIND(CONCAT("https://author-disambiguator.toolforge.org/names_oauth.php?doit=Look+for+author&name=", ENCODE_FOR_URI(?author_)) AS ?authorUrl)
-  }
+  } GROUP BY ?work
+    ORDER BY DESC(?publication_date)
+    LIMIT 1000
+} AS %ARTICLES WHERE {
+  INCLUDE %ARTICLES
   OPTIONAL {
-    SELECT ?author_ (MAX(?academic_age_) AS ?academic_age) {
-      target: wdt:P50 ?author_ ;
-                 wdt:P577 ?publication_date .
-      [] wdt:P31 / wdt:P279* wd:Q55915575 ;
-         wdt:P50 ?author_ ;
-         wdt:P577 ?other_publication_date .
-      BIND(YEAR(?publication_date) - YEAR(?other_publication_date) AS ?academic_age_)
-    }
-    GROUP BY ?author_
+    ?work wdt:P50 ?author .
+    ?author rdfs:label ?author_label .
+    FILTER (LANG(?author_label) = 'en')
   }
-}
-ORDER BY ?order''';
-  scholia:aspect scholiaAspect:Work ;
-  rdfs:comment "Work aspect: [no title]"@en ;
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" . }
+} GROUP BY ?publication_date ?work ?workLabel
+ORDER BY DESC(?publication_date)
+''';
+  scholia:aspect scholiaAspect:Venue ;
+  rdfs:comment "Venue aspect: [no title]"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
-  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/work_list-of-authors.sparql> ;
+  spex:federatesWith <http://wikiba.se/ontology#label> ;
+  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/venue_recently-published-works.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

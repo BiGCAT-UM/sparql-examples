@@ -21,27 +21,39 @@ PREFIX p: <http://www.wikidata.org/prop/>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX wdt: <http://www.wikidata.org/prop/direct/>
 PREFIX wikibase: <http://wikiba.se/ontology#>
-PREFIX target: <http://www.wikidata.org/entity/Q12024>
+#defaultView:ImageGrid
+
+PREFIX target: <http://www.wikidata.org/entity/Q73820>
 
 SELECT
-  (COUNT(?middle) AS ?distance)
-  (GROUP_CONCAT(DISTINCT ?rank_label_; separator=", ") AS ?rank)
-  ?parent ?parentLabel ?parentDescription
-{
-  target: wdt:P171* ?middle .
-  ?middle wdt:P171+ ?parent .
-  ?parent wdt:P105 ?rank_ .
-  OPTIONAL {
-    ?rank_ rdfs:label ?rank_label_ . FILTER (LANG(?rank_label_) = 'en')
+  ?image
+  ?editor ?editorLabel 
+  ?venues
+WITH {
+  SELECT DISTINCT
+    (SAMPLE(?image_) AS ?image)
+    ?editor 
+    (GROUP_CONCAT(?venue_label; separator=" // ") AS ?venues)
+  WHERE {
+    # Find editors for journals published by publisher
+    ?venue_ wdt:P123 target: .
+    ?venue_ wdt:P98 | wdt:P5769 ?editor .
+    ?editor wdt:P18 ?image_ .
+    OPTIONAL {
+      ?venue_ rdfs:label ?venue_label . FILTER(LANG(?venue_label) = 'en')
+    }
   }
-  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en". }
+  GROUP BY ?editor
+} AS %result
+WHERE {
+  INCLUDE %result 
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" . } 
 }
-GROUP BY ?parent ?parentLabel ?parentDescription
-ORDER BY ?distance
 ''';
-  scholia:aspect scholiaAspect:Taxon ;
-  rdfs:comment "Taxon aspect: [no title]"@en ;
+  scholia:aspect scholiaAspect:Publisher ;
+  scholia:defaultView scholiaView:ImageGrid ;
+  rdfs:comment "Publisher aspect: [no title]"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
-  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/taxon_parent-taxa.sparql> ;
+  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/publisher_editor-photos.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

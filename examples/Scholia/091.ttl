@@ -18,29 +18,38 @@ q:091 a sh:SPARQLExecutable,
   sh:prefixes _:sparql_examples_prefixes ;
   sh:select '''PREFIX bd: <http://www.bigdata.com/rdf#>
 PREFIX p: <http://www.wikidata.org/prop/>
+PREFIX pq: <http://www.wikidata.org/prop/qualifier/>
+PREFIX ps: <http://www.wikidata.org/prop/statement/>
 PREFIX wdt: <http://www.wikidata.org/prop/direct/>
 PREFIX wd: <http://wikidata.org/entity/>
 PREFIX wikibase: <http://wikiba.se/ontology#>
-PREFIX target: <http://www.wikidata.org/entity/Q14860818>
+#defaultView:Timeline
 
-SELECT
-  ?ortholog ?orthologLabel ?orthologDescription
-  ?taxon ?taxonLabel ?taxonDescription
-WITH {
-  SELECT ?ortholog ?taxon
-  WHERE {
-    target: wdt:P31 wd:Q7187;
-         wdt:P684 ?ortholog .
-    ?ortholog wdt:P703 ?taxon .
-  }
-} AS %result 
+PREFIX target: <http://www.wikidata.org/entity/Q133457282>
+
+SELECT ?time ?item ?itemLabel ?image
 WHERE {
-  INCLUDE %result
+  {
+    target: wdt:P580 | wdt:P585 ?time .
+    OPTIONAL { target: wdt:P18 ?image . }
+    BIND(wd:Q24575110 AS ?item)
+  }
+  UNION
+  {
+    target: wdt:P582 ?time .
+    OPTIONAL { target: wdt:P18 ?image . }
+    BIND(wd:Q24575125 AS ?item)
+  }
+  UNION 
+  { target: p:P793 [ ps:P793 ?item ; pq:P585 ?time ] . }
   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en". }
-}''';
-  scholia:aspect scholiaAspect:Gene ;
-  rdfs:comment "Gene aspect: [no title]"@en ;
+}
+
+''';
+  scholia:aspect scholiaAspect:Event ;
+  scholia:defaultView scholiaView:Timeline ;
+  rdfs:comment "Event aspect: [no title]"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
-  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/gene_orthologs.sparql> ;
+  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/event_timeline.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

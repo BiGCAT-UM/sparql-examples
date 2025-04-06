@@ -18,34 +18,50 @@ q:114 a sh:SPARQLExecutable,
   sh:prefixes _:sparql_examples_prefixes ;
   sh:select '''PREFIX bd: <http://www.bigdata.com/rdf#>
 PREFIX p: <http://www.wikidata.org/prop/>
-PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX wdt: <http://www.wikidata.org/prop/direct/>
 PREFIX wd: <http://wikidata.org/entity/>
 PREFIX wikibase: <http://wikiba.se/ontology#>
-PREFIX target: <http://www.wikidata.org/entity/Q28031254>
+# title: Employees and affiliated with a specified organization
 
-SELECT ?part ?partLabel ?partDescription ?type
+PREFIX target: <http://www.wikidata.org/entity/Q104785223>
+
+SELECT
+  (SAMPLE(?number_of_works_) AS ?works)
+  (SAMPLE(?wikis_) AS ?wikis)
+  ?researcher ?researcherLabel ?researcherDescription
+  (SAMPLE(?orcid_) AS ?orcid)
 WITH {
-  SELECT ?part (GROUP_CONCAT(DISTINCT ?type_label; separator=", ") AS ?type)
+  SELECT DISTINCT ?researcher WHERE {
+    ?researcher ( wdt:P108 | wdt:P463 | wdt:P1416 ) / wdt:P361* target: .
+  } 
+} AS %researchers
+WITH {
+  SELECT
+    (COUNT(?work) AS ?number_of_works_) ?researcher
   WHERE {
-    VALUES ?process { wd:Q4915012 wd:Q2996394 }
-    target: wdt:P31 ?process ;
-             wdt:P527 ?part .
-    OPTIONAL { 
-      ?part wdt:P31 ?type_ .
-      ?type_ rdfs:label ?type_label .
-      FILTER (LANG(?type_label) = 'en')
-    }
-  } GROUP BY ?part
-} AS %result
+    INCLUDE %researchers
+
+    # No biological pathways; they skew the statistics too much 
+    MINUS { ?work wdt:P31 wd:Q4915012 } 
+
+    # This OPTIONAL query should be after the MINUS query, otherwise
+    # researchers might not show if they do not have any papers.
+    OPTIONAL { ?work wdt:P50 ?researcher . }
+  } 
+  GROUP BY ?researcher
+} AS %researchers_and_number_of_works
 WHERE {
-  INCLUDE %result
-  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" . }
-} ORDER BY ASC(?partLabel)
+  INCLUDE %researchers_and_number_of_works
+  OPTIONAL { ?researcher wdt:P496 ?orcid_ . }
+  OPTIONAL { ?researcher wikibase:sitelinks ?wikis_ }
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" . } 
+}
+GROUP BY ?researcher ?researcherLabel ?researcherDescription 
+ORDER BY DESC(?works)
 ''';
-  scholia:aspect scholiaAspect:Pathway ;
-  rdfs:comment "Pathway aspect: [no title]"@en ;
+  scholia:aspect scholiaAspect:Organization ;
+  rdfs:comment "Organization aspect: Employees and affiliated with a specified organization"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
-  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/pathway_participants.sparql> ;
+  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/organization_employees-and-affiliated.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

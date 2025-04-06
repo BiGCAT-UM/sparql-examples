@@ -19,32 +19,35 @@ q:062 a sh:SPARQLExecutable,
   sh:select '''PREFIX bd: <http://www.bigdata.com/rdf#>
 PREFIX p: <http://www.wikidata.org/prop/>
 PREFIX wdt: <http://www.wikidata.org/prop/direct/>
-PREFIX wd: <http://wikidata.org/entity/>
 PREFIX wikibase: <http://wikiba.se/ontology#>
-PREFIX target: <http://www.wikidata.org/entity/Q917357>
+# title: Organizations for a specific country
+PREFIX target: <http://www.wikidata.org/entity/Q35>
 
 SELECT
-  DISTINCT
-  ?start_date
-  ?trial ?trialLabel
-  ?intervention ?interventionLabel
-  ?sponsor ?sponsorLabel
-WHERE {
-  ?trial wdt:P31 wd:Q30612 ;
-  wdt:P1050 / wdt:P279* target: .
-  OPTIONAL {
-    ?trial wdt:P580 ?starttime
-    BIND(SUBSTR(STR(?starttime), 0, 11) AS ?start_date)
+  ?number_of_authors
+  ?number_of_works
+  ?organization ?organizationLabel
+WITH {  
+  SELECT
+    ?organization
+    (COUNT(DISTINCT ?author) AS ?number_of_authors)
+    (COUNT(DISTINCT ?work) AS ?number_of_works)
+  WHERE {
+    ?organization wdt:P17 target: .
+    ?author wdt:P108 | wdt:P463 | wdt:P1416/wdt:P361* ?organization .
+    ?work wdt:P50 ?author .
   }
-  OPTIONAL { ?trial wdt:P4844 ?intervention }
-  OPTIONAL { ?trial wdt:P859 ?sponsor }
-  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" . }
+  GROUP BY ?organization 
+} AS %results
+WHERE {
+  INCLUDE %results
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en,da,es,fr,jp,nl,no,ru,sv,zh". }
 }
-ORDER BY DESC(?starttime)
+ORDER BY DESC(?number_of_authors) DESC(?number_of_works)
 ''';
-  scholia:aspect scholiaAspect:Disease ;
-  rdfs:comment "Disease aspect: [no title]"@en ;
+  scholia:aspect scholiaAspect:Country ;
+  rdfs:comment "Country aspect: Organizations for a specific country"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
-  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/disease_clinical-trials.sparql> ;
+  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/country_organizations.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

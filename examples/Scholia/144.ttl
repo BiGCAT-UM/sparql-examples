@@ -18,34 +18,69 @@ q:144 a sh:SPARQLExecutable,
   sh:prefixes _:sparql_examples_prefixes ;
   sh:select '''PREFIX bd: <http://www.bigdata.com/rdf#>
 PREFIX p: <http://www.wikidata.org/prop/>
+PREFIX prov: <http://www.w3.org/ns/prov#>
+PREFIX pr: <http://www.wikidata.org/prop/reference/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX wdt: <http://www.wikidata.org/prop/direct/>
 PREFIX wikibase: <http://wikiba.se/ontology#>
-PREFIX target: <http://www.wikidata.org/entity/Q73820>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX target: <http://www.wikidata.org/entity/Q27990087>
 
-# Count the number of citations for each journal published by a specified publisher
-SELECT
-  ?number_of_citations
-  ?work ?workLabel ?journal ?journalLabel 
+SELECT ?date ?work ?workLabel ?type ?topics
 WITH {
-  SELECT ?work ?journal (COUNT(?citing_work) AS ?number_of_citations) WHERE {
-    ?journal wdt:P123 target: .
-    ?work wdt:P1433 ?journal .
-    ?citing_work wdt:P2860 ?work
+  SELECT DISTINCT ?work WHERE {
+    {
+      ?work wdt:P921 / (wdt:P527+ | wdt:P1269+ | (wdt:P31* / wdt:P279*) ) target: .
+    }
+    UNION
+    {
+      # Works funded by the project, - recursively
+      ?work wdt:P859+ target: .
+    }
+    UNION
+    {
+      # Works funded by the project, - recursively
+      ?work wdt:P859/(wdt:P1344|^wdt:P710)* target: .
+    }
+    UNION {
+      target: ?propp ?statement .
+      ?statement a wikibase:BestRank ;
+                 prov:wasDerivedFrom/pr:P248 ?work .
+    }
   }
-  GROUP BY ?work ?journal
-  ORDER BY DESC(?number_of_citations)
-  LIMIT 500  
+} AS %works
+WITH {
+  SELECT
+    (MAX(?dates) as ?datetime)
+    ?work
+    (GROUP_CONCAT(DISTINCT ?type_label; separator=", ") AS ?type)
+    (GROUP_CONCAT(?topic_label; separator=" // ") AS ?topics)
+  WHERE {
+    INCLUDE %works
+    OPTIONAL {
+       ?work wdt:P31 ?type_ .
+       ?type_ rdfs:label ?type_label . FILTER (LANG(?type_label) = 'en')
+    }
+    OPTIONAL { ?work wdt:P577 ?dates . }
+    OPTIONAL {
+      ?work wdt:P921 ?topic .
+      ?topic rdfs:label ?topic_label . FILTER (lang(?topic_label) = 'en')
+    }
+  }
+  GROUP BY ?work
 } AS %result
 WHERE {
   INCLUDE %result
-  # Label the result
-  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" . } 
+  BIND(xsd:date(?datetime) AS ?date)
+  SERVICE wikibase:label {
+    bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" .
+  }
 }
-ORDER BY DESC(?number_of_citations)
-''';
-  scholia:aspect scholiaAspect:Publisher ;
-  rdfs:comment "Publisher aspect: [no title]"@en ;
+ORDER BY DESC(?date)
+LIMIT 500''';
+  scholia:aspect scholiaAspect:Project ;
+  rdfs:comment "Project aspect: [no title]"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
-  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/publisher_most-cited.sparql> ;
+  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/project_recent-articles.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

@@ -16,24 +16,39 @@
 q:099 a sh:SPARQLExecutable,
   sh:SPARQLSelectExecutable;
   sh:prefixes _:sparql_examples_prefixes ;
-  sh:select '''PREFIX p: <http://www.wikidata.org/prop/>
+  sh:select '''PREFIX bd: <http://www.bigdata.com/rdf#>
+PREFIX p: <http://www.wikidata.org/prop/>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX wdt: <http://www.wikidata.org/prop/direct/>
-PREFIX target: <http://www.wikidata.org/entity/Q116446479>
+PREFIX wikibase: <http://wikiba.se/ontology#>
+PREFIX target: <http://www.wikidata.org/entity/Q14860818>
 
 SELECT
-  (GROUP_CONCAT(?value_; separator=", ") AS ?value)
-  (CONCAT("../ontology/", GROUP_CONCAT(?q; separator=",")) AS ?valueUrl)
+  ?variant ?variantLabel ?variantDescription
+  ?types
+WITH {
+  SELECT ?variant ?type
+  WHERE {
+    ?variant wdt:P3433 target:
+  }
+} AS %variants
+WITH {
+  SELECT ?variant (GROUP_CONCAT(?type_label; separator=" // ") AS ?types) WHERE {
+    INCLUDE %variants
+    OPTIONAL {
+      ?variant wdt:P279 ?variantType . 
+      ?variantType rdfs:label ?type_label .  FILTER (lang(?type_label) = 'en')
+    }
+  }
+  GROUP BY ?variant
+} AS %result 
 WHERE {
-  target: wdt:P2283 ?usedOntology .
-  BIND(SUBSTR(STR(?usedOntology), 32) AS ?q)
-  ?usedOntology rdfs:label ?value_string .
-  FILTER (LANG(?value_string) = 'en')
-  BIND(COALESCE(?value_string, ?q) AS ?value_)
-} GROUP BY ?usedOntology
-''';
-  scholia:aspect scholiaAspect:Ontology ;
-  rdfs:comment "Ontology aspect: [no title]"@en ;
+  INCLUDE %result
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en". }
+}''';
+  scholia:aspect scholiaAspect:Gene ;
+  rdfs:comment "Gene aspect: [no title]"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
-  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/ontology_used-ontologies.sparql> ;
+  spex:federatesWith <http://wikiba.se/ontology#label> ;
+  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/gene_variants.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

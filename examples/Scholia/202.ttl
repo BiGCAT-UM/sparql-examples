@@ -20,41 +20,36 @@ q:202 a sh:SPARQLExecutable,
 PREFIX p: <http://www.wikidata.org/prop/>
 PREFIX wdt: <http://www.wikidata.org/prop/direct/>
 PREFIX wikibase: <http://wikiba.se/ontology#>
-#defaultView:Table
+#defaultView:BubbleChart
 
-PREFIX target: <http://www.wikidata.org/entity/Q60687720>
+PREFIX target: <http://www.wikidata.org/entity/Q1769726>
 
 SELECT
   ?count
-  ?author ?authorLabel ?authorDescription (CONCAT("/author/", SUBSTR(STR(?author), 32)) AS ?authorUrl)
-  (COALESCE(?orcid_, CONCAT("orcid-search/search/?searchQuery=", ?authorLabel)) AS ?orcid) 
-WITH {
+  ?topic ?topicLabel
+WITH{
   SELECT
-    ?author
-    (count(?work) as ?count)
+    (COUNT(?work) AS ?count)
+    ?topic
   WHERE {
-    { ?work wdt:P6104 target: .}
-      union 
-    { ?work wdt:P5008 target: .}
-    ?work wdt:P50 ?author .
+    ?work wdt:P4510 / wdt:P279* target: ; 
+          wdt:P921 ?topic .
   }
-  GROUP BY ?author
+  GROUP BY ?topic
   ORDER BY DESC(?count)
   LIMIT 200
 } AS %result
 WHERE {
   INCLUDE %result
-          
-  # Include optional ORCID iD
-  OPTIONAL { ?author wdt:P496 ?orcid_ . }
-  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" . } 
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" . }
 }
 ORDER BY DESC(?count)
+
 ''';
-  scholia:aspect scholiaAspect:Wikiproject ;
-  scholia:defaultView scholiaView:Table ;
-  rdfs:comment "Wikiproject aspect: [no title]"@en ;
+  scholia:aspect scholiaAspect:Use ;
+  scholia:defaultView scholiaView:BubbleChart ;
+  rdfs:comment "Use aspect: [no title]"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
-  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/wikiproject_authors.sparql> ;
+  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/use_topics-of-works-using-the-resource.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

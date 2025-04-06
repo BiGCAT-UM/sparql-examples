@@ -16,54 +16,32 @@
 q:178 a sh:SPARQLExecutable,
   sh:SPARQLSelectExecutable;
   sh:prefixes _:sparql_examples_prefixes ;
-  sh:select '''PREFIX p: <http://www.wikidata.org/prop/>
-PREFIX pq: <http://www.wikidata.org/prop/qualifier/>
+  sh:select '''PREFIX bd: <http://www.bigdata.com/rdf#>
+PREFIX p: <http://www.wikidata.org/prop/>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX wdt: <http://www.wikidata.org/prop/direct/>
-PREFIX wd: <http://wikidata.org/entity/>
-#defaultView:BarChart
+PREFIX wikibase: <http://wikiba.se/ontology#>
+PREFIX target: <http://www.wikidata.org/entity/Q12024>
 
-PREFIX target: <http://www.wikidata.org/entity/Q6294930>
-
-# Inspired from LEGOLAS - http://abel.lis.illinois.edu/legolas/
-# Shubhanshu Mishra, Vetle Torvik
-select ?year (count(?work) as ?number_of_publications) ?intention where {
-  {
-    select (str(?year_) as ?year) (0 as ?pages) ("_" as ?intention) where {
-      # default values = 0
-      ?year_item wdt:P31 wd:Q577 . 
-      ?year_item wdt:P585 ?date .
-      bind(year(?date) as ?year_)
-      {
-        select (min(?year_) as ?earliest_year)  (max(?year_) as ?latest_year) where {
-          VALUES ?JOURNAL { target: }
-          ?work wdt:P1433 ?JOURNAL .
-          ?work wdt:P577 ?publication_date . 
-          bind(year(?publication_date) as ?year_)
-        }
-      }
-      bind(year(now())+1 as ?next_year)
-      filter (?year_ >= ?earliest_year && ?year_ <= ?latest_year)
-    }
+SELECT
+  (COUNT(?middle) AS ?distance)
+  (GROUP_CONCAT(DISTINCT ?rank_label_; separator=", ") AS ?rank)
+  ?parent ?parentLabel ?parentDescription
+{
+  target: wdt:P171* ?middle .
+  ?middle wdt:P171+ ?parent .
+  ?parent wdt:P105 ?rank_ .
+  OPTIONAL {
+    ?rank_ rdfs:label ?rank_label_ . FILTER (LANG(?rank_label_) = 'en')
   }
-  union {
-    select ?work ?intention (min(?years) as ?year) where {
-      VALUES ?JOURNAL { target: }
-      ?work wdt:P577 ?dates ;
-            p:P2860 / pq:P3712 / rdfs:label ?intention ;
-            wdt:P1433 ?JOURNAL .
-      bind(str(year(?dates)) as ?years) .
-      FILTER (LANG(?intention) = "en")
-    }
-    group by ?work ?intention
-  }
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en". }
 }
-group by ?year ?intention
-order by ?year
+GROUP BY ?parent ?parentLabel ?parentDescription
+ORDER BY ?distance
 ''';
-  scholia:aspect scholiaAspect:Venue ;
-  scholia:defaultView scholiaView:BarChart ;
-  rdfs:comment "Venue aspect: [no title]"@en ;
+  scholia:aspect scholiaAspect:Taxon ;
+  rdfs:comment "Taxon aspect: [no title]"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
-  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/venue_articles-by-intention.sparql> ;
+  spex:federatesWith <http://wikiba.se/ontology#label> ;
+  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/taxon_parent-taxa.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

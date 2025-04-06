@@ -24,80 +24,82 @@ PREFIX wikibase: <http://wikiba.se/ontology#>
 PREFIX target: <http://www.wikidata.org/entity/Q133457282>
 
 SELECT
-  (ROUND(1000 * ?score_) / 1000 AS ?score)
-  (ROUND(1000 * ?time_score_) / 1000 AS ?time_score)
-  (ROUND(1000 * ?location_score_) / 1000 AS ?location_score) 
-  ?event ?eventLabel
-WITH {
-  SELECT ?event_type WHERE {
-    VALUES ?event_type { wd:Q2020153 wd:Q46855 wd:Q40444998 }
-  }
-} AS %event_types
-WITH {
-  SELECT ?event WHERE {
-    INCLUDE %event_types
-    ?event wdt:P31 / wdt:P279* ?event_type .
-  }
-} AS %events
+  (?number_of_publications AS ?works)
+  ?person ?personLabel ?personDescription
+  ?roles
+  ?example_work ?example_workLabel
 WITH {
   SELECT
-    (SUM(?scores) AS ?score_)
-    (MAX(?time_scores) AS ?time_score_)
-    (MAX(?location_scores) AS ?location_score_)
-    ?event
+    (GROUP_CONCAT(DISTINCT ?role; separator=", ") AS ?roles) ?person
   WHERE {
-    INCLUDE %events 
-          
-    { 
-      # Around the same time
-      target: wdt:P580 | wdt:P585 ?time0 .
-      ?event wdt:P580 | wdt:P585 ?time .
-      BIND((365.25 * YEAR(?time0) + 30.5 * MONTH(?time0) + DAY(?time0)) AS ?day0)
-      BIND((365.25 * YEAR(?time) + 30.5 * MONTH(?time) + DAY(?time)) AS ?day)
-      
-      # TODO: multiple days cause double counting
-      BIND(20 / (1 + ABS(?day - ?day0)) AS ?time_scores)
-    }
-    # UNION
     {
-      SELECT ?event (MAX(?inverse_distance) AS ?location_scores) WHERE {
-        INCLUDE %events 
-                
-        # geocoordinate of the query event
-        target: wdt:P276? / wdt:P159? / wdt:P625 ?geo0 .
-        
-        # geocoordinate of other events
-        ?event wdt:P276? / wdt:P625 ?geo .
-        
-        # inverse distance
-        BIND((200 / (1 + geof:distance(?geo, ?geo0))) AS ?inverse_distance)
-      }
-      GROUP BY ?event
+      # speaker added directly in the target item
+      target: wdt:P823 ?person .
+      # BIND(wd:Q9379869 AS ?role)
+      BIND("speaker" AS ?role)
     }
-
-    # Should online event be listed? 
-    # UNION
-    # {
-    #   VALUES ?online_event { wd:Q1543677 wd:Q98381855 wd:Q98381912 }
-    #   ?event wdt:P31 ?online_event .
-    #   BIND(200 AS ?location_scores)
-    # }
-  
-    BIND((?time_scores * ?location_scores) AS ?scores)
+    UNION
+    {
+      # speaker inferred from presentation items related to the event-target
+      ?presentation wdt:P823 ?person; wdt:P5072 target: 
+      BIND("speaker" AS ?role)
+    }
+    UNION
+    {
+      # organizer
+      target: wdt:P664 ?person .
+      #BIND(wd:Q2029941 AS ?role)
+      BIND("organizer" AS ?role)
+    }
+    UNION
+    {
+      # participant
+      ?person wdt:P1344 | ^wdt:P710 target: .
+      BIND("participant" AS ?role)
+    }
+    UNION
+    {
+      # editor
+      ?person ^wdt:P98 / wdt:P4745 target: .
+      BIND("editor of proceedings" AS ?role)
+    }
+    UNION
+    {
+      # author
+      ?person ^wdt:P50 / wdt:P1433 / wdt:P4745 target: .
+      BIND("author" AS ?role)
+    }
+    UNION
+    {
+      # program committee member
+      target: wdt:P5804 ?person .
+      BIND("program committee member" AS ?role)
+    }
   }
-  GROUP BY ?event
-  
+  GROUP BY ?person
+} AS %people  
+WITH {
+  SELECT
+    (COUNT(?work) AS ?number_of_publications)
+    ?roles
+    ?person (SAMPLE(?work) AS ?example_work)
+  WHERE {
+    INCLUDE %people .
+    ?person wdt:P31 wd:Q5.
+    OPTIONAL { ?work wdt:P50 ?person . }
+  }
+  GROUP BY ?roles ?person
 } AS %results
 WHERE {
   INCLUDE %results
-  FILTER (?event != target:)
-  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" . }
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en,da,de,es,fr,jp,no,ru,sv,zh". }
 }
-ORDER BY DESC(?score)
+ORDER BY DESC(?number_of_publications)
+LIMIT 10000
 ''';
   scholia:aspect scholiaAspect:Event ;
   rdfs:comment "Event aspect: [no title]"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
-  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/event_related-events-timelocation.sparql> ;
+  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/event_people.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

@@ -18,35 +18,40 @@ q:152 a sh:SPARQLExecutable,
   sh:prefixes _:sparql_examples_prefixes ;
   sh:select '''PREFIX bd: <http://www.bigdata.com/rdf#>
 PREFIX p: <http://www.wikidata.org/prop/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX wdt: <http://www.wikidata.org/prop/direct/>
 PREFIX wikibase: <http://wikiba.se/ontology#>
-#defaultView:BubbleChart
-
-PREFIX target: <http://www.wikidata.org/entity/Q1635410>
+PREFIX target: <http://www.wikidata.org/entity/Q21109365>
 
 SELECT
-  ?count ?topic ?topicLabel
-WITH{
+  ?count
+  ?protein ?proteinLabel (CONCAT("/protein/", SUBSTR(STR(?protein), 32)) AS ?proteinUrl)
+  ?species ?speciesLabel (CONCAT("/taxon/", SUBSTR(STR(?species), 32)) AS ?speciesUrl)
+  ?chemicals
+WITH {
   SELECT
-    (COUNT(?work) AS ?count) ?topic
+    (COUNT(?chemical) AS ?count)
+    ?protein
+    (GROUP_CONCAT(?chemical_label; separator=" // ") AS ?chemicals)
   WHERE {
-    ?work (wdt:P2283 | wdt:P4510) / wdt:P279* target: .
-    ?work wdt:P921 ?topic .
+    target: wdt:P129 ?chemical .
+    FILTER (target: != ?protein)
+    ?protein wdt:P129 ?chemical . 
+    ?chemical rdfs:label ?chemical_label FILTER(lang(?chemical_label) = "en")
   }
-  GROUP BY ?topic
-  ORDER BY DESC(?count)
-  LIMIT 100
-} AS %result
+  GROUP BY ?protein
+} AS %result 
 WHERE {
   INCLUDE %result
+  OPTIONAL { ?protein wdt:P703 ?species . }
   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" . }
 }
 ORDER BY DESC(?count)
+LIMIT 500
 ''';
-  scholia:aspect scholiaAspect:Software ;
-  scholia:defaultView scholiaView:BubbleChart ;
-  rdfs:comment "Software aspect: [no title]"@en ;
+  scholia:aspect scholiaAspect:Protein ;
+  rdfs:comment "Protein aspect: [no title]"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
-  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/software_topics.sparql> ;
+  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/protein_cointeracting-proteins.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

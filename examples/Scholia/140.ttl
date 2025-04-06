@@ -18,41 +18,41 @@ q:140 a sh:SPARQLExecutable,
   sh:prefixes _:sparql_examples_prefixes ;
   sh:select '''PREFIX bd: <http://www.bigdata.com/rdf#>
 PREFIX p: <http://www.wikidata.org/prop/>
+PREFIX psv: <http://www.wikidata.org/prop/statement/value/>
 PREFIX wdt: <http://www.wikidata.org/prop/direct/>
 PREFIX wikibase: <http://wikiba.se/ontology#>
-#defaultView:ScatterChart
-
-PREFIX target: <http://www.wikidata.org/entity/Q73820>
-
-SELECT ?work_count ?citation_count ?journal ?journalLabel 
+SELECT
+  ?cites_per_million
+  ?citations 
+  ?budget ?currency ?currencyLabel
+  ?short_name
+  ?project ?projectLabel
 WITH {
-  SELECT ?work_count ?citation_count ?journal {
-    {
-      SELECT ?journal (COUNT(?work) AS ?work_count) {
-  	    ?journal wdt:P123 target: .
-  	    ?work wdt:P1433 ?journal .
-      }
-      GROUP BY ?journal 
-    }
-    {
-      SELECT ?journal (COUNT(?citing_work) AS ?citation_count) {
-  	    ?journal wdt:P123 target: .
-  	    ?work wdt:P1433 ?journal .
-        ?citing_work wdt:P2860 ?work . 
-      }
-      GROUP BY ?journal 
-    } 
-  }
-} AS %result
+  SELECT
+    (COUNT(?citing_work) / ?budget * 1000000 AS ?cites_per_million)
+    (COUNT(?citing_work) AS ?citations)
+    ?budget ?currency
+    ?project
+  WHERE {
+    ?project p:P2769 / psv:P2769 ?budget_value .
+    ?budget_value wikibase:quantityAmount ?budget .
+    ?budget_value wikibase:quantityUnit ?currency .
+    ?work wdt:P859 ?project .
+    ?citing_work wdt:P2860 ?work .
+  } 
+  GROUP BY ?project ?budget ?currency
+} AS %results
 WHERE {
-  INCLUDE %result
-  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" . } 
+  INCLUDE %results
+  OPTIONAL { ?project wdt:P1813 ?short_name }
+  SERVICE wikibase:label {
+    bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" . }
 }
+ORDER BY DESC(?cites_per_million)
 ''';
-  scholia:aspect scholiaAspect:Publisher ;
-  scholia:defaultView scholiaView:ScatterChart ;
-  rdfs:comment "Publisher aspect: [no title]"@en ;
+  scholia:aspect scholiaAspect:Project ;
+  rdfs:comment "Project aspect: [no title]"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
-  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/publisher_citations-works.sparql> ;
+  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/project_citations-per-budget.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

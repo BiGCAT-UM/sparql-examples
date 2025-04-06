@@ -20,56 +20,33 @@ q:198 a sh:SPARQLExecutable,
 PREFIX p: <http://www.wikidata.org/prop/>
 PREFIX wdt: <http://www.wikidata.org/prop/direct/>
 PREFIX wikibase: <http://wikiba.se/ontology#>
-#defaultView:AreaChart
+#defaultView:Table
 
-PREFIX target: <http://www.wikidata.org/entity/Q6294930>
+PREFIX target: <http://www.wikidata.org/entity/Q45340488>
 
-SELECT
-  ?year
-  ?works
-  ?topic ?topicLabel
+SELECT ?count ?short_name 
+?venue ?venueLabel (CONCAT("/venue/", SUBSTR(STR(?venue), 32)) AS ?venueUrl)
 WITH {
-  SELECT 
-    ?work
-  WHERE {
-    ?work wdt:P1433 target: .
+  SELECT (count(?work) as ?count) ?venue (SAMPLE(?short_name_) AS ?short_name) WHERE {
+    { ?work wdt:P921/wdt:P31*/wdt:P279* target: . }
+    union { ?work wdt:P921/wdt:P361+ target: . }
+    union { ?work wdt:P921/wdt:P1269+ target: . }
+    ?work wdt:P1433/wdt:P179* ?venue .
+    OPTIONAL { ?venue wdt:P1813 ?short_name_ . }
   }
-} AS %works
-WITH {
-  SELECT
-    (COUNT(?work) AS ?count)
-    ?topic
-  WHERE {
-    INCLUDE %works
-    ?work wdt:P921 ?topic .
-  }
-  GROUP BY ?topic
-  ORDER BY DESC(?count)
-  LIMIT 5
-} AS %topics
-WITH {
-  SELECT
-    ?year 
-    (COUNT(?work) AS ?works)
-    ?topic
-  WHERE {
-    INCLUDE %works
-    INCLUDE %topics
-    ?work wdt:P921 ?topic ;
-          wdt:P577 ?publication_datetime .
-    BIND(STR(YEAR(?publication_datetime)) AS ?year)
-  }
-  GROUP BY ?year ?topic
+  GROUP BY ?venue
 } AS %result
 WHERE {
   INCLUDE %result
-  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en". }
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" . } 
 }
-ORDER BY ?year''';
-  scholia:aspect scholiaAspect:Venue ;
-  scholia:defaultView scholiaView:AreaChart ;
-  rdfs:comment "Venue aspect: [no title]"@en ;
+ORDER BY DESC(?count)
+LIMIT 200
+''';
+  scholia:aspect scholiaAspect:Topic ;
+  scholia:defaultView scholiaView:Table ;
+  rdfs:comment "Topic aspect: [no title]"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
-  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/venue_top-topics-through-time.sparql> ;
+  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/topic_venues.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

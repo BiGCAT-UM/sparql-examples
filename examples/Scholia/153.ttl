@@ -19,40 +19,28 @@ q:153 a sh:SPARQLExecutable,
   sh:select '''PREFIX bd: <http://www.bigdata.com/rdf#>
 PREFIX p: <http://www.wikidata.org/prop/>
 PREFIX wdt: <http://www.wikidata.org/prop/direct/>
+PREFIX wd: <http://wikidata.org/entity/>
 PREFIX wikibase: <http://wikiba.se/ontology#>
-#title: Taxa that co-occur with the target taxon in the literature
-PREFIX target: <http://www.wikidata.org/entity/Q12024>
+PREFIX target: <http://www.wikidata.org/entity/Q21109365>
 
-SELECT ?count (CONCAT("/topics/",SUBSTR(STR(target:), 32), ",", SUBSTR(STR(?taxon), 32)) AS ?countUrl)
-       ?taxon ?taxonLabel (CONCAT("/taxon/", SUBSTR(STR(?taxon), 32)) AS ?taxonUrl)
-       ?example_work ?example_workLabel (CONCAT("/work/", SUBSTR(STR(?example_work), 32)) AS ?example_workUrl)
+SELECT ?type ?complex_or_process ?complex_or_processLabel
 WITH {
-  SELECT (COUNT(?work) AS ?count) ?taxon (SAMPLE(?work) AS ?example_work) WHERE {
-    # Find works for the specific queried topic
-	?work wdt:P921 target: .
-    
-    # Find co-occuring topics
-    ?work wdt:P921 ?taxon .
-    
-    # Filter for taxa
-    ?taxon wdt:P105 ?taxonrank .
-    
-    # Avoid listing the queried topic itself
-    FILTER (target: != ?taxon)
+  SELECT DISTINCT ?type ?complex_or_process WHERE {
+    VALUES ?part { target: }
+    VALUES ?process { wd:Q2996394 wd:Q4915012 }
+    { ?part ^wdt:P527 ?complex_or_process . ?complex_or_process wdt:P31 wd:Q22325163 ; BIND ("complex" AS ?type ) }
+    UNION
+    { ?part ^wdt:P527 ?complex_or_process . ?complex_or_process wdt:P31 ?process ; BIND ("biological process" AS ?type ) }
   }
-  GROUP BY ?taxon
 } AS %result
 WHERE {
-  # Label the results
   INCLUDE %result
-  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" . } 
-}
-ORDER BY DESC(?count)
-LIMIT 200
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" . }
+} ORDER BY ASC(?partLabel)
 ''';
-  scholia:aspect scholiaAspect:Taxon ;
-  rdfs:comment "Taxon aspect: [no title]"@en ;
+  scholia:aspect scholiaAspect:Protein ;
+  rdfs:comment "Protein aspect: [no title]"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
-  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/taxon_co-occurring-taxa.sparql> ;
+  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/protein_participates-in.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

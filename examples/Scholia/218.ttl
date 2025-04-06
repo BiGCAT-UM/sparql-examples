@@ -20,35 +20,45 @@ q:218 a sh:SPARQLExecutable,
 PREFIX p: <http://www.wikidata.org/prop/>
 PREFIX wdt: <http://www.wikidata.org/prop/direct/>
 PREFIX wikibase: <http://wikiba.se/ontology#>
-PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
-#defaultView:Table
+# title: Most cited authors published in venue
 
-PREFIX target: <http://www.wikidata.org/entity/Q28942417>
+PREFIX target: <http://www.wikidata.org/entity/Q6294930>
 
-# List of works that is cited by the specified work
-SELECT ?citations ?publication_date ?cited_work ?cited_workLabel 
+SELECT
+  ?count
+  ?author ?authorLabel
+  ?orcid
+  ?example_cited_work ?example_cited_workLabel
+  ?example_citing_work ?example_citing_workLabel
 WITH {
-  SELECT (MIN(?date) AS ?publication_date) (COUNT(DISTINCT ?citing_cited_work) AS ?citations) ?cited_work 
+  # Count the number of citations
+  SELECT
+    ?author
+    (COUNT(?cited_work) AS ?count)
+    (SAMPLE(?cited_work) AS ?example_cited_work)
+    (SAMPLE(?citing_work) AS ?example_citing_work)
   WHERE {
-    target: wdt:P2860 ?cited_work .
-    OPTIONAL {
-      ?cited_work wdt:P577 ?datetime .
-      BIND(xsd:date(?datetime) AS ?date)
-    }
-    OPTIONAL { ?citing_cited_work wdt:P2860 ?cited_work }
+    ?cited_work wdt:P1433 target: .
+    ?citing_work wdt:P2860 ?cited_work .
+    ?cited_work wdt:P50 ?author .
   }
-  GROUP BY ?cited_work
+  GROUP BY ?author
 } AS %result
 WHERE {
-  INCLUDE %result
+  INCLUDE %result 
+          
+  # Include optional ORCID iD
+  OPTIONAL { ?author wdt:P496 ?orcid . }
+  
+  # Label the results
   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" . } 
-} 
-ORDER BY DESC(?citations) DESC(?date)
+}
+ORDER BY DESC(?count)
+LIMIT 100
 ''';
-  scholia:aspect scholiaAspect:Work ;
-  scholia:defaultView scholiaView:Table ;
-  rdfs:comment "Work aspect: [no title]"@en ;
+  scholia:aspect scholiaAspect:Venue ;
+  rdfs:comment "Venue aspect: Most cited authors published in venue"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
-  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/work_cited-works.sparql> ;
+  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/venue_most-cited-authors.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

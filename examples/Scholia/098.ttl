@@ -16,24 +16,35 @@
 q:098 a sh:SPARQLExecutable,
   sh:SPARQLSelectExecutable;
   sh:prefixes _:sparql_examples_prefixes ;
-  sh:select '''PREFIX p: <http://www.wikidata.org/prop/>
-PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+  sh:select '''PREFIX bd: <http://www.bigdata.com/rdf#>
+PREFIX p: <http://www.wikidata.org/prop/>
+PREFIX prov: <http://www.w3.org/ns/prov#>
+PREFIX pr: <http://www.wikidata.org/prop/reference/>
+PREFIX ps: <http://www.wikidata.org/prop/statement/>
 PREFIX wdt: <http://www.wikidata.org/prop/direct/>
-PREFIX target: <http://www.wikidata.org/entity/Q116446479>
+PREFIX wd: <http://wikidata.org/entity/>
+PREFIX wikibase: <http://wikiba.se/ontology#>
+PREFIX target: <http://www.wikidata.org/entity/Q14860818>
 
 SELECT
-  (GROUP_CONCAT(?value_; separator=", ") AS ?value)
-  (CONCAT("../ontology/", GROUP_CONCAT(?q; separator=",")) AS ?valueUrl)
+  ?transcript_ID
+  ?reference ?referenceLabel ?referenceDescription
+WITH {
+  SELECT ?transcript_ID ?reference
+  WHERE {
+      target: wdt:P31 wd:Q7187;
+                 p:P704 ?transcriptid_statement .
+    ?transcriptid_statement ps:P704 ?transcript_ID ;
+                            prov:wasDerivedFrom/pr:P248 ?reference .
+  }
+} AS %result 
 WHERE {
-  ?usedByOntology wdt:P2283 target: .
-  BIND(SUBSTR(STR(?usedByOntology), 32) AS ?q)
-  ?usedByOntology rdfs:label ?value_string .
-  FILTER (LANG(?value_string) = 'en')
-  BIND(COALESCE(?value_string, ?q) AS ?value_)
-} GROUP BY ?usedByOntology
-''';
-  scholia:aspect scholiaAspect:Ontology ;
-  rdfs:comment "Ontology aspect: [no title]"@en ;
+  INCLUDE %result
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en". }
+}''';
+  scholia:aspect scholiaAspect:Gene ;
+  rdfs:comment "Gene aspect: [no title]"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
-  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/ontology_used-by-ontologies.sparql> ;
+  spex:federatesWith <http://wikiba.se/ontology#label> ;
+  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/gene_transcripts.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

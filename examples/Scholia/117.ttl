@@ -16,93 +16,57 @@
 q:117 a sh:SPARQLExecutable,
   sh:SPARQLSelectExecutable;
   sh:prefixes _:sparql_examples_prefixes ;
-  sh:select '''PREFIX p: <http://www.wikidata.org/prop/>
-PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+  sh:select '''PREFIX bd: <http://www.bigdata.com/rdf#>
+PREFIX p: <http://www.wikidata.org/prop/>
 PREFIX wdt: <http://www.wikidata.org/prop/direct/>
-PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
-PREFIX target: <http://www.wikidata.org/entity/Q124268563>
+PREFIX wd: <http://wikidata.org/entity/>
+PREFIX wikibase: <http://wikiba.se/ontology#>
+#defaultView:BarChart
 
-SELECT DISTINCT ?description ?value ?valueUrl
-WHERE {
-  BIND(target: AS ?podcast)
-  {
-    BIND(1 AS ?order)
-    BIND("Title" AS ?description)
-    ?podcast wdt:P1476 ?value .
+PREFIX target: <http://www.wikidata.org/entity/Q104785223>
+
+# Pages per year bar chart of an organization
+SELECT
+  ?year
+  (SUM(?pages_per_author) AS ?number_of_pages)
+  ?researcher ?researcherLabel
+WITH {
+  SELECT 
+    DISTINCT ?researcher
+  WHERE {
+    ?researcher wdt:P108 | wdt:P463 | (wdt:P1416 / wdt:P361*) target: .
   }
-  UNION
-  {
+} AS %researchers
+WITH {
     SELECT
-      (2 AS ?order)
-      ("Presenters" AS ?description)
-      (GROUP_CONCAT(?value_; separator=", ") AS ?value)
-      (CONCAT("../authors/", GROUP_CONCAT(?q; separator=",")) AS ?valueUrl)
-    {
-      BIND(1 AS ?dummy)
-      target: wdt:P371 ?iri .
-      BIND(SUBSTR(STR(?iri), 32) AS ?q) 
-      ?iri rdfs:label ?value_string . 
-      FILTER (LANG(?value_string) = 'en')
-      BIND(COALESCE(?value_string, ?q) AS ?value_)
-    }
-    GROUP BY ?dummy
-  }
-  UNION
-  {
-    ?podcast wdt:P179 ?iri .
-    BIND(SUBSTR(STR(?iri), 32) AS ?q) 
-    ?iri rdfs:label ?value_string .
-    FILTER (LANG(?value_string) = 'en')
-    BIND(STR(?value_string) AS ?value)
-    BIND(CONCAT("../podcast/", ?q) AS ?valueUrl)
-    BIND(3 AS ?order)
-    BIND("Podcast" AS ?description)
-  }
-  UNION
-  {
-    ?podcast wdt:P577 ?publication_datetime .
-    BIND(xsd:date(?publication_datetime) AS ?value)
-    BIND(4 AS ?order)
-    BIND("Publication date" AS ?description)
-  }
-  UNION
-  {
-    ?podcast wdt:P4908 ?iri .
-    BIND(SUBSTR(STR(?iri), 32) AS ?q) 
-    ?iri rdfs:label ?value_string .
-    FILTER (LANG(?value_string) = 'en')
-    BIND(STR(?value_string) AS ?value)
-    BIND(CONCAT("../podcast-season/", ?q) AS ?valueUrl)
-    BIND(5 AS ?order)
-    BIND("Season" AS ?description)
-  }
-  UNION
-  {
-    ?podcast wdt:P155 ?iri .
-    BIND(SUBSTR(STR(?iri), 32) AS ?q) 
-    ?iri rdfs:label ?value_string .
-    FILTER (LANG(?value_string) = 'en')
-    BIND(STR(?value_string) AS ?value)
-    BIND(CONCAT("../podcast-episode/", ?q) AS ?valueUrl)
-    BIND(6 AS ?order)
-    BIND("Previous episode" AS ?description)
-  }
-  UNION
-  {
-    ?podcast wdt:P156 ?iri .
-    BIND(SUBSTR(STR(?iri), 32) AS ?q) 
-    ?iri rdfs:label ?value_string .
-    FILTER (LANG(?value_string) = 'en')
-    BIND(STR(?value_string) AS ?value)
-    BIND(CONCAT("../podcast-episode/", ?q) AS ?valueUrl)
-    BIND(7 AS ?order)
-    BIND("Next episode" AS ?description)
-  }
-} 
-ORDER BY ?order
+      ?researcher ?work ?year
+      (SAMPLE(?pages) / COUNT(?researcher_of_paper) AS ?pages_per_author)
+    WHERE {
+      INCLUDE %researchers
+      
+      ?work (wdt:P50 | wdt:P2093) ?researcher_of_paper .
+      
+      # Disabled to only look on scholarly articles
+      # ?work wdt:P31 wd:Q13442814 .
+      
+      ?work wdt:P50 ?researcher ;
+            wdt:P1104 ?pages ;
+            wdt:P577 ?date . 
+      BIND(STR(YEAR(?date)) AS ?year) 
+    } 
+    GROUP BY ?work ?researcher ?year
+} AS %results
+WHERE {
+  INCLUDE %results
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en". }
+}
+GROUP BY ?year ?researcher ?researcherLabel
+ORDER BY ?year
 ''';
-  scholia:aspect scholiaAspect:Podcast-episode ;
-  rdfs:comment "Podcast-episode aspect: [no title]"@en ;
+  scholia:aspect scholiaAspect:Organization ;
+  scholia:defaultView scholiaView:BarChart ;
+  rdfs:comment "Organization aspect: [no title]"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
-  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/podcast-episode_data.sparql> ;
+  spex:federatesWith <http://wikiba.se/ontology#label> ;
+  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/organization_page-production.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

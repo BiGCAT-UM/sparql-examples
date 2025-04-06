@@ -20,32 +20,42 @@ q:212 a sh:SPARQLExecutable,
 PREFIX p: <http://www.wikidata.org/prop/>
 PREFIX wdt: <http://www.wikidata.org/prop/direct/>
 PREFIX wikibase: <http://wikiba.se/ontology#>
-#defaultView:Table
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX target: <http://www.wikidata.org/entity/Q6294930>
 
-PREFIX target: <http://www.wikidata.org/entity/Q60687720>
-
-SELECT ?count ?short_name 
-?venue ?venueLabel (CONCAT("/venue/", SUBSTR(STR(?venue), 32)) AS ?venueUrl)
+# title: Cited venues from specific journal
+SELECT
+  ?count
+  ?short_name
+  ?cited_journal ?cited_journalLabel
 WITH {
-  SELECT (count(?work) as ?count) ?venue (SAMPLE(?short_name_) AS ?short_name) WHERE {
-    { ?work wdt:P6104 target: . }
-    union { ?work wdt:P5008 target: . }
-    ?work wdt:P1433/wdt:P179* ?venue .
-    OPTIONAL { ?venue wdt:P1813 ?short_name_ . }
+  SELECT
+    (COUNT(?cited_work) AS ?count)
+    ?cited_journal
+    (SAMPLE(?short_name_) AS ?short_name)
+  WHERE {
+    ?work wdt:P1433 target: .
+    ?work wdt:P2860 ?cited_work .
+    ?cited_work wdt:P1433 ?cited_journal . 
+    OPTIONAL {
+      ?work wdt:P577 ?publication_datetime .
+      BIND(xsd:date(?publication_datetime) AS ?publication_date)
+    }
+    OPTIONAL { ?cited_journal wdt:P1813 ?short_name_ . }
   }
-  GROUP BY ?venue
+  GROUP BY ?cited_journal
 } AS %result
 WHERE {
   INCLUDE %result
-  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" . } 
+  SERVICE wikibase:label {
+    bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" . } 
 }
 ORDER BY DESC(?count)
 LIMIT 200
 ''';
-  scholia:aspect scholiaAspect:Wikiproject ;
-  scholia:defaultView scholiaView:Table ;
-  rdfs:comment "Wikiproject aspect: [no title]"@en ;
+  scholia:aspect scholiaAspect:Venue ;
+  rdfs:comment "Venue aspect: Cited venues from specific journal"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
-  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/wikiproject_venues.sparql> ;
+  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/venue_cited-venues.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

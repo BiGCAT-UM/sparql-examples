@@ -16,44 +16,37 @@
 q:201 a sh:SPARQLExecutable,
   sh:SPARQLSelectExecutable;
   sh:prefixes _:sparql_examples_prefixes ;
-  sh:select '''PREFIX hint: <http://www.bigdata.com/queryHints#>
+  sh:select '''PREFIX bd: <http://www.bigdata.com/rdf#>
 PREFIX p: <http://www.wikidata.org/prop/>
-PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX wdt: <http://www.wikidata.org/prop/direct/>
-PREFIX target: <http://www.wikidata.org/entity/Q60687720>
+PREFIX wikibase: <http://wikiba.se/ontology#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX target: <http://www.wikidata.org/entity/Q1769726>
 
-SELECT ?count 
-?award ?awardLabel (CONCAT("/award/", SUBSTR(STR(?award), 32)) AS ?awardUrl)
-?recipients ?recipientsUrl
-WITH {
-  SELECT (COUNT(?researcher) AS ?count) ?award 
-  (GROUP_CONCAT(DISTINCT ?researcher_label; separator=", ") AS ?recipients) 
-  (CONCAT("../authors/", GROUP_CONCAT(DISTINCT SUBSTR(STR(?researcher), 32); separator=",")) AS ?recipientsUrl)
+SELECT
+  ?publication_date 
+  ?work ?workLabel (CONCAT("/work/", SUBSTR(STR(?work), 32)) AS ?workUrl)
+WITH{
+  SELECT
+    ?publication_datetime
+    ?work
   WHERE {
-    { 
-      SELECT DISTINCT ?researcher ?award WHERE {
-        hint:Query hint:optimizer "None" .
-        { ?work wdt:P6104 target: .}
-        union 
-        { ?work wdt:P5008 target: .}
-        ?work wdt:P50 ?researcher .
-        ?researcher wdt:P166 ?award .
-      } 
-      LIMIT 100
-    }
-    ?researcher rdfs:label ?researcher_label . FILTER (LANG(?researcher_label) = 'en')
+    ?work wdt:P4510 / wdt:P279* target: ;
+          wdt:P577 ?publication_datetime .
   }
-  GROUP BY ?award 
+  ORDER BY DESC(?publication_datetime)
+  LIMIT 1000
 } AS %result
 WHERE {
   INCLUDE %result
-    ?award rdfs:label ?awardLabel . FILTER (LANG(?awardLabel) = 'en')
+  BIND(xsd:date(?publication_datetime) AS ?publication_date)
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" }
 }
-GROUP BY ?count ?award ?awardLabel ?recipients ?recipientsUrl
-ORDER BY DESC(?count)
+ORDER BY DESC(?publication_date)
 ''';
-  scholia:aspect scholiaAspect:Wikiproject ;
-  rdfs:comment "Wikiproject aspect: [no title]"@en ;
+  scholia:aspect scholiaAspect:Use ;
+  rdfs:comment "Use aspect: [no title]"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
-  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/wikiproject_author-awards.sparql> ;
+  spex:federatesWith <http://wikiba.se/ontology#label> ;
+  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/use_recent-work-using-the-used.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

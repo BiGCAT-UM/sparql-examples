@@ -20,35 +20,41 @@ q:200 a sh:SPARQLExecutable,
 PREFIX p: <http://www.wikidata.org/prop/>
 PREFIX wdt: <http://www.wikidata.org/prop/direct/>
 PREFIX wikibase: <http://wikiba.se/ontology#>
-PREFIX target: <http://www.wikidata.org/entity/Q6294930>
+PREFIX target: <http://www.wikidata.org/entity/Q1769726>
 
 SELECT
   ?count
-  ?use ?useLabel (CONCAT("/use/", SUBSTR(STR(?use), 32)) AS ?useUrl)
+  
+  ?coused ?cousedLabel (CONCAT("/use/", SUBSTR(STR(?coused), 32)) AS ?cousedUrl)
   ("🔎" AS ?zoom)
-  (CONCAT("Q6294930/use/", SUBSTR(STR(?use), 32)) AS ?zoomUrl)
-  ?useDescription
-
-  ?example_work ?example_workLabel
+  (CONCAT("../uses/Q1769726,", SUBSTR(STR(?coused), 32)) AS ?zoomUrl)
+  ?cousedDescription
+  
+  ?example_work ?example_workLabel (CONCAT("/work/", SUBSTR(STR(?example_work), 32)) AS ?example_workUrl)
 WITH {
+  # Find works that are using a specific software,
+  # and find other software used in the found works
   SELECT
-    (COUNT(?work) AS ?count)
-    ?use
+    ?coused
+    (COUNT(DISTINCT ?work) as ?count)
     (SAMPLE(?work) AS ?example_work)
-  {
-    ?work wdt:P1433 target: ;
-          wdt:P4510 ?use .
+  WHERE {
+    ?work wdt:P4510 / wdt:P279* target: ;
+          wdt:P4510 ?coused .
+    FILTER (?coused != target:)
   }
-  GROUP BY ?use
+  GROUP BY ?coused
 } AS %result
 WHERE {
+  # Label the result
   INCLUDE %result
-  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en". }
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" . }
 }
-ORDER BY DESC(?count)''';
-  scholia:aspect scholiaAspect:Venue ;
-  rdfs:comment "Venue aspect: [no title]"@en ;
+ORDER BY DESC(?count) 
+''';
+  scholia:aspect scholiaAspect:Use ;
+  rdfs:comment "Use aspect: [no title]"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
-  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/venue_uses.sparql> ;
+  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/use_co-used.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

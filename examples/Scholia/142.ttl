@@ -18,38 +18,51 @@ q:142 a sh:SPARQLExecutable,
   sh:prefixes _:sparql_examples_prefixes ;
   sh:select '''PREFIX bd: <http://www.bigdata.com/rdf#>
 PREFIX p: <http://www.wikidata.org/prop/>
-PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX prov: <http://www.w3.org/ns/prov#>
+PREFIX pr: <http://www.wikidata.org/prop/reference/>
 PREFIX wdt: <http://www.wikidata.org/prop/direct/>
 PREFIX wikibase: <http://wikiba.se/ontology#>
-PREFIX target: <http://www.wikidata.org/entity/Q73820>
+# Prolific authors for a specific project
+PREFIX target: <http://www.wikidata.org/entity/Q27990087>
 
-SELECT
-  ?number_of_editorships
-  ?editor ?editorLabel 
-  ?example_venue ?example_venueLabel
+SELECT ?count ?author ?authorLabel ?orcid ?example_work ?example_workLabel
+WITH {
+  SELECT DISTINCT ?work WHERE {
+    {
+      ?work wdt:P921 / (wdt:P527+ | wdt:P1269+ | (wdt:P31* / wdt:P279*) ) target: .
+    } UNION { ?work wdt:P859/(wdt:P1344|^wdt:P710)* target: .
+    } UNION {
+      target: ?propp ?statement .
+      ?statement a wikibase:BestRank ;
+                 prov:wasDerivedFrom/pr:P248 ?work .
+    }
+  }
+} AS %works
 WITH {
   SELECT
-    (COUNT(?venue_) AS ?number_of_editorships)
-    ?editor
-    (SAMPLE(?venue_) AS ?example_venue)
-    # (GROUP_CONCAT(?journal_label; separator=" // ") AS ?venues)
+    ?author
+    (COUNT(?work) AS ?count)
+    (SAMPLE(?work) AS ?example_work)
   WHERE {
-    # Find editors for a work published by publisher
-    ?venue_ wdt:P123 target: .
-    ?venue_ wdt:P98 | wdt:P5769 ?editor .
-    # ?venue_ rdfs:label ?venue_label . FILTER(LANG(?venue_label) = 'en')
-  } 
-  GROUP BY ?editor
+    INCLUDE %works
+    ?work wdt:P50 ?author .
+  }
+  GROUP BY ?author
 } AS %result
 WHERE {
-  # Label the result
-  INCLUDE %result 
-  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" . } 
+  INCLUDE %result
+          
+  # Include optional ORCID iD
+  OPTIONAL { ?author wdt:P496 ?orcid . }
+  
+  # Label the results
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" . }
 }
-''';
-  scholia:aspect scholiaAspect:Publisher ;
-  rdfs:comment "Publisher aspect: [no title]"@en ;
+ORDER BY DESC(?count)
+LIMIT 50''';
+  scholia:aspect scholiaAspect:Project ;
+  rdfs:comment "Project aspect: [no title]"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
-  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/publisher_editors.sparql> ;
+  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/project_prolific-authors.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

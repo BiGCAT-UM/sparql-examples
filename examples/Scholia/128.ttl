@@ -20,25 +20,19 @@ q:128 a sh:SPARQLExecutable,
 PREFIX p: <http://www.wikidata.org/prop/>
 PREFIX wdt: <http://www.wikidata.org/prop/direct/>
 PREFIX wikibase: <http://wikiba.se/ontology#>
-#defaultView:Map
+PREFIX target: <http://www.wikidata.org/entity/Q124268563>
 
-PREFIX target: <http://www.wikidata.org/entity/Q27990087>
-
-SELECT ?partner ?partnerLabel ?location
-WITH {
-  SELECT DISTINCT ?partner ?location WHERE {
-    target: (^wdt:P1344 | wdt:P710)* / (wdt:P527 | wdt:P710 | wdt:P1416) ?partner .
-    ?partner wdt:P159* / wdt:P625 ?location .
-  }
-} AS %result
+SELECT DISTINCT ?guest ?guestLabel
+  (CONCAT("/", SUBSTR(STR(?guest), 32)) AS ?guestUrl)
 WHERE {
-  INCLUDE %result
+  BIND(target: AS ?episode)
+  ?episode wdt:P5030 ?guest .
   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en". }
-}''';
-  scholia:aspect scholiaAspect:Project ;
-  scholia:defaultView scholiaView:Map ;
-  rdfs:comment "Project aspect: [no title]"@en ;
+}
+''';
+  scholia:aspect scholiaAspect:Podcast-episode ;
+  rdfs:comment "Podcast-episode aspect: [no title]"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
-  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/project_partners.sparql> ;
+  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/podcast-episode_guests.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

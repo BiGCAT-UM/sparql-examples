@@ -19,42 +19,55 @@ q:187 a sh:SPARQLExecutable,
   sh:select '''PREFIX bd: <http://www.bigdata.com/rdf#>
 PREFIX p: <http://www.wikidata.org/prop/>
 PREFIX wdt: <http://www.wikidata.org/prop/direct/>
+PREFIX wd: <http://wikidata.org/entity/>
 PREFIX wikibase: <http://wikiba.se/ontology#>
-# title: Venues citing articles from this specific journal
+#defaultView:Graph
 
-PREFIX target: <http://www.wikidata.org/entity/Q6294930>
+PREFIX target: <http://www.wikidata.org/entity/Q45340488>
 
-#defaultView:Table
-SELECT
-  ?count
-  ?short_name
-  ?citing_journal ?citing_journalLabel 
+SELECT ?author1 ?author1Label ?rgb ?author2 ?author2Label
 WITH {
-  SELECT
-    (COUNT(?citing_work) AS ?count)
-    ?citing_journal
-    (SAMPLE(?short_name_) AS ?short_name)
-  WHERE {
-    ?work wdt:P1433 target: .
-    ?citing_work wdt:P2860 ?work .
-    ?citing_work wdt:P1433 ?citing_journal .
-    OPTIONAL { ?citing_journal wdt:P1813 ?short_name_ . }
+  # Find works with the topic
+  SELECT ?work WHERE {
+    ?work wdt:P921 / (wdt:P31* / wdt:P279* | wdt:P361+ | wdt:P1269+) target: .
   }
-  GROUP BY ?citing_journal
-  ORDER BY DESC(?count)
-  LIMIT 1000
-} AS %result
+} AS %works
+WITH {
+  # Limit the number of authors
+  SELECT (COUNT(?work) AS ?count1) ?author1 WHERE {
+    INCLUDE %works
+    ?work wdt:P50 ?author1 .
+  }
+  GROUP BY ?author1
+  ORDER BY DESC(?count1)
+  LIMIT 25
+} AS %authors1
+WITH {
+  # Limit the number of coauthors
+  SELECT DISTINCT ?author2 ?author1  (COUNT(?work) AS ?count2)  WHERE {
+    INCLUDE %works
+    INCLUDE %authors1
+    ?work wdt:P50 ?author1 , ?author2 .
+    FILTER (?author1 != ?author2) 
+  }
+  GROUP BY ?author2 ?author1 
+  ORDER BY DESC(?count2)
+  LIMIT 250
+} AS %authors2
 WHERE {
-  INCLUDE %result
+#  INCLUDE %authors1
+  INCLUDE %authors2
+  OPTIONAL { ?author1 wdt:P21 ?gender1 . }
+  BIND( IF(?gender1 = wd:Q6581097, "3182BD", "E6550D") AS ?rgb)
   SERVICE wikibase:label {
-    bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" . } 
+    bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" .
+  }
 }
-ORDER BY DESC(?count)
 ''';
-  scholia:aspect scholiaAspect:Venue ;
-  rdfs:comment "Venue aspect: Venues citing articles from this specific journal"@en ;
-  scholia:defaultView scholiaView:Table ;
+  scholia:aspect scholiaAspect:Topic ;
+  scholia:defaultView scholiaView:Graph ;
+  rdfs:comment "Topic aspect: [no title]"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
-  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/venue_citing-venues.sparql> ;
+  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/topic_coauthor-graph.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

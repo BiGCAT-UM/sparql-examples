@@ -19,44 +19,21 @@ q:123 a sh:SPARQLExecutable,
   sh:select '''PREFIX bd: <http://www.bigdata.com/rdf#>
 PREFIX p: <http://www.wikidata.org/prop/>
 PREFIX wdt: <http://www.wikidata.org/prop/direct/>
-PREFIX wd: <http://wikidata.org/entity/>
 PREFIX wikibase: <http://wikiba.se/ontology#>
-PREFIX target: <http://www.wikidata.org/entity/Q124262264>
+PREFIX target: <http://www.wikidata.org/entity/Q28031254>
 
-# title: listings for this podcast
-SELECT
-  ?Identifier ?IdentifierLabel
-  ?value (SAMPLE(?idUrls) as ?valueUrl)
-  ?IdentifierDescription
-WITH {
-  SELECT ?Identifier ?Value ?formatterurl WHERE {
-    target: ?IDdir ?Value .
-    ?Identifier wikibase:directClaim ?IDdir ;
-            wdt:P31 wd:Q84612171 .
-    OPTIONAL { 
-      ?Identifier wdt:P1630 ?formatterurl .
-    }
-  } LIMIT 500
-} AS %RESULTS {
-  { SELECT * WHERE {
-      INCLUDE %RESULTS
-      BIND(IRI(REPLACE(?formatterurl, '\\\\$1', ENCODE_FOR_URI(str(?Value)))) AS ?idUrls).
-    }
-  } UNION {
-    SELECT * WHERE {
-      INCLUDE %RESULTS
-      BIND(IRI(REPLACE(?formatterurl, '\\\\$1', str(?Value))) AS ?idUrls).
-    }
+SELECT ?wpid ?organism ?organismLabel ?pathwayDescription
+WHERE {
+  VALUES ?pathway { target: }
+  OPTIONAL {
+    target: wdt:P2410 ?wpid ;
+    wdt:P703 ?organism .
   }
-  BIND(CONCAT(?Value, " ↗") AS ?value)
-  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en". }
-}
-GROUP BY ?Identifier ?IdentifierLabel ?IdentifierDescription ?value
-ORDER BY ASC(?IdentifierLabel)
-''';
-  scholia:aspect scholiaAspect:Podcast ;
-  rdfs:comment "Podcast aspect: listings for this podcast"@en ;
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" . }
+}''';
+  scholia:aspect scholiaAspect:Pathway ;
+  rdfs:comment "Pathway aspect: [no title]"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
-  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/podcast_listings.sparql> ;
+  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/pathway_optional-data-values.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

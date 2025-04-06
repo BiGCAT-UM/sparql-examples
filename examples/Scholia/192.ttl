@@ -18,47 +18,48 @@ q:192 a sh:SPARQLExecutable,
   sh:prefixes _:sparql_examples_prefixes ;
   sh:select '''PREFIX bd: <http://www.bigdata.com/rdf#>
 PREFIX p: <http://www.wikidata.org/prop/>
+PREFIX pq: <http://www.wikidata.org/prop/qualifier/>
 PREFIX wdt: <http://www.wikidata.org/prop/direct/>
 PREFIX wikibase: <http://wikiba.se/ontology#>
-# title: Most cited authors published in venue
+#defaultView:Map
 
-PREFIX target: <http://www.wikidata.org/entity/Q6294930>
+PREFIX target: <http://www.wikidata.org/entity/Q45340488>
 
-SELECT
-  ?count
-  ?author ?authorLabel
-  ?orcid
-  ?example_cited_work ?example_cited_workLabel
-  ?example_citing_work ?example_citing_workLabel
+SELECT ?organization ?organizationLabel ?geo ?count ?layer
 WITH {
-  # Count the number of citations
-  SELECT
-    ?author
-    (COUNT(?cited_work) AS ?count)
-    (SAMPLE(?cited_work) AS ?example_cited_work)
-    (SAMPLE(?citing_work) AS ?example_citing_work)
-  WHERE {
-    ?cited_work wdt:P1433 target: .
-    ?citing_work wdt:P2860 ?cited_work .
-    ?cited_work wdt:P50 ?author .
+  SELECT DISTINCT ?work WHERE {
+  # Works on the topic
+    ?work wdt:P921 / (wdt:P361+ | wdt:P1269+ | (wdt:P31* / wdt:P279*) ) target: .
   }
-  GROUP BY ?author
-} AS %result
+  LIMIT 20000
+} AS %works
+WITH {
+  SELECT DISTINCT ?organization ?geo (COUNT(DISTINCT ?work) AS ?count) WHERE {
+    INCLUDE %works
+    # Authors who have published works on the topic
+    ?work wdt:P50 ?author . 
+    ?author ( wdt:P108 | wdt:P463 | wdt:P1416 ) / wdt:P361* ?organization . 
+    # Use the headquarters location by default but keep the coordinate location as a fallback
+    OPTIONAL{?organization p:P159/pq:P625 ?hq_geo}
+    OPTIONAL{?organization wdt:P625 ?coord_geo}
+    BIND(IF(BOUND(?hq_geo), ?hq_geo, ?coord_geo) AS ?geo) .
+    FILTER(BOUND(?geo)) .
+  }
+  GROUP BY ?organization ?geo
+  ORDER BY DESC (?count)
+  LIMIT 2000
+} AS %organizations
 WHERE {
-  INCLUDE %result 
-          
-  # Include optional ORCID iD
-  OPTIONAL { ?author wdt:P496 ?orcid . }
-  
-  # Label the results
-  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" . } 
-}
-ORDER BY DESC(?count)
-LIMIT 100
+  INCLUDE %organizations
+  BIND(IF( (?count < 1), "No results", IF((?count < 2), "1 result", IF((?count < 11), "1 < results ≤ 10", IF((?count < 101), "10 < results ≤ 100", IF((?count < 1001), "100 < results ≤ 1000", IF((?count < 10001), "1000 < results ≤ 10000", "10000 or more results") ) ) ) )) AS ?layer )
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en". }        
+ }
+ORDER BY DESC (?count)
 ''';
-  scholia:aspect scholiaAspect:Venue ;
-  rdfs:comment "Venue aspect: Most cited authors published in venue"@en ;
+  scholia:aspect scholiaAspect:Topic ;
+  scholia:defaultView scholiaView:Map ;
+  rdfs:comment "Topic aspect: [no title]"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
-  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/venue_most-cited-authors.sparql> ;
+  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/topic_organization-map.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

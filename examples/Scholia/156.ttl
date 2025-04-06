@@ -19,34 +19,40 @@ q:156 a sh:SPARQLExecutable,
   sh:select '''PREFIX bd: <http://www.bigdata.com/rdf#>
 PREFIX p: <http://www.wikidata.org/prop/>
 PREFIX wdt: <http://www.wikidata.org/prop/direct/>
-PREFIX wd: <http://wikidata.org/entity/>
 PREFIX wikibase: <http://wikiba.se/ontology#>
-PREFIX target: <http://www.wikidata.org/entity/Q12024>
+#defaultView:ScatterChart
 
-SELECT DISTINCT
-  ?metabolite ?metaboliteLabel ?metaboliteChemicalStructure ?metaboliteDescription
+PREFIX target: <http://www.wikidata.org/entity/Q73820>
+
+SELECT ?work_count ?citation_count ?journal ?journalLabel 
 WITH {
-  SELECT DISTINCT ?children WHERE {
-      ?children (wdt:P171*) target:.
+  SELECT ?work_count ?citation_count ?journal {
+    {
+      SELECT ?journal (COUNT(?work) AS ?work_count) {
+  	    ?journal wdt:P123 target: .
+  	    ?work wdt:P1433 ?journal .
+      }
+      GROUP BY ?journal 
+    }
+    {
+      SELECT ?journal (COUNT(?citing_work) AS ?citation_count) {
+  	    ?journal wdt:P123 target: .
+  	    ?work wdt:P1433 ?journal .
+        ?citing_work wdt:P2860 ?work . 
+      }
+      GROUP BY ?journal 
+    } 
   }
-} AS %taxa 
-WITH {
-  SELECT DISTINCT ?metabolite ?metaboliteChemicalStructure WHERE {
-    INCLUDE %taxa
-    { ?metabolite wdt:P703 ?children }
-    VALUES ?chemical { wd:Q113145171 wd:Q59199015 }
-    ?metabolite wdt:P31 ?chemical .
-    OPTIONAL { ?metabolite wdt:P233 ?canSmiles }
-    OPTIONAL { ?metabolite wdt:P2017 ?isoSmiles }
-    BIND(COALESCE(?isoSmiles, ?canSmiles) AS ?metaboliteChemicalStructure)
-  }
-} AS %results {
-  INCLUDE %results
-  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en". }
-}''';
-  scholia:aspect scholiaAspect:Taxon ;
-  rdfs:comment "Taxon aspect: [no title]"@en ;
+} AS %result
+WHERE {
+  INCLUDE %result
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" . } 
+}
+''';
+  scholia:aspect scholiaAspect:Publisher ;
+  scholia:defaultView scholiaView:ScatterChart ;
+  rdfs:comment "Publisher aspect: [no title]"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
-  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/taxon_metabolome.sparql> ;
+  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/publisher_citations-works.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

@@ -19,44 +19,36 @@ q:059 a sh:SPARQLExecutable,
   sh:select '''PREFIX bd: <http://www.bigdata.com/rdf#>
 PREFIX p: <http://www.wikidata.org/prop/>
 PREFIX wdt: <http://www.wikidata.org/prop/direct/>
-PREFIX wd: <http://wikidata.org/entity/>
 PREFIX wikibase: <http://wikiba.se/ontology#>
-PREFIX target: <http://www.wikidata.org/entity/Q4203254>
+# title: Co-organizations for a specific country
+PREFIX target: <http://www.wikidata.org/entity/Q35>
 
-SELECT
-  ?Identifier ?IdentifierLabel
-  ?id (SAMPLE(?idUrls) as ?idUrl)
-  ?IdentifierDescription
-WITH {
-  SELECT ?Identifier ?id ?formatterurl WHERE {
-    target: ?IDdir ?id .
-    ?Identifier wikibase:directClaim ?IDdir ;
-            wdt:P31/wdt:P279* wd:Q19847637 .
-    OPTIONAL {
-      ?Identifier wdt:P1630 ?formatterurl .
-    }
-  } LIMIT 500
-} AS %RESULTS {
-  { SELECT * WHERE {
-      INCLUDE %RESULTS
-      FILTER (?Identifier = wd:P234)
-      BIND(IRI(REPLACE(?formatterurl, '\\\\$1', ENCODE_FOR_URI(str(?id)))) AS ?idUrls).
-    }
-  } UNION {
-    SELECT * WHERE {
-      INCLUDE %RESULTS
-      FILTER (?Identifier != wd:P234)
-      BIND(IRI(REPLACE(?formatterurl, '\\\\$1', str(?id))) AS ?idUrls).
-    }
+#defaultView:Map
+SELECT ?coorganization ?coorganizationLabel ?geocoordinates ?example_coauthor ?example_coauthorLabel ?example_work ?example_workLabel
+WITH {  
+  SELECT
+    ?coorganization
+    (SAMPLE(?geocoordinates_) AS ?geocoordinates)
+    (SAMPLE(?coauthor) AS ?example_coauthor)
+    (SAMPLE(?work) AS ?example_work)
+  WHERE {
+    ?organization wdt:P17 target: .
+    ?author wdt:P108 | wdt:P463 | wdt:P1416/wdt:P361* ?organization .
+    ?work wdt:P50 ?author, ?coauthor .
+    ?coauthor wdt:P108 | wdt:P463 | wdt:P1416/wdt:P361* ?coorganization .
+    FILTER NOT EXISTS { ?coorganization wdt:P17 target: }
+    ?coorganization wdt:P625 ?geocoordinates_ .
   }
+  GROUP BY ?coorganization 
+} AS %results
+WHERE {
+  INCLUDE %results
   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en". }
-}
-GROUP BY ?Identifier ?IdentifierLabel ?IdentifierDescription ?id
-ORDER BY ASC(?IdentifierLabel)
-''';
-  scholia:aspect scholiaAspect:Dataset ;
-  rdfs:comment "Dataset aspect: [no title]"@en ;
+}''';
+  scholia:aspect scholiaAspect:Country ;
+  rdfs:comment "Country aspect: Co-organizations for a specific country"@en ;
+  scholia:defaultView scholiaView:Map ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
-  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/dataset_identifiers.sparql> ;
+  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/country_co-organizations.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

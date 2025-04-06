@@ -16,52 +16,68 @@
 q:134 a sh:SPARQLExecutable,
   sh:SPARQLSelectExecutable;
   sh:prefixes _:sparql_examples_prefixes ;
-  sh:select '''PREFIX bd: <http://www.bigdata.com/rdf#>
-PREFIX p: <http://www.wikidata.org/prop/>
+  sh:select '''PREFIX p: <http://www.wikidata.org/prop/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX wdt: <http://www.wikidata.org/prop/direct/>
-PREFIX wikibase: <http://wikiba.se/ontology#>
-#defaultView:BubbleChart
+PREFIX target: <http://www.wikidata.org/entity/Q124262264>
 
-PREFIX target: <http://www.wikidata.org/entity/Q27990087>
-
-SELECT ?score ?topic ?topicLabel
-WITH {
-  SELECT
-    (SUM(?score_) AS ?score)
-    ?topic
-  WHERE {
-    { 
-      target: wdt:P101 ?topic .
-      BIND(20 AS ?score_)
-    }
-    UNION 
-    {
-      SELECT (3 AS ?score_) ?topic WHERE {
-        ?work wdt:P859/wdt:P1344* target: ;
-              wdt:P921 ?topic . 
-      }
-    }
-    UNION
-    {
-      SELECT (1 AS ?score_) ?topic WHERE {
-        ?work wdt:P859/wdt:P1344* target: .
-        ?citing_work wdt:P2860 ?work .
-        ?citing_work wdt:P921 ?topic . 
-      }
-    }
-  }
-  GROUP BY ?topic
-} AS %results 
+SELECT DISTINCT ?description ?value ?valueUrl
 WHERE {
-  INCLUDE %results
-  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en,da,de,es,jp,no,ru,sv,zh". }
-}
-ORDER BY DESC(?score)
-LIMIT 200''';
-  scholia:aspect scholiaAspect:Project ;
-  scholia:defaultView scholiaView:BubbleChart ;
-  rdfs:comment "Project aspect: [no title]"@en ;
+  BIND(target: AS ?podcast)
+  {
+    BIND(1 AS ?order)
+    BIND("Title" AS ?description)
+    ?podcast wdt:P1476 ?value .
+  }
+  UNION
+  {
+    SELECT
+      (2 AS ?order)
+      ("Presenters" AS ?description)
+      (GROUP_CONCAT(?value_; separator=", ") AS ?value)
+      (CONCAT("../authors/", GROUP_CONCAT(?q; separator=",")) AS ?valueUrl)
+    {
+      BIND(1 AS ?dummy)
+      target: wdt:P371 ?iri .
+      BIND(SUBSTR(STR(?iri), 32) AS ?q) 
+      ?iri rdfs:label ?value_string . 
+      FILTER (LANG(?value_string) = 'en')
+      BIND(COALESCE(?value_string, ?q) AS ?value_)
+    }
+    GROUP BY ?dummy
+  }
+  UNION
+  {
+    BIND(3 AS ?order)
+    BIND("Language" AS ?description)
+    ?podcast wdt:P407 ?iri .
+    BIND(SUBSTR(STR(?iri), 32) AS ?q) 
+    ?iri rdfs:label ?value_string .
+    FILTER (LANG(?value_string) = 'en')
+    BIND(STR(?value_string) AS ?value)
+    BIND(CONCAT("../language/", ?q, "/podcast") AS ?valueUrl)
+  }
+  UNION
+  {
+    SELECT ?description ?order (MAX(?value_) AS ?value) WHERE {
+      BIND(target: AS ?podcast)
+      ?podcast wdt:P1113 ?value_ .
+      BIND(4 AS ?order)
+      BIND("Number of episodes" AS ?description)
+    } GROUP BY ?description ?order
+  }
+  UNION
+  {
+    BIND(5 AS ?order)
+    BIND("Web feed" AS ?description)
+    ?podcast wdt:P1019 ?valueUrl .
+    BIND("feed" AS ?value)
+  }
+} 
+ORDER BY ?order
+''';
+  scholia:aspect scholiaAspect:Podcast ;
+  rdfs:comment "Podcast aspect: [no title]"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
-  spex:federatesWith <http://wikiba.se/ontology#label> ;
-  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/project_topic-scores.sparql> ;
+  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/podcast_data.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

@@ -18,48 +18,30 @@ q:210 a sh:SPARQLExecutable,
   sh:prefixes _:sparql_examples_prefixes ;
   sh:select '''PREFIX bd: <http://www.bigdata.com/rdf#>
 PREFIX p: <http://www.wikidata.org/prop/>
-PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX wdt: <http://www.wikidata.org/prop/direct/>
 PREFIX wikibase: <http://wikiba.se/ontology#>
-PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
-PREFIX target: <http://www.wikidata.org/entity/Q60687720>
+# title: Authorship gender distribution for a specific venue
 
-SELECT ?date ?work ?workLabel (CONCAT("/work/", SUBSTR(STR(?work), 32)) AS ?workUrl)
-  ?topicsUrl ?topics 
+PREFIX target: <http://www.wikidata.org/entity/Q6294930>
+
+SELECT ?count ?gender ?genderLabel 
 WITH {
-  SELECT DISTINCT ?work WHERE {
-    { ?work wdt:P6104 target: .}
-      union 
-      { ?work wdt:P5008 target: .}
-  }
-} AS %works
-WITH {
-  SELECT (MAX(?dates) as ?datetime) ?work (GROUP_CONCAT(DISTINCT ?topic_label; separator=" // ") AS ?topics) 
-                                    (CONCAT("../topics/", GROUP_CONCAT(DISTINCT SUBSTR(STR(?topic), 32); separator=",")) AS ?topicsUrl) 
-  WHERE {
-    INCLUDE %works
-    ?work wdt:P921 ?topic . 
-    OPTIONAL { ?work wdt:P577 ?dates . }
-    ?topic rdfs:label ?topic_label .  FILTER (lang(?topic_label) = 'en')
-  }
-  GROUP BY ?work
+  SELECT (COUNT(?author) AS ?count) ?gender WHERE {
+    ?work wdt:P1433 target: .
+    ?work wdt:P50 ?author .
+    ?author wdt:P21 ?gender .
+  } 
+  GROUP BY ?gender
 } AS %result
 WHERE {
   INCLUDE %result
-
-  # There is a problem with BC dates
-  # BIND(xsd:date(?datetime) AS ?date)
-  BIND(REPLACE(STR(?datetime), 'T.*', '') AS ?date)
-    
-  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en". }
-}
-GROUP BY ?date ?work ?workLabel ?topicsUrl ?topics
-ORDER BY DESC(?date)
-LIMIT 500
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" . } 
+} 
+ ORDER BY DESC(?count)
 ''';
-  scholia:aspect scholiaAspect:Wikiproject ;
-  rdfs:comment "Wikiproject aspect: [no title]"@en ;
+  scholia:aspect scholiaAspect:Venue ;
+  rdfs:comment "Venue aspect: Authorship gender distribution for a specific venue"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
-  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/wikiproject_recently-published-works.sparql> ;
+  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/venue_authorship-gender-distribution.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

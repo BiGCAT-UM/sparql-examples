@@ -18,45 +18,34 @@ q:151 a sh:SPARQLExecutable,
   sh:prefixes _:sparql_examples_prefixes ;
   sh:select '''PREFIX bd: <http://www.bigdata.com/rdf#>
 PREFIX p: <http://www.wikidata.org/prop/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX wdt: <http://www.wikidata.org/prop/direct/>
 PREFIX wikibase: <http://wikiba.se/ontology#>
-#description: Show software library, programming language and developer dependencies
+PREFIX target: <http://www.wikidata.org/entity/Q21109365>
 
-PREFIX target: <http://www.wikidata.org/entity/Q1635410>
-
-#defaultView:Graph
-SELECT ?resource1 ?resource1Label ?image1 ?rgb ?resource2 ?resource2Label ?image2
+SELECT ?count ?protein ?proteinLabel ?species ?speciesLabel ?functions
 WITH {
-  SELECT
-    ?resource1 (SAMPLE(?image1_) AS ?image1) ?rgb
-    ?resource2 (SAMPLE(?image2_) AS ?image2)
-    {
-      {
-        # root node with coloring
-        BIND(target: AS ?resource1)
-        BIND("3080BB" AS ?rgb)
-      }
-      UNION
-      {
-        # dependencies, programming language, developer
-        target: ( wdt:P1547 | wdt:P277 | wdt:P178 | wdt:P2283 | wdt:P275 )+ ?resource1 .
-        OPTIONAL { ?resource1 wdt:P18 ?image1_ }
-      }
-      target: ( wdt:P1547 | wdt:P277 | wdt:P178 | wdt:P2283 | wdt:P275 )+ ?resource2 .
-      OPTIONAL { ?resource2 wdt:P18 ?image2_ }
-      ?resource1 ( wdt:P1547 | wdt:P277 | wdt:P178 | wdt:P2283 | wdt:P275 ) ?resource2 .
-    }
-    GROUP BY ?resource1 ?resource2 ?rgb
-} AS %result
-{
+  SELECT ?protein (COUNT(?function) AS ?count)
+         (GROUP_CONCAT(?function_label; separator=" // ") AS ?functions)
+  WHERE {
+    BIND(target: AS ?query_protein)
+    ?query_protein wdt:P680 ?function .
+    FILTER (?query_protein != ?protein)
+    ?protein wdt:P680 ?function . 
+    ?function rdfs:label ?function_label FILTER(lang(?function_label) = "en")
+  }
+  GROUP BY ?protein
+} AS %result 
+WHERE {
   INCLUDE %result
+  OPTIONAL { ?protein wdt:P703 ?species . }
   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" . }
 }
-''';
-  scholia:aspect scholiaAspect:Software ;
-  scholia:defaultView scholiaView:Graph ;
-  rdfs:comment "Software aspect: [no title]"@en ;
+ORDER BY DESC(?count)
+LIMIT 500''';
+  scholia:aspect scholiaAspect:Protein ;
+  rdfs:comment "Protein aspect: [no title]"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
-  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/software_software-dependencies.sparql> ;
+  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/protein_cofunctional-proteins.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

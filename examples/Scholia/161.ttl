@@ -19,52 +19,32 @@ q:161 a sh:SPARQLExecutable,
   sh:select '''PREFIX bd: <http://www.bigdata.com/rdf#>
 PREFIX p: <http://www.wikidata.org/prop/>
 PREFIX wdt: <http://www.wikidata.org/prop/direct/>
+PREFIX wd: <http://wikidata.org/entity/>
 PREFIX wikibase: <http://wikiba.se/ontology#>
-#defaultView:BubbleChart
+#defaultView:Timeline
 
-PREFIX target: <http://www.wikidata.org/entity/Q45340488>
+PREFIX target: <http://www.wikidata.org/entity/Q73820>
 
-SELECT ?score ?author ?authorLabel
-WITH {
-  SELECT 
-    ?author
-    (SUM(?score_) AS ?score)
-  WHERE {
-    { 
-      ?author wdt:P101/wdt:P279* target: .
-      BIND(20 AS ?score_)
-    }
-    UNION
-    {
-      SELECT (3 AS ?score_) ?author WHERE {
-        ?work wdt:P50 ?author ;
-              wdt:P921/wdt:P279* target: .
-      }
-    }
-    UNION
-    {
-      SELECT (1 AS ?score_) ?author WHERE {
-        ?cited_work wdt:P50 ?author .
-        ?citing_work wdt:P2860 ?cited_work .
-        ?citing_work wdt:P921/wdt:P279* target: .
-      }
-    }
-  }
-  GROUP BY ?author
-  ORDER BY DESC(?score)
-  LIMIT 200
-} AS %results 
-WHERE {
-  INCLUDE %results
-  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en,da,de,es,jp,no,ru,sv,zh". }
+SELECT DISTINCT ?datetime ?venue ?venueLabel WHERE {
+  # Publisher
+  ?venue wdt:P123 target: .
+  
+  # Periodic literature
+  ?venue wdt:P31 / wdt:P279* wd:Q1002697 .
+  
+  # When the journal was started 
+  ?venue wdt:P571 ?datetime.
+  
+  # Label the journal
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en". }
 }
-ORDER BY DESC(?score)
-LIMIT 200
+ORDER BY DESC(?datetime)
+LIMIT 50
 ''';
-  scholia:aspect scholiaAspect:Topic ;
-  scholia:defaultView scholiaView:BubbleChart ;
-  rdfs:comment "Topic aspect: [no title]"@en ;
+  scholia:aspect scholiaAspect:Publisher ;
+  scholia:defaultView scholiaView:Timeline ;
+  rdfs:comment "Publisher aspect: [no title]"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
-  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/topic_author-scores-graph.sparql> ;
+  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/publisher_timeline.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

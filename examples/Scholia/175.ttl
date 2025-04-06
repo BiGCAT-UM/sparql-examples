@@ -19,38 +19,27 @@ q:175 a sh:SPARQLExecutable,
   sh:select '''PREFIX bd: <http://www.bigdata.com/rdf#>
 PREFIX p: <http://www.wikidata.org/prop/>
 PREFIX wdt: <http://www.wikidata.org/prop/direct/>
+PREFIX wd: <http://wikidata.org/entity/>
 PREFIX wikibase: <http://wikiba.se/ontology#>
-#defaultView:Table
+PREFIX target: <http://www.wikidata.org/entity/Q12024>
 
-PREFIX target: <http://www.wikidata.org/entity/Q45340488>
-
-SELECT ?count (CONCAT("/topics/Q45340488,", SUBSTR(STR(?topic), 32)) AS ?countUrl)
-       ?topic ?topicLabel (CONCAT("/topic/", SUBSTR(STR(?topic), 32)) AS ?topicUrl)
-       ?example_work ?example_workLabel (CONCAT("/work/", SUBSTR(STR(?example_work), 32)) AS ?example_workUrl)
+SELECT
+  ?gene ?geneLabel ?geneDescription
+  ?chromosome ?chromosomeLabel ?chromosomeDescription
 WITH {
-  SELECT (COUNT(?work) AS ?count) ?topic (SAMPLE(?work) AS ?example_work) WHERE {
-    # Find works for the specific queried topic
-	  ?work wdt:P921/( wdt:P31*/wdt:P279* | wdt:P361+ | wdt:P1269+) target: .
-    
-    # Find co-occuring topics
-    ?work wdt:P921 ?topic .
-    
-    # Avoid listing the queried topic
-      FILTER (target: != ?topic)
+  SELECT ?gene ?chromosome WHERE {
+    ?gene wdt:P31 wd:Q7187 ;
+          wdt:P703 target: ;
+          wdt:P1057 ?chromosome .
   }
-  GROUP BY ?topic
-} AS %result
-WHERE {
-  # Label the results
-  INCLUDE %result
-  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" . } 
+} AS %results {
+  INCLUDE %results
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en". }
 }
-ORDER BY DESC(?count)
 ''';
-  scholia:aspect scholiaAspect:Topic ;
-  scholia:defaultView scholiaView:Table ;
-  rdfs:comment "Topic aspect: [no title]"@en ;
+  scholia:aspect scholiaAspect:Taxon ;
+  rdfs:comment "Taxon aspect: [no title]"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
-  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/topic_topics.sparql> ;
+  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/taxon_genome.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

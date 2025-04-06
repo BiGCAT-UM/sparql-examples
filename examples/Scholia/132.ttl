@@ -16,28 +16,66 @@
 q:132 a sh:SPARQLExecutable,
   sh:SPARQLSelectExecutable;
   sh:prefixes _:sparql_examples_prefixes ;
-  sh:select '''PREFIX wdt: <http://www.wikidata.org/prop/direct/>
-# title: Statistics for projects identifiers
-SELECT ?count ?description {
+  sh:select '''PREFIX p: <http://www.wikidata.org/prop/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX wdt: <http://www.wikidata.org/prop/direct/>
+PREFIX target: <http://www.wikidata.org/entity/Q124266519>
+
+SELECT DISTINCT ?description ?value ?valueUrl
+WHERE {
+  BIND(target: AS ?series)
   {
-    { SELECT (COUNT(*) AS ?count) WHERE { [] wdt:P3400 []. } }
-    BIND("Total number of projects with a CORDIS number" AS ?description)
+    BIND(1 AS ?order)
+    BIND("Title" AS ?description)
+    ?series wdt:P1476 ?value .
   }
-  UNION 
+  UNION
   {
-    { SELECT (COUNT(*) AS ?count) WHERE { [] wdt:P4870 []. } }
-    BIND("Total number of projects with a GEPRIS number" AS ?description)
+    ?series wdt:P179 ?iri .
+    BIND(SUBSTR(STR(?iri), 32) AS ?q) 
+    ?iri rdfs:label ?value_string .
+    FILTER (LANG(?value_string) = 'en')
+    BIND(STR(?value_string) AS ?value)
+    BIND(CONCAT("../podcast/", ?q) AS ?valueUrl)
+    BIND(2 AS ?order)
+    BIND("Podcast" AS ?description)
   }
-  UNION 
+  UNION
   {
-    { SELECT (COUNT(*) AS ?count) WHERE { [] wdt:P6536 []. } }
-    BIND("Total number of projects with a Gateway to Research Project ID" AS ?description)
+    SELECT ?description ?order (MAX(?value_) AS ?value) WHERE {
+      BIND(target: AS ?series)
+      ?series wdt:P1113 ?value_ .
+      BIND(3 AS ?order)
+      BIND("Number of episodes" AS ?description)
+    } GROUP BY ?description ?order
+  }
+  UNION
+  {
+    ?series wdt:P155 ?iri .
+    BIND(SUBSTR(STR(?iri), 32) AS ?q)
+    ?iri rdfs:label ?value_string .
+    FILTER (LANG(?value_string) = 'en')
+    BIND(STR(?value_string) AS ?value)
+    BIND(CONCAT("../podcast-season/", ?q) AS ?valueUrl)
+    BIND(6 AS ?order)
+    BIND("Previous season" AS ?description)
+  }
+  UNION
+  {
+    ?series wdt:P156 ?iri .
+    BIND(SUBSTR(STR(?iri), 32) AS ?q)
+    ?iri rdfs:label ?value_string .
+    FILTER (LANG(?value_string) = 'en')
+    BIND(STR(?value_string) AS ?value)
+    BIND(CONCAT("../podcast-season/", ?q) AS ?valueUrl)
+    BIND(7 AS ?order)
+    BIND("Next season" AS ?description)
   }
 }
-ORDER BY DESC(?count)
+ORDER BY ?order
 ''';
-  scholia:aspect scholiaAspect:Project ;
-  rdfs:comment "Project aspect: Statistics for projects identifiers"@en ;
+  scholia:aspect scholiaAspect:Podcast-season ;
+  rdfs:comment "Podcast-season aspect: [no title]"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
-  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/project_statistics.sparql> ;
+  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/podcast-season_data.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

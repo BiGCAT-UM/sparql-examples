@@ -20,47 +20,33 @@ q:165 a sh:SPARQLExecutable,
 PREFIX p: <http://www.wikidata.org/prop/>
 PREFIX wdt: <http://www.wikidata.org/prop/direct/>
 PREFIX wikibase: <http://wikiba.se/ontology#>
-#defaultView:Graph
+PREFIX target: <http://www.wikidata.org/entity/Q1635410>
 
-PREFIX target: <http://www.wikidata.org/entity/Q45340488>
-
-SELECT
-  ?topic1 ?topic1Label ?topic2 ?topic2Label
+SELECT 
+  ?count 
+  ?software ?softwareLabel ?softwareDescription (CONCAT("/software/", SUBSTR(STR(?software), 32)) AS ?softwareUrl)
 WITH {
-  SELECT
-    (COUNT(DISTINCT ?work) AS ?count) ?topic1 ?topic2
-  WHERE {
-    # Find works that are marked with main subject of the topic.
-    ?work wdt:P921 / ( wdt:P31*/wdt:P279* | wdt:P361+ | wdt:P1269+ ) target: .
-    
-    # Identify co-occuring topics. 
-    ?work wdt:P921 ?topic1, ?topic2 . 
-
-    # Exclude the topic it self
-    FILTER (target: != ?topic1 && target: != ?topic2 && ?topic1 != ?topic2)
+  SELECT 
+    (COUNT(?other_software) AS ?count)
+    ?software 
+  {
+    ?software wdt:P1547+ target: .
+    OPTIONAL {
+      ?other_software wdt:P1547+ ?software .
+    } 
   }
-  GROUP BY ?topic1 ?topic2
+  GROUP BY ?software
   ORDER BY DESC(?count)
-
-  # There a performance problems in the browser: We cannot show large graphs,
-  # so we put a limit on the number of links displayed.
-  LIMIT 400
-
-} AS %results
+  LIMIT 500
+} AS %result
 WHERE {
-  INCLUDE %results
-  
-  # Label the results
-  SERVICE wikibase:label {
-    bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" .
-  }
+  INCLUDE %result
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en". }
 }
-
-''';
-  scholia:aspect scholiaAspect:Topic ;
-  scholia:defaultView scholiaView:Graph ;
-  rdfs:comment "Topic aspect: [no title]"@en ;
+ORDER BY DESC(?count)''';
+  scholia:aspect scholiaAspect:Software ;
+  rdfs:comment "Software aspect: [no title]"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
-  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/topic_co-occurring.sparql> ;
+  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/software_dependent-software.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

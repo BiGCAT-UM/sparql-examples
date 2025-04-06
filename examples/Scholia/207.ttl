@@ -17,25 +17,30 @@ q:207 a sh:SPARQLExecutable,
   sh:SPARQLSelectExecutable;
   sh:prefixes _:sparql_examples_prefixes ;
   sh:select '''PREFIX bd: <http://www.bigdata.com/rdf#>
+PREFIX p: <http://www.wikidata.org/prop/>
 PREFIX wdt: <http://www.wikidata.org/prop/direct/>
-PREFIX wd: <http://wikidata.org/entity/>
 PREFIX wikibase: <http://wikiba.se/ontology#>
-SELECT ?type ?typeLabel ?count WITH {
-    SELECT DISTINCT ?type (COUNT(?item) AS ?count) WHERE {
-    ?item wdt:P6104 wd:Q60687720;
-            (wdt:P31|wdt:P279) ?type.
-    }
-    GROUP BY ?type ?count
-    ORDER BY DESC (?count)
+PREFIX target: <http://www.wikidata.org/entity/Q6294930>
+
+# title: Author gender distribution for a specific venue
+SELECT ?count ?gender ?genderLabel 
+WITH {
+  SELECT (COUNT(DISTINCT ?author) AS ?count) ?gender WHERE {
+    ?work wdt:P1433 target: .
+    ?work wdt:P50 ?author .
+    ?author wdt:P21 ?gender .
+  } 
+  GROUP BY ?gender
 } AS %result
 WHERE {
   INCLUDE %result
-  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en,da,de,es,fr,it,sv,uk,zh". }
-}
-ORDER BY DESC (?count)''';
-  scholia:aspect scholiaAspect:Wikiproject ;
-  rdfs:comment "Wikiproject aspect: [no title]"@en ;
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" . } 
+} 
+ ORDER BY DESC(?count)
+''';
+  scholia:aspect scholiaAspect:Venue ;
+  rdfs:comment "Venue aspect: Author gender distribution for a specific venue"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
-  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/wikiproject_maintained.sparql> ;
+  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/venue_author-gender-distribution.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

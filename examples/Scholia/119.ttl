@@ -18,45 +18,46 @@ q:119 a sh:SPARQLExecutable,
   sh:prefixes _:sparql_examples_prefixes ;
   sh:select '''PREFIX bd: <http://www.bigdata.com/rdf#>
 PREFIX p: <http://www.wikidata.org/prop/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX wdt: <http://www.wikidata.org/prop/direct/>
-PREFIX wd: <http://wikidata.org/entity/>
 PREFIX wikibase: <http://wikiba.se/ontology#>
-PREFIX target: <http://www.wikidata.org/entity/Q124268563>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+#defaultView:Table
 
-# title: listings for this podcast
+PREFIX target: <http://www.wikidata.org/entity/Q104785223>
+
 SELECT
-  ?Identifier ?IdentifierLabel
-  ?value (SAMPLE(?idUrls) as ?valueUrl)
-  ?IdentifierDescription
+  ?publication_date
+  ?work ?workLabel
+  ?researchers ?researchersUrl
 WITH {
-  SELECT ?Identifier ?Value ?formatterurl WHERE {
-    target: ?IDdir ?Value .
-    ?Identifier wikibase:directClaim ?IDdir ;
-            wdt:P31 wd:Q84574746 .
-    OPTIONAL { 
-      ?Identifier wdt:P1630 ?formatterurl .
-    }
-  } LIMIT 500
-} AS %RESULTS {
-  { SELECT * WHERE {
-      INCLUDE %RESULTS
-      BIND(IRI(REPLACE(?formatterurl, '\\\\$1', ENCODE_FOR_URI(str(?Value)))) AS ?idUrls).
-    }
-  } UNION {
-    SELECT * WHERE {
-      INCLUDE %RESULTS
-      BIND(IRI(REPLACE(?formatterurl, '\\\\$1', str(?Value))) AS ?idUrls).
+  SELECT 
+    (MIN(?publication_datetimes) AS ?publication_datetime) ?work 
+    (GROUP_CONCAT(DISTINCT ?researcher_label; separator=', ') AS ?researchers)
+    (CONCAT("../authors/", GROUP_CONCAT(DISTINCT SUBSTR(STR(?researcher), 32); separator=",")) AS ?researchersUrl)
+  WHERE {                                                         
+    ?researcher ( wdt:P108 | wdt:P463 | wdt:P1416 ) / wdt:P361* target: .
+    ?work wdt:P50 ?researcher .
+    ?researcher rdfs:label ?researcher_label . FILTER (LANG(?researcher_label) = 'en')
+    OPTIONAL {
+      ?work wdt:P577 ?publication_datetimes .
     }
   }
-  BIND(CONCAT(?Value, " ↗") AS ?value)
-  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en". }
+  GROUP BY ?work
+  ORDER BY DESC(?publication_datetime)
+  LIMIT 200  
+} AS %results
+WHERE {
+  INCLUDE %results
+  BIND(xsd:date(?publication_datetime) AS ?publication_date)
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" . }
 }
-GROUP BY ?Identifier ?IdentifierLabel ?IdentifierDescription ?value
-ORDER BY ASC(?IdentifierLabel)
+ORDER BY DESC(?publication_date)
 ''';
-  scholia:aspect scholiaAspect:Podcast-episode ;
-  rdfs:comment "Podcast-episode aspect: listings for this podcast"@en ;
+  scholia:aspect scholiaAspect:Organization ;
+  scholia:defaultView scholiaView:Table ;
+  rdfs:comment "Organization aspect: [no title]"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
-  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/podcast-episode_listings.sparql> ;
+  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/organization_recent-literature.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

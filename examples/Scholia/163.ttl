@@ -20,43 +20,30 @@ q:163 a sh:SPARQLExecutable,
 PREFIX p: <http://www.wikidata.org/prop/>
 PREFIX wdt: <http://www.wikidata.org/prop/direct/>
 PREFIX wikibase: <http://wikiba.se/ontology#>
-#defaultView:Table
+PREFIX target: <http://www.wikidata.org/entity/Q1635410>
 
-PREFIX target: <http://www.wikidata.org/entity/Q45340488>
-
-SELECT
-  ?count
-  ?author ?authorLabel ?authorDescription (CONCAT("/author/", SUBSTR(STR(?author), 32)) AS ?authorUrl)
-  (COALESCE(?orcid_, CONCAT("orcid-search/search/?searchQuery=", ?authorLabel)) AS ?orcid) 
-WITH {
+SELECT ?count ?coused ?cousedLabel ?example_work ?example_workLabel
+WITH{
+  # Find works that are using a specific software,
+  # and find other software used in the found works
   SELECT
-    ?author
-    (count(?work) as ?count)
+    ?coused (COUNT(?work) as ?count) (SAMPLE(?work) AS ?example_work)
   WHERE {
-    { ?work wdt:P921/wdt:P31*/wdt:P279* target: . }
-    UNION
-    { ?work wdt:P921/wdt:P361+ target: . }
-    UNION
-    { ?work wdt:P921/wdt:P1269+ target: . }
-    ?work wdt:P50 ?author .
+    ?work wdt:P4510 / wdt:P279* target: ;
+          wdt:P4510 ?coused .
+    FILTER (?coused != target:)
   }
-  GROUP BY ?author
-  ORDER BY DESC(?count)
-  LIMIT 200
+  GROUP BY ?coused
 } AS %result
 WHERE {
+  # Label the result
   INCLUDE %result
-          
-  # Include optional ORCID iD
-  OPTIONAL { ?author wdt:P496 ?orcid_ . }
-  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" . } 
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" . }
 }
-ORDER BY DESC(?count)
-''';
-  scholia:aspect scholiaAspect:Topic ;
-  scholia:defaultView scholiaView:Table ;
-  rdfs:comment "Topic aspect: [no title]"@en ;
+ORDER BY DESC(?count)  ''';
+  scholia:aspect scholiaAspect:Software ;
+  rdfs:comment "Software aspect: [no title]"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
-  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/topic_authors.sparql> ;
+  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/software_coused.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

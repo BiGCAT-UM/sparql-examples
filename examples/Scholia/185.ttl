@@ -16,31 +16,45 @@
 q:185 a sh:SPARQLExecutable,
   sh:SPARQLSelectExecutable;
   sh:prefixes _:sparql_examples_prefixes ;
-  sh:select '''PREFIX p: <http://www.wikidata.org/prop/>
+  sh:select '''PREFIX bd: <http://www.bigdata.com/rdf#>
+PREFIX p: <http://www.wikidata.org/prop/>
 PREFIX wdt: <http://www.wikidata.org/prop/direct/>
-# title: Citation distribution for a venue
+PREFIX wikibase: <http://wikiba.se/ontology#>
+#defaultView:Map
 
-PREFIX target: <http://www.wikidata.org/entity/Q6294930>
+PREFIX target: <http://www.wikidata.org/entity/Q45340488>
 
-#defaultView:LineChart
 SELECT
-  ?number_of_citations (COUNT(?work) AS ?count)
-WHERE {
-  {
-    SELECT ?work (COUNT(?citing_work) AS ?number_of_citations)
-    WHERE {
-      ?work wdt:P1433 target: .
-      OPTIONAL { ?citing_work wdt:P2860 ?work . }
-    }
-    GROUP BY ?work 
+  ?location ?locationLabel
+  ?geo
+  ?example_work ?example_workLabel
+WITH {
+  SELECT
+    ?location ?geo
+    (SAMPLE(?work) AS ?example_work)
+  WHERE {
+    # Find works that are marked with main subject of the topic.
+    ?work wdt:P921 / ( wdt:P31*/wdt:P279* | wdt:P361+ | wdt:P1269+ ) target: .
+    
+    # Identify co-occuring topic that is geo-locatable. 
+    ?work wdt:P921 ?location .
+    ?location wdt:P625 ?geo .
   }
-} 
-GROUP BY ?number_of_citations
-ORDER BY DESC(?number_of_citations)
+  GROUP BY ?location ?geo
+} AS %results
+WHERE {
+  INCLUDE %results
+  
+  # Label the results
+  SERVICE wikibase:label {
+    bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" .
+  }
+}
 ''';
-  scholia:aspect scholiaAspect:Venue ;
-  rdfs:comment "Venue aspect: Citation distribution for a venue"@en ;
-  scholia:defaultView scholiaView:LineChart ;
+  scholia:aspect scholiaAspect:Topic ;
+  scholia:defaultView scholiaView:Map ;
+  rdfs:comment "Topic aspect: [no title]"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
-  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/venue_citation-distribution.sparql> ;
+  spex:federatesWith <http://wikiba.se/ontology#label> ;
+  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/topic_co-occurring-map.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

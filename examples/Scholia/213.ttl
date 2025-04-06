@@ -16,25 +16,45 @@
 q:213 a sh:SPARQLExecutable,
   sh:SPARQLSelectExecutable;
   sh:prefixes _:sparql_examples_prefixes ;
-  sh:select '''PREFIX p: <http://www.wikidata.org/prop/>
+  sh:select '''PREFIX bd: <http://www.bigdata.com/rdf#>
+PREFIX p: <http://www.wikidata.org/prop/>
 PREFIX wdt: <http://www.wikidata.org/prop/direct/>
-#defaultView:ImageGrid
-PREFIX target: <http://www.wikidata.org/entity/Q28942417>
+PREFIX wikibase: <http://wikiba.se/ontology#>
+# title: Venues citing articles from this specific journal
 
-SELECT DISTINCT ?image WHERE {
-  {
-    # Images from whatever property value is linked.
-    
-    # Excluded "different from" property and take all other properties
-    target: !wdt:P1889 ?item .
+PREFIX target: <http://www.wikidata.org/entity/Q6294930>
 
-    ?item wdt:P18 ?image . 
+#defaultView:Table
+SELECT
+  ?count
+  ?short_name
+  ?citing_journal ?citing_journalLabel 
+WITH {
+  SELECT
+    (COUNT(?citing_work) AS ?count)
+    ?citing_journal
+    (SAMPLE(?short_name_) AS ?short_name)
+  WHERE {
+    ?work wdt:P1433 target: .
+    ?citing_work wdt:P2860 ?work .
+    ?citing_work wdt:P1433 ?citing_journal .
+    OPTIONAL { ?citing_journal wdt:P1813 ?short_name_ . }
   }
-}   
+  GROUP BY ?citing_journal
+  ORDER BY DESC(?count)
+  LIMIT 1000
+} AS %result
+WHERE {
+  INCLUDE %result
+  SERVICE wikibase:label {
+    bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" . } 
+}
+ORDER BY DESC(?count)
 ''';
-  scholia:aspect scholiaAspect:Work ;
-  scholia:defaultView scholiaView:ImageGrid ;
-  rdfs:comment "Work aspect: [no title]"@en ;
+  scholia:aspect scholiaAspect:Venue ;
+  rdfs:comment "Venue aspect: Venues citing articles from this specific journal"@en ;
+  scholia:defaultView scholiaView:Table ;
   schema:target <https://query.wikidata.org/sparql> ;
-  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/work_associated-images.sparql> ;
+  spex:federatesWith <http://wikiba.se/ontology#label> ;
+  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/venue_citing-venues.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

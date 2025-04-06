@@ -23,32 +23,25 @@ PREFIX ps: <http://www.wikidata.org/prop/statement/>
 PREFIX wdt: <http://www.wikidata.org/prop/direct/>
 PREFIX wd: <http://wikidata.org/entity/>
 PREFIX wikibase: <http://wikiba.se/ontology#>
-PREFIX target: <http://www.wikidata.org/entity/Q28942417>
+#defaultView:BubbleChart
 
-SELECT ?intention ?intentionLabel (CONCAT("/cito/", SUBSTR(STR(?intention), 32)) AS ?intentionUrl)  
-?count ?example_work_for_intention ?example_work_for_intentionLabel 
+PREFIX target: <http://www.wikidata.org/entity/Q6294930>
 
-WITH {
-  SELECT ?intention (COUNT(DISTINCT ?citingArticle) AS ?count) (SAMPLE(?citingArticle) AS ?example_work_for_intention) {
-    VALUES ?CITEDARTICLE { target: }
-    ?citingArticle p:P2860 ?citationStatement .
-    ?citationStatement pq:P3712 ?intention ;
-                       ps:P2860 ?CITEDARTICLE .
-    ?intention wdt:P31 wd:Q96471816 .
-  }
-  GROUP BY ?intention
-
-} AS %intentions
-WHERE {
-  INCLUDE %intentions
+SELECT ?cito ?intentionLabel (COUNT(DISTINCT ?citingArticle) AS ?count) WHERE {
+  ?citingArticle p:P2860 ?citationStatement ;
+                 wdt:P1433 target: .
+  ?citationStatement pq:P3712 ?intention ;
+                     ps:P2860 ?citedArticle .
+  ?intention wdt:P31 wd:Q96471816 ;
+             wdt:P2888 ?cito .
   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en". }
-}
-GROUP BY ?intention ?intentionLabel ?count ?example_work_for_intention ?example_work_for_intentionLabel
-ORDER BY DESC(?count)
+} GROUP BY ?cito ?intention ?intentionLabel
+  ORDER BY DESC(?count)
 ''';
-  scholia:aspect scholiaAspect:Work ;
-  rdfs:comment "Work aspect: [no title]"@en ;
+  scholia:aspect scholiaAspect:Venue ;
+  scholia:defaultView scholiaView:BubbleChart ;
+  rdfs:comment "Venue aspect: [no title]"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
-  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/work_cito-incoming.sparql> ;
+  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/venue_outgoing-bubble.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

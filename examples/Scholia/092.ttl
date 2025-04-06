@@ -19,26 +19,64 @@ q:092 a sh:SPARQLExecutable,
   sh:select '''PREFIX bd: <http://www.bigdata.com/rdf#>
 PREFIX p: <http://www.wikidata.org/prop/>
 PREFIX wdt: <http://www.wikidata.org/prop/direct/>
-PREFIX wd: <http://wikidata.org/entity/>
 PREFIX wikibase: <http://wikiba.se/ontology#>
-PREFIX target: <http://www.wikidata.org/entity/Q14860818>
+# Topics of works authored by people associated with an event
 
-SELECT
-  ?protein ?proteinLabel ?proteinDescription
+PREFIX target: <http://www.wikidata.org/entity/Q133457282>
+
+SELECT ?score ?topic ?topicLabel ?topicDescription
 WITH {
-  SELECT ?protein
+  SELECT
+    DISTINCT ?person
   WHERE {
-    target: wdt:P31 wd:Q7187 ;
-      wdt:P688 ?protein .
+    {
+      # speaker, organizer, program committee member
+      target: wdt:P823 | wdt:P664 | wdt:P5804 ?person .
+    }
+    UNION
+    {
+      # participant
+      ?person wdt:P1344 | ^wdt:P710 target: .
+    }
+    UNION
+    {
+      # author
+      ?person ^wdt:P50 / wdt:P1433 / wdt:P4745 target: .
+    }
   }
-} AS %result 
+} AS %people  
+WITH {
+  SELECT
+    (SUM(?score_) AS ?score) ?topic
+  WHERE {
+    {
+      target: wdt:P921 ?topic .
+      BIND(50 AS ?score_)
+    }
+    UNION
+    {
+      INCLUDE %people
+      ?person ^wdt:P50 / wdt:P921 ?topic .
+      BIND(1 AS ?score_)
+    }
+    UNION
+    {
+      target: ^wdt:P4745 / ^wdt:P1433 / wdt:P921 ?topic .
+      BIND(7 AS ?score_)
+    }
+  }
+  GROUP BY ?topic
+} AS %results
 WHERE {
-  INCLUDE %result
-  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en". }
-}''';
-  scholia:aspect scholiaAspect:Gene ;
-  rdfs:comment "Gene aspect: [no title]"@en ;
+  INCLUDE %results
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en,da,de,es,fr,jp,no,ru,sv,zh". }
+}
+ORDER BY DESC(?score)
+LIMIT 200
+''';
+  scholia:aspect scholiaAspect:Event ;
+  rdfs:comment "Event aspect: [no title]"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
-  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/gene_proteins.sparql> ;
+  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/event_topic-scores.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

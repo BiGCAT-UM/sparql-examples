@@ -19,35 +19,47 @@ q:100 a sh:SPARQLExecutable,
   sh:select '''PREFIX bd: <http://www.bigdata.com/rdf#>
 PREFIX p: <http://www.wikidata.org/prop/>
 PREFIX wdt: <http://www.wikidata.org/prop/direct/>
-PREFIX wd: <http://wikidata.org/entity/>
 PREFIX wikibase: <http://wikiba.se/ontology#>
-#defaultView:Graph
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX target: <http://www.wikidata.org/entity/Q9027>
 
-PREFIX target: <http://www.wikidata.org/entity/Q104785223>
-
-SELECT ?author1 ?author1Label ?rgb ?author2 ?author2Label 
+SELECT
+  ?publication_date
+  ?work ?workLabel ?workDescription (CONCAT("/work/", SUBSTR(STR(?work), 32)) AS ?workUrl)
 WITH {
-  SELECT DISTINCT ?author1 ?author2 ?rgb WHERE {
-    VALUES ?organisation { target: }
-    { ?author1 wdt:P108 ?organisation . } union { ?author1 wdt:P1416 [ wdt:P361* ?organisation ] .  }
-    { ?author2 wdt:P108 ?organisation . } union { ?author2 wdt:P1416 [ wdt:P361* ?organisation ] .  }
-    {?author1 wdt:P184 ?author2 }
-    UNION
-    {?author2 wdt:P185 ?author1 }
-    OPTIONAL { ?author1 wdt:P21 ?gender1 }.
-    BIND ( IF(?gender1 = wd:Q6581097, "3182BD", "E6550D") AS ?rgb)
+  SELECT
+    ?publication_date_
+    ?work
+  WHERE {
+    VALUES ?publication_date_ {
+      {% for day in range(-32, 1) %} {{ '"{}T00:00:00Z"^^xsd:dateTime'.format((datetime.datetime.now().date() + datetime.timedelta(day)).isoformat()) }} {% endfor %} 
+    }
+    ?work wdt:P407 target: ;
+          wdt:P577 ?publication_date_ ;
   }
+  LIMIT 1000
+} AS %works_sample
+WITH {
+  SELECT
+    (xsd:date(MAX(?publication_date_)) AS ?publication_date)
+    ?work
+  WHERE {
+    INCLUDE %works_sample
+  }
+  GROUP BY ?work
+  ORDER BY DESC(?publication_date)
+  LIMIT 500
 } AS %result
 WHERE {
   INCLUDE %result
-  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" .
-  }
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en". }
 }
-''';
-  scholia:aspect scholiaAspect:Organization ;
-  scholia:defaultView scholiaView:Graph ;
-  rdfs:comment "Organization aspect: [no title]"@en ;
+ORDER BY DESC(?publication_date)
+
+  ''';
+  scholia:aspect scholiaAspect:Language ;
+  rdfs:comment "Language aspect: [no title]"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
-  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/organization_advisor-graph.sparql> ;
+  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/language_recently-published-works.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

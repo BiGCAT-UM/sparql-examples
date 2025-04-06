@@ -18,33 +18,34 @@ q:124 a sh:SPARQLExecutable,
   sh:prefixes _:sparql_examples_prefixes ;
   sh:select '''PREFIX bd: <http://www.bigdata.com/rdf#>
 PREFIX p: <http://www.wikidata.org/prop/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX wdt: <http://www.wikidata.org/prop/direct/>
 PREFIX wd: <http://wikidata.org/entity/>
 PREFIX wikibase: <http://wikiba.se/ontology#>
-PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
-PREFIX target: <http://www.wikidata.org/entity/Q124262264>
+PREFIX target: <http://www.wikidata.org/entity/Q28031254>
 
-SELECT ?publication_date ?episode ?episodeLabel
-  (CONCAT("/podcast-episode/", SUBSTR(STR(?episode), 32)) AS ?episodeUrl)
+SELECT ?part ?partLabel ?partDescription ?type
 WITH {
-  SELECT DISTINCT ?episode (MIN(?publication_date_) AS ?publication_date) WHERE {
-    ?episode wdt:P31 wd:Q61855877 ; wdt:P179 target: .
-    OPTIONAL {
-      ?episode wdt:P577 ?publication_datetime .
-      BIND(xsd:date(?publication_datetime) AS ?publication_date_)
+  SELECT ?part (GROUP_CONCAT(DISTINCT ?type_label; separator=", ") AS ?type)
+  WHERE {
+    VALUES ?process { wd:Q4915012 wd:Q2996394 }
+    target: wdt:P31 ?process ;
+             wdt:P527 ?part .
+    OPTIONAL { 
+      ?part wdt:P31 ?type_ .
+      ?type_ rdfs:label ?type_label .
+      FILTER (LANG(?type_label) = 'en')
     }
-  } GROUP BY ?episode
-    ORDER BY DESC(?publication_date)
-    LIMIT 50
-} AS %EPISODES WHERE {
-  INCLUDE %EPISODES
-  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en". }
-} GROUP BY ?publication_date ?episode ?episodeLabel
-ORDER BY DESC(?publication_date)
+  } GROUP BY ?part
+} AS %result
+WHERE {
+  INCLUDE %result
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" . }
+} ORDER BY ASC(?partLabel)
 ''';
-  scholia:aspect scholiaAspect:Podcast ;
-  rdfs:comment "Podcast aspect: [no title]"@en ;
+  scholia:aspect scholiaAspect:Pathway ;
+  rdfs:comment "Pathway aspect: [no title]"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
-  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/podcast_recent-episodes.sparql> ;
+  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/pathway_participants.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .
