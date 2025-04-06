@@ -20,33 +20,36 @@ q:201 a sh:SPARQLExecutable,
 PREFIX p: <http://www.wikidata.org/prop/>
 PREFIX wdt: <http://www.wikidata.org/prop/direct/>
 PREFIX wikibase: <http://wikiba.se/ontology#>
-PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+#defaultView:BubbleChart
+
 PREFIX target: <http://www.wikidata.org/entity/Q1769726>
 
 SELECT
-  ?publication_date 
-  ?work ?workLabel (CONCAT("/work/", SUBSTR(STR(?work), 32)) AS ?workUrl)
+  ?count
+  ?topic ?topicLabel
 WITH{
   SELECT
-    ?publication_datetime
-    ?work
+    (COUNT(?work) AS ?count)
+    ?topic
   WHERE {
-    ?work wdt:P4510 / wdt:P279* target: ;
-          wdt:P577 ?publication_datetime .
+    ?work wdt:P4510 / wdt:P279* target: ; 
+          wdt:P921 ?topic .
   }
-  ORDER BY DESC(?publication_datetime)
-  LIMIT 1000
+  GROUP BY ?topic
+  ORDER BY DESC(?count)
+  LIMIT 200
 } AS %result
 WHERE {
   INCLUDE %result
-  BIND(xsd:date(?publication_datetime) AS ?publication_date)
-  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" }
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" . }
 }
-ORDER BY DESC(?publication_date)
+ORDER BY DESC(?count)
+
 ''';
   scholia:aspect scholiaAspect:Use ;
+  scholia:defaultView scholiaView:BubbleChart ;
   rdfs:comment "Use aspect: [no title]"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
-  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/use_recent-work-using-the-used.sparql> ;
+  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/use_topics-of-works-using-the-resource.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

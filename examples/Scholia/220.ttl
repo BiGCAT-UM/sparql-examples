@@ -23,13 +23,13 @@ PREFIX ps: <http://www.wikidata.org/prop/statement/>
 PREFIX wdt: <http://www.wikidata.org/prop/direct/>
 PREFIX wd: <http://wikidata.org/entity/>
 PREFIX wikibase: <http://wikiba.se/ontology#>
-#defaultView:BubbleChart
-
 PREFIX target: <http://www.wikidata.org/entity/Q6294930>
 
-SELECT ?cito ?intentionLabel (COUNT(DISTINCT ?citingArticle) AS ?count) WHERE {
+SELECT ?intention ?intentionLabel (CONCAT("/cito/", SUBSTR(STR(?intention), 32)) AS ?intentionUrl)
+(COUNT(DISTINCT ?citingArticle) AS ?count) WHERE {
+  VALUES ?JOURNAL { target: }
   ?citingArticle p:P2860 ?citationStatement ;
-                 wdt:P1433 target: .
+                 wdt:P1433 ?JOURNAL .
   ?citationStatement pq:P3712 ?intention ;
                      ps:P2860 ?citedArticle .
   ?intention wdt:P31 wd:Q96471816 ;
@@ -39,9 +39,8 @@ SELECT ?cito ?intentionLabel (COUNT(DISTINCT ?citingArticle) AS ?count) WHERE {
   ORDER BY DESC(?count)
 ''';
   scholia:aspect scholiaAspect:Venue ;
-  scholia:defaultView scholiaView:BubbleChart ;
   rdfs:comment "Venue aspect: [no title]"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
-  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/venue_outgoing-bubble.sparql> ;
+  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/venue_outgoing.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

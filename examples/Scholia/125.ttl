@@ -16,55 +16,54 @@
 q:125 a sh:SPARQLExecutable,
   sh:SPARQLSelectExecutable;
   sh:prefixes _:sparql_examples_prefixes ;
-  sh:select '''PREFIX p: <http://www.wikidata.org/prop/>
+  sh:select '''PREFIX bd: <http://www.bigdata.com/rdf#>
+PREFIX p: <http://www.wikidata.org/prop/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX wdt: <http://www.wikidata.org/prop/direct/>
-PREFIX wd: <http://wikidata.org/entity/>
-#defaultView:BarChart
-
+PREFIX wikibase: <http://wikiba.se/ontology#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 PREFIX target: <http://www.wikidata.org/entity/Q28031254>
 
-# Inspired from LEGOLAS - http://abel.lis.illinois.edu/legolas/
-# Shubhanshu Mishra, Vetle Torvik
-select ?year (count(?work) as ?number_of_publications) where {
-  {
-    select (str(?year_) as ?year) (0 as ?pages) where {
-      # default values = 0
-      ?year_item wdt:P31 wd:Q577 . 
-      ?year_item wdt:P585 ?date .
-      bind(year(?date) as ?year_)
-      {
-        select (min(?year_) as ?earliest_year) where {
-          {
-            ?work wdt:P921 / (wdt:P361+ | wdt:P1269+ | (wdt:P31* / wdt:P279*) ) target: .
-          } union {
-            target: wdt:P2860 ?work .
-          }
-          ?work wdt:P577 ?publication_date . 
-          bind(year(?publication_date) as ?year_)
-        }
-      }
-      bind(year(now()) as ?next_year)
-      filter (?year_ >= ?earliest_year && ?year_ <= ?next_year)
+SELECT ?date ?work ?workLabel ?type ?topics
+WITH {
+  SELECT DISTINCT ?work 
+    WHERE {
+      { ?work wdt:P921 / (wdt:P361+ | wdt:P1269+ | (wdt:P31* / wdt:P279*) ) target: . }
+      UNION { target: wdt:P2860 ?work . }
     }
-  }
-  union {
-    select ?work (min(?years) as ?year) where {
-      {
-        ?work wdt:P921 / (wdt:P361+ | wdt:P1269+ | (wdt:P31* / wdt:P279*) ) target: .
-      } union {
-        target: wdt:P2860 ?work .
-      }
-      ?work wdt:P577 ?dates .
-      bind(str(year(?dates)) as ?years) .
+} AS %works
+WITH {
+  SELECT 
+    (MAX(?dates) as ?datetime)
+    ?work
+    (GROUP_CONCAT(DISTINCT ?type_label; separator=", ") AS ?type)
+    (GROUP_CONCAT(?topic_label; separator=" // ") AS ?topics) 
+  WHERE {
+    INCLUDE %works
+    OPTIONAL {
+      ?work wdt:P921 ?topic .
+      ?topic rdfs:label ?topic_label .
+      FILTER (lang(?topic_label) = 'en')
     }
-    group by ?work 
+    OPTIONAL { 
+      ?work wdt:P31 ?type_ .
+      ?type_ rdfs:label ?type_label .
+      FILTER (LANG(?type_label) = 'en') 
+    }
+    OPTIONAL { ?work wdt:P577 ?dates . }
   }
+  GROUP BY ?work
+} AS %result
+WHERE {
+  INCLUDE %result
+  BIND(xsd:date(?datetime) AS ?date)
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" . }
 }
-group by ?year 
-order by ?year''';
+ORDER BY DESC(?date)
+LIMIT 500''';
   scholia:aspect scholiaAspect:Pathway ;
-  scholia:defaultView scholiaView:BarChart ;
   rdfs:comment "Pathway aspect: [no title]"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
-  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/pathway_publications-per-year.sparql> ;
+  spex:federatesWith <http://wikiba.se/ontology#label> ;
+  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/pathway_recent-articles.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

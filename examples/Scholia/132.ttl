@@ -16,66 +16,23 @@
 q:132 a sh:SPARQLExecutable,
   sh:SPARQLSelectExecutable;
   sh:prefixes _:sparql_examples_prefixes ;
-  sh:select '''PREFIX p: <http://www.wikidata.org/prop/>
-PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+  sh:select '''PREFIX bd: <http://www.bigdata.com/rdf#>
+PREFIX p: <http://www.wikidata.org/prop/>
 PREFIX wdt: <http://www.wikidata.org/prop/direct/>
+PREFIX wd: <http://wikidata.org/entity/>
+PREFIX wikibase: <http://wikiba.se/ontology#>
 PREFIX target: <http://www.wikidata.org/entity/Q124266519>
 
-SELECT DISTINCT ?description ?value ?valueUrl
+SELECT DISTINCT ?episode ?episodeLabel
+  (CONCAT("/podcast-episode/", SUBSTR(STR(?episode), 32)) AS ?episodeUrl)
 WHERE {
-  BIND(target: AS ?series)
-  {
-    BIND(1 AS ?order)
-    BIND("Title" AS ?description)
-    ?series wdt:P1476 ?value .
-  }
-  UNION
-  {
-    ?series wdt:P179 ?iri .
-    BIND(SUBSTR(STR(?iri), 32) AS ?q) 
-    ?iri rdfs:label ?value_string .
-    FILTER (LANG(?value_string) = 'en')
-    BIND(STR(?value_string) AS ?value)
-    BIND(CONCAT("../podcast/", ?q) AS ?valueUrl)
-    BIND(2 AS ?order)
-    BIND("Podcast" AS ?description)
-  }
-  UNION
-  {
-    SELECT ?description ?order (MAX(?value_) AS ?value) WHERE {
-      BIND(target: AS ?series)
-      ?series wdt:P1113 ?value_ .
-      BIND(3 AS ?order)
-      BIND("Number of episodes" AS ?description)
-    } GROUP BY ?description ?order
-  }
-  UNION
-  {
-    ?series wdt:P155 ?iri .
-    BIND(SUBSTR(STR(?iri), 32) AS ?q)
-    ?iri rdfs:label ?value_string .
-    FILTER (LANG(?value_string) = 'en')
-    BIND(STR(?value_string) AS ?value)
-    BIND(CONCAT("../podcast-season/", ?q) AS ?valueUrl)
-    BIND(6 AS ?order)
-    BIND("Previous season" AS ?description)
-  }
-  UNION
-  {
-    ?series wdt:P156 ?iri .
-    BIND(SUBSTR(STR(?iri), 32) AS ?q)
-    ?iri rdfs:label ?value_string .
-    FILTER (LANG(?value_string) = 'en')
-    BIND(STR(?value_string) AS ?value)
-    BIND(CONCAT("../podcast-season/", ?q) AS ?valueUrl)
-    BIND(7 AS ?order)
-    BIND("Next season" AS ?description)
-  }
+  ?episode wdt:P31 wd:Q61855877 ; wdt:P4908 target: .
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en". }
 }
-ORDER BY ?order
 ''';
   scholia:aspect scholiaAspect:Podcast-season ;
   rdfs:comment "Podcast-season aspect: [no title]"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
-  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/podcast-season_data.sparql> ;
+  spex:federatesWith <http://wikiba.se/ontology#label> ;
+  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/podcast-season_episodes.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

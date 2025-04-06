@@ -18,50 +18,30 @@ q:147 a sh:SPARQLExecutable,
   sh:prefixes _:sparql_examples_prefixes ;
   sh:select '''PREFIX bd: <http://www.bigdata.com/rdf#>
 PREFIX p: <http://www.wikidata.org/prop/>
-PREFIX wdt: <http://www.wikidata.org/prop/direct/>
 PREFIX wikibase: <http://wikiba.se/ontology#>
 #defaultView:BubbleChart
 
-PREFIX target: <http://www.wikidata.org/entity/Q27990087>
+PREFIX target: <http://www.wikidata.org/prop/direct/{{ p }}>
 
-SELECT ?score ?topic ?topicLabel
+SELECT ?count ?s ?sLabel 
 WITH {
-  SELECT
-    (SUM(?score_) AS ?score)
-    ?topic
-  WHERE {
-    { 
-      target: wdt:P101 ?topic .
-      BIND(20 AS ?score_)
-    }
-    UNION 
-    {
-      SELECT (3 AS ?score_) ?topic WHERE {
-        ?work wdt:P859/wdt:P1344* target: ;
-              wdt:P921 ?topic . 
-      }
-    }
-    UNION
-    {
-      SELECT (1 AS ?score_) ?topic WHERE {
-        ?work wdt:P859/wdt:P1344* target: .
-        ?citing_work wdt:P2860 ?work .
-        ?citing_work wdt:P921 ?topic . 
-      }
-    }
+  SELECT (COUNT(?o) AS ?count) ?s WHERE {
+    ?s target: ?o .
   }
-  GROUP BY ?topic
-} AS %results 
+  GROUP BY ?s
+  ORDER BY DESC(?count)
+  LIMIT 100
+} AS %result
 WHERE {
-  INCLUDE %results
-  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en,da,de,es,jp,no,ru,sv,zh". }
+  INCLUDE %result
+  SERVICE wikibase:label { bd:serviceParam wikibase:language  "[AUTO_LANGUAGE],mul,en" . }
 }
-ORDER BY DESC(?score)
-LIMIT 200''';
-  scholia:aspect scholiaAspect:Project ;
+ORDER BY DESC(?count)
+''';
+  scholia:aspect scholiaAspect:Property ;
   scholia:defaultView scholiaView:BubbleChart ;
-  rdfs:comment "Project aspect: [no title]"@en ;
+  rdfs:comment "Property aspect: [no title]"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
-  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/project_topic-scores.sparql> ;
+  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/property_item-counts.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

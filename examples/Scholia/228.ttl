@@ -24,30 +24,27 @@ PREFIX wikibase: <http://wikiba.se/ontology#>
 
 PREFIX target: <http://www.wikidata.org/entity/Q60687720>
 
-SELECT
-  ?count
-  ?author ?authorLabel ?authorDescription (CONCAT("/author/", SUBSTR(STR(?author), 32)) AS ?authorUrl)
-  (COALESCE(?orcid_, CONCAT("orcid-search/search/?searchQuery=", ?authorLabel)) AS ?orcid) 
+SELECT ?count
+       ?wikiproject ?wikiprojectLabel (CONCAT("/wikiproject/", SUBSTR(STR(?wikiproject), 32)) AS ?wikiprojectUrl)
+       ?example_entity ?example_entityLabel (CONCAT("/", SUBSTR(STR(?example_entity), 32)) AS ?example_entityUrl)
 WITH {
-  SELECT
-    ?author
-    (count(?work) as ?count)
-  WHERE {
-    { ?work wdt:P6104 target: .}
-      union 
-    { ?work wdt:P5008 target: .}
-    ?work wdt:P50 ?author .
+  SELECT (COUNT(?work) AS ?count) ?wikiproject (SAMPLE(?work) AS ?example_entity) WHERE {
+    # Find works for the specific queried wikiproject
+	  VALUES ?p { wdt:P6104 wdt:P5008 }
+	  SERVICE bd:sample { ?work ?p target: . bd:serviceParam bd:sample.limit 100000 }
+    
+    # Find co-occuring wikiprojects
+    ?work ?p ?wikiproject .
+    
+    # Avoid listing the queried wikiproject
+      FILTER (target: != ?wikiproject)
   }
-  GROUP BY ?author
-  ORDER BY DESC(?count)
-  LIMIT 200
+  GROUP BY ?wikiproject
 } AS %result
 WHERE {
+  # Label the results
   INCLUDE %result
-          
-  # Include optional ORCID iD
-  OPTIONAL { ?author wdt:P496 ?orcid_ . }
-  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" . } 
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" . }
 }
 ORDER BY DESC(?count)
 ''';
@@ -56,5 +53,5 @@ ORDER BY DESC(?count)
   rdfs:comment "Wikiproject aspect: [no title]"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
-  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/wikiproject_authors.sparql> ;
+  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/wikiproject_co-occurring-wikiprojects.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

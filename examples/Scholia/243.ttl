@@ -20,44 +20,35 @@ q:243 a sh:SPARQLExecutable,
 PREFIX p: <http://www.wikidata.org/prop/>
 PREFIX wdt: <http://www.wikidata.org/prop/direct/>
 PREFIX wikibase: <http://wikiba.se/ontology#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 #defaultView:Table
 
 PREFIX target: <http://www.wikidata.org/entity/Q28942417>
 
-# List of authors with works that are cited by the specified work
-SELECT
-  ?cited_works
-
-  ?author ?authorLabel ?authorDescription
-  (CONCAT("/author/", SUBSTR(STR(?author), 32)) AS ?authorUrl)
-
-  ?cited_work_example ?cited_work_exampleLabel
-   (CONCAT("/work/", SUBSTR(STR(?cited_work_example), 32)) AS ?cited_work_exampleUrl)
+# List of works that is cited by the specified work
+SELECT ?citations ?publication_date ?cited_work ?cited_workLabel 
 WITH {
-  SELECT
-    (COUNT(?cited_work) AS ?cited_works)
-    ?author
-    (SAMPLE(?cited_work) AS ?cited_work_example)
+  SELECT (MIN(?date) AS ?publication_date) (COUNT(DISTINCT ?citing_cited_work) AS ?citations) ?cited_work 
   WHERE {
-    # Find works that are cited by the queried work
     target: wdt:P2860 ?cited_work .
-    ?cited_work wdt:P50 ?author .
+    OPTIONAL {
+      ?cited_work wdt:P577 ?datetime .
+      BIND(xsd:date(?datetime) AS ?date)
+    }
+    OPTIONAL { ?citing_cited_work wdt:P2860 ?cited_work }
   }
-  GROUP BY ?author
-  # Limit the number of results to avoid downloading too much data
-  ORDER BY DESC(?cited_works)
-  LIMIT 1000
+  GROUP BY ?cited_work
 } AS %result
 WHERE {
-  # Label the result
   INCLUDE %result
-  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" . }
-}
-ORDER BY DESC(?cited_works)''';
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" . } 
+} 
+ORDER BY DESC(?citations) DESC(?date)
+''';
   scholia:aspect scholiaAspect:Work ;
   scholia:defaultView scholiaView:Table ;
   rdfs:comment "Work aspect: [no title]"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
-  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/work_cited-work-authors.sparql> ;
+  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/work_cited-works.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

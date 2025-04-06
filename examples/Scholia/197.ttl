@@ -20,36 +20,33 @@ q:197 a sh:SPARQLExecutable,
 PREFIX p: <http://www.wikidata.org/prop/>
 PREFIX wdt: <http://www.wikidata.org/prop/direct/>
 PREFIX wikibase: <http://wikiba.se/ontology#>
+#defaultView:Table
+
 PREFIX target: <http://www.wikidata.org/entity/Q45340488>
 
-SELECT
-  ?count
-  ?use ?useLabel (CONCAT("/use/", SUBSTR(STR(?use), 32)) AS ?useUrl)
-  ("🔎" AS ?zoom)
-  (CONCAT(SUBSTR(STR(target:), 32), "/use/", SUBSTR(STR(?use), 32)) AS ?zoomUrl)
-  ?useDescription
-
-  ?example_work ?example_workLabel
+SELECT ?count ?short_name 
+?venue ?venueLabel (CONCAT("/venue/", SUBSTR(STR(?venue), 32)) AS ?venueUrl)
 WITH {
-  SELECT
-    (COUNT(?work) AS ?count)
-    ?use
-    (SAMPLE(?work) AS ?example_work)
-  {
-    ?work wdt:P921 target: ;
-          wdt:P4510 ?use .
+  SELECT (count(?work) as ?count) ?venue (SAMPLE(?short_name_) AS ?short_name) WHERE {
+    { ?work wdt:P921/wdt:P31*/wdt:P279* target: . }
+    union { ?work wdt:P921/wdt:P361+ target: . }
+    union { ?work wdt:P921/wdt:P1269+ target: . }
+    ?work wdt:P1433/wdt:P179* ?venue .
+    OPTIONAL { ?venue wdt:P1813 ?short_name_ . }
   }
-  GROUP BY ?use
+  GROUP BY ?venue
 } AS %result
 WHERE {
   INCLUDE %result
-  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en". }
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" . } 
 }
 ORDER BY DESC(?count)
+LIMIT 200
 ''';
   scholia:aspect scholiaAspect:Topic ;
+  scholia:defaultView scholiaView:Table ;
   rdfs:comment "Topic aspect: [no title]"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
-  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/topic_uses.sparql> ;
+  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/topic_venues.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

@@ -20,44 +20,30 @@ q:101 a sh:SPARQLExecutable,
 PREFIX p: <http://www.wikidata.org/prop/>
 PREFIX wdt: <http://www.wikidata.org/prop/direct/>
 PREFIX wikibase: <http://wikiba.se/ontology#>
-PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 PREFIX target: <http://www.wikidata.org/entity/Q20007257>
 
 SELECT
-  ?publication_date
-  ?work ?workLabel ?workDescription
+  ?count
+  ?type ?typeLabel ?typeDescription
 WITH {
   SELECT
-    ?publication_date_
-    ?work
+    (COUNT(*) AS ?count)
+    ?type
+ 
   WHERE {
-    ?work wdt:P275 target: . 
-    OPTIONAL { ?work wdt:P577 ?publication_date_ . }
+    [] wdt:P275 target: ; 
+       wdt:P31 ?type .
   }
-  ORDER BY DESC(?publication_date_)
-  LIMIT 1100
-} AS %works
-WITH {
-  SELECT
-    (xsd:date(MAX(?publication_date_)) AS ?publication_date)
-    ?work
-  WHERE {
-    INCLUDE %works
-  }
-  GROUP BY ?work
-  ORDER BY DESC(?publication_date)
-  LIMIT 1000
-} AS %result
+  GROUP BY ?type
+} AS %types
 WHERE {
-  INCLUDE %result
+  INCLUDE %types
   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en". }
 }
-ORDER BY DESC(?publication_date)
-
-  ''';
+ORDER BY DESC(?count)''';
   scholia:aspect scholiaAspect:License ;
   rdfs:comment "License aspect: [no title]"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
-  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/license_recently-published-works.sparql> ;
+  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/license_types-of-work.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

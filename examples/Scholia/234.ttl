@@ -16,53 +16,71 @@
 q:234 a sh:SPARQLExecutable,
   sh:SPARQLSelectExecutable;
   sh:prefixes _:sparql_examples_prefixes ;
-  sh:select '''PREFIX bd: <http://www.bigdata.com/rdf#>
-PREFIX p: <http://www.wikidata.org/prop/>
-PREFIX pq: <http://www.wikidata.org/prop/qualifier/>
+  sh:select '''PREFIX p: <http://www.wikidata.org/prop/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX wdt: <http://www.wikidata.org/prop/direct/>
-PREFIX wikibase: <http://wikiba.se/ontology#>
-#defaultView:Map
+PREFIX wd: <http://wikidata.org/entity/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+#defaultView:BarChart
 
 PREFIX target: <http://www.wikidata.org/entity/Q60687720>
 
-SELECT ?organization ?organizationLabel ?geo ?count ?layer
+SELECT
+  (STR(?year_) AS ?year)
+  (COUNT(?work) AS ?number_of_publications)
+
+  # Work type used to color the bar chart
+  ?type
 WITH {
-  SELECT DISTINCT ?work WHERE {
-  # Works on the topic
+  # Find works with the topic. Also report the year
+  SELECT
+    ?work (MIN(?years) AS ?year_) (1 AS ?dummy) (SAMPLE(?article_type_) AS ?article_type)
+  WHERE {
     { ?work wdt:P6104 target: .}
       union 
-      { ?work wdt:P5008 target: .}
-      ?work wdt:P50 [].
+    { ?work wdt:P5008 target: .}
+    ?work wdt:P577 ?dates .
+    BIND(YEAR(?dates) AS ?years) .
+
+    ?work wdt:P31 ?article_type_ .
   }
-  LIMIT 20000
+  GROUP BY ?work 
 } AS %works
 WITH {
-  SELECT DISTINCT ?organization ?geo (COUNT(DISTINCT ?work) AS ?count) WHERE {
-    INCLUDE %works
-    # Authors who have published works on the topic
-    ?work wdt:P50 ?author . 
-    ?author ( wdt:P108 | wdt:P463 | wdt:P1416 ) / wdt:P361* ?organization . 
-    # Use the headquarters location by default but keep the coordinate location as a fallback
-    OPTIONAL{?organization p:P159/pq:P625 ?hq_geo}
-    OPTIONAL{?organization wdt:P625 ?coord_geo}
-    BIND(IF(BOUND(?hq_geo), ?hq_geo, ?coord_geo) AS ?geo) .
-    FILTER(BOUND(?geo)) .
+  SELECT ?year_ WHERE {
+    # default values = 0
+    ?year_item wdt:P31 wd:Q577 . 
+    ?year_item wdt:P585 ?date .
+    BIND(YEAR(?date) AS ?year_)
   }
-  GROUP BY ?organization ?geo
-  ORDER BY DESC (?count)
-  LIMIT 2000
-} AS %organizations
+} AS %default_counts
+WITH {
+  # Find earliest publication year
+  SELECT (MIN(?year_) AS ?earliest_year) WHERE {
+    INCLUDE %works
+  }
+  GROUP BY ?dummy
+} AS %earliest  
 WHERE {
-  INCLUDE %organizations
-  BIND(IF( (?count < 1), "No results", IF((?count < 2), "1 result", IF((?count < 11), "1 < results ≤ 10", IF((?count < 101), "10 < results ≤ 100", IF((?count < 1001), "100 < results ≤ 1000", IF((?count < 10001), "1000 < results ≤ 10000", "10000 or more results") ) ) ) )) AS ?layer )
-  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en". }        
- }
-ORDER BY DESC (?count)
+  {
+    INCLUDE %works
+    ?article_type rdfs:label ?type . FILTER (LANG(?type) = "en")
+  }
+  UNION
+  {
+    INCLUDE %default_counts
+    BIND("_" AS ?type)
+  }
+  INCLUDE %earliest
+  BIND(YEAR(NOW()) AS ?this_year)
+  FILTER (?year_ >= ?earliest_year && ?year_ <= ?this_year && ?year_ >= YEAR("1900-01-01"^^xsd:dateTime))
+}
+GROUP BY ?year_ ?type
+ORDER BY ?year
 ''';
   scholia:aspect scholiaAspect:Wikiproject ;
-  scholia:defaultView scholiaView:Map ;
+  scholia:defaultView scholiaView:BarChart ;
   rdfs:comment "Wikiproject aspect: [no title]"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
-  spex:federatesWith <http://wikiba.se/ontology#label> ;
-  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/wikiproject_organization-map.sparql> ;
+  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/wikiproject_publications-per-year.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

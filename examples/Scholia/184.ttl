@@ -20,43 +20,41 @@ q:184 a sh:SPARQLExecutable,
 PREFIX p: <http://www.wikidata.org/prop/>
 PREFIX wdt: <http://www.wikidata.org/prop/direct/>
 PREFIX wikibase: <http://wikiba.se/ontology#>
-#defaultView:Table
+#defaultView:Map
 
 PREFIX target: <http://www.wikidata.org/entity/Q45340488>
 
 SELECT
-  ?count
-  ?author ?authorLabel ?authorDescription (CONCAT("/author/", SUBSTR(STR(?author), 32)) AS ?authorUrl)
-  (COALESCE(?orcid_, CONCAT("orcid-search/search/?searchQuery=", ?authorLabel)) AS ?orcid) 
+  ?location ?locationLabel
+  ?geo
+  ?example_work ?example_workLabel
 WITH {
   SELECT
-    ?author
-    (count(?work) as ?count)
+    ?location ?geo
+    (SAMPLE(?work) AS ?example_work)
   WHERE {
-    { ?work wdt:P921/wdt:P31*/wdt:P279* target: . }
-    UNION
-    { ?work wdt:P921/wdt:P361+ target: . }
-    UNION
-    { ?work wdt:P921/wdt:P1269+ target: . }
-    ?work wdt:P50 ?author .
+    # Find works that are marked with main subject of the topic.
+    ?work wdt:P921 / ( wdt:P31*/wdt:P279* | wdt:P361+ | wdt:P1269+ ) target: .
+    
+    # Identify co-occuring topic that is geo-locatable. 
+    ?work wdt:P921 ?location .
+    ?location wdt:P625 ?geo .
   }
-  GROUP BY ?author
-  ORDER BY DESC(?count)
-  LIMIT 200
-} AS %result
+  GROUP BY ?location ?geo
+} AS %results
 WHERE {
-  INCLUDE %result
-          
-  # Include optional ORCID iD
-  OPTIONAL { ?author wdt:P496 ?orcid_ . }
-  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" . } 
+  INCLUDE %results
+  
+  # Label the results
+  SERVICE wikibase:label {
+    bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" .
+  }
 }
-ORDER BY DESC(?count)
 ''';
   scholia:aspect scholiaAspect:Topic ;
-  scholia:defaultView scholiaView:Table ;
+  scholia:defaultView scholiaView:Map ;
   rdfs:comment "Topic aspect: [no title]"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
-  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/topic_authors.sparql> ;
+  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/topic_co-occurring-map.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

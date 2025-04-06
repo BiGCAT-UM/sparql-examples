@@ -16,68 +16,35 @@
 q:248 a sh:SPARQLExecutable,
   sh:SPARQLSelectExecutable;
   sh:prefixes _:sparql_examples_prefixes ;
-  sh:select '''PREFIX p: <http://www.wikidata.org/prop/>
-PREFIX pq: <http://www.wikidata.org/prop/qualifier/>
-PREFIX ps: <http://www.wikidata.org/prop/statement/>
-PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-PREFIX schema: <http://schema.org/>
+  sh:select '''PREFIX bd: <http://www.bigdata.com/rdf#>
+PREFIX p: <http://www.wikidata.org/prop/>
 PREFIX wdt: <http://www.wikidata.org/prop/direct/>
-PREFIX wd: <http://wikidata.org/entity/>
-PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX wikibase: <http://wikiba.se/ontology#>
+#defaultView:Table
+
 PREFIX target: <http://www.wikidata.org/entity/Q28942417>
 
-# List of authors for a work
-SELECT DISTINCT
-  # Author order
-  ?order
-
-  ?academic_age
-
-  # Author item and label
-  ?author ?authorUrl ?authorDescription
-
+# List of related works by co-citation analysis
+SELECT ?count ?work ?workLabel
+WITH {
+  SELECT ?work (COUNT(?work) AS ?count)
+  WHERE {
+    target: (^wdt:P2860 | wdt:P2860) / (^wdt:P2860 | wdt:P2860)? ?work .
+    FILTER (target: != ?work)
+  }
+  GROUP BY ?work
+  LIMIT 500
+} AS %result
 WHERE {
-  {
-    target: p:P50 ?author_statement .
-    ?author_statement ps:P50 ?author_ .
-    ?author_ rdfs:label ?author .
-    FILTER (LANG(?author) = 'en')
-    BIND(CONCAT("../author/", SUBSTR(STR(?author_), 32)) AS ?authorUrl)
-    OPTIONAL {
-      ?author_statement pq:P1545 ?order_ .
-      BIND(xsd:integer(?order_) AS ?order)
-    }
-    OPTIONAL {
-      ?author_ schema:description ?authorDescription .
-      FILTER (LANG(?authorDescription) = "en")
-    }
-  }
-  UNION
-  {
-    target: p:P2093 ?authorstring_statement .
-    ?authorstring_statement ps:P2093 ?author_
-    BIND(CONCAT(?author_, " ↗") AS ?author)
-    OPTIONAL {
-      ?authorstring_statement pq:P1545 ?order_ .
-      BIND(xsd:integer(?order_) AS ?order)
-    }
-    BIND(CONCAT("https://author-disambiguator.toolforge.org/names_oauth.php?doit=Look+for+author&name=", ENCODE_FOR_URI(?author_)) AS ?authorUrl)
-  }
-  OPTIONAL {
-    SELECT ?author_ (MAX(?academic_age_) AS ?academic_age) {
-      target: wdt:P50 ?author_ ;
-                 wdt:P577 ?publication_date .
-      [] wdt:P31 / wdt:P279* wd:Q55915575 ;
-         wdt:P50 ?author_ ;
-         wdt:P577 ?other_publication_date .
-      BIND(YEAR(?publication_date) - YEAR(?other_publication_date) AS ?academic_age_)
-    }
-    GROUP BY ?author_
-  }
-}
-ORDER BY ?order''';
+  INCLUDE %result
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" . } 
+} 
+ORDER BY DESC(?count) 
+''';
   scholia:aspect scholiaAspect:Work ;
+  scholia:defaultView scholiaView:Table ;
   rdfs:comment "Work aspect: [no title]"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
-  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/work_list-of-authors.sparql> ;
+  spex:federatesWith <http://wikiba.se/ontology#label> ;
+  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/work_related-works.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

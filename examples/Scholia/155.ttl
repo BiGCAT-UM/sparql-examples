@@ -18,34 +18,41 @@ q:155 a sh:SPARQLExecutable,
   sh:prefixes _:sparql_examples_prefixes ;
   sh:select '''PREFIX bd: <http://www.bigdata.com/rdf#>
 PREFIX p: <http://www.wikidata.org/prop/>
-PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX wdt: <http://www.wikidata.org/prop/direct/>
 PREFIX wikibase: <http://wikiba.se/ontology#>
-PREFIX target: <http://www.wikidata.org/entity/Q21109365>
+#defaultView:ScatterChart
 
-SELECT ?count ?protein ?proteinLabel ?species ?speciesLabel (?functions AS ?property_value)
+PREFIX target: <http://www.wikidata.org/entity/Q73820>
+
+SELECT ?work_count ?citation_count ?journal ?journalLabel 
 WITH {
-  SELECT ?protein (COUNT(?function) AS ?count)
-         (GROUP_CONCAT(?function_label; separator=" // ") AS ?functions)
-  WHERE {
-    BIND(target: AS ?query_protein)
-    ?query_protein wdt:P680 | wdt:P681 | wdt:P682 | wdt:P129 ?function .
-    FILTER (?query_protein != ?protein)
-    ?protein wdt:P680 | wdt:P681 | wdt:P682 | wdt:P129 ?function . 
-    ?function rdfs:label ?function_label FILTER(lang(?function_label) = "en")
+  SELECT ?work_count ?citation_count ?journal {
+    {
+      SELECT ?journal (COUNT(?work) AS ?work_count) {
+  	    ?journal wdt:P123 target: .
+  	    ?work wdt:P1433 ?journal .
+      }
+      GROUP BY ?journal 
+    }
+    {
+      SELECT ?journal (COUNT(?citing_work) AS ?citation_count) {
+  	    ?journal wdt:P123 target: .
+  	    ?work wdt:P1433 ?journal .
+        ?citing_work wdt:P2860 ?work . 
+      }
+      GROUP BY ?journal 
+    } 
   }
-  GROUP BY ?protein
-} AS %result 
+} AS %result
 WHERE {
   INCLUDE %result
-  OPTIONAL { ?protein wdt:P703 ?species . }
-  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" . }
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" . } 
 }
-ORDER BY DESC(?count)
-LIMIT 500''';
-  scholia:aspect scholiaAspect:Protein ;
-  rdfs:comment "Protein aspect: [no title]"@en ;
+''';
+  scholia:aspect scholiaAspect:Publisher ;
+  scholia:defaultView scholiaView:ScatterChart ;
+  rdfs:comment "Publisher aspect: [no title]"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
-  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/protein_similar-proteins.sparql> ;
+  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/publisher_citations-works.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

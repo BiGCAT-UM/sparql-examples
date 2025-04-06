@@ -18,25 +18,41 @@ q:171 a sh:SPARQLExecutable,
   sh:prefixes _:sparql_examples_prefixes ;
   sh:select '''PREFIX bd: <http://www.bigdata.com/rdf#>
 PREFIX p: <http://www.wikidata.org/prop/>
+PREFIX prov: <http://www.w3.org/ns/prov#>
+PREFIX pr: <http://www.wikidata.org/prop/reference/>
+PREFIX ps: <http://www.wikidata.org/prop/statement/>
 PREFIX wdt: <http://www.wikidata.org/prop/direct/>
 PREFIX wikibase: <http://wikiba.se/ontology#>
-# title: Scatterplot of project budgets associated with a funder
-
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 PREFIX target: <http://www.wikidata.org/entity/Q1200258>
 
-#defaultView:ScatterChart
-SELECT ?start_time ?budget ?project ?projectLabel WHERE {
-  ?project wdt:P859+ target: .
-  ?project wdt:P2769 ?budget .
-  ?project (wdt:P580 | wdt:P571) ?start_time .
-  SERVICE wikibase:label {
-    bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" . }
-}
+SELECT ?publication_date ?number_of_citations 
+?work ?workLabel (CONCAT("/work/", SUBSTR(STR(?work), 32)) AS ?workUrl)
+?quote
+WITH {
+  SELECT (MIN(?date) AS ?publication_date) (COUNT(?citing_work) as ?number_of_citations) ?work (SAMPLE(?quote_) AS ?quote)
+  WHERE {
+    ?work p:P859+ ?sponsor_statement .
+    ?sponsor_statement ps:P859+ target: .
+    OPTIONAL { ?sponsor_statement prov:wasDerivedFrom/pr:P1683 ?quote_ . }
+    OPTIONAL {
+      ?work wdt:P577 ?datetime .
+      BIND(xsd:date(?datetime) AS ?date)
+    }
+    OPTIONAL { ?citing_work wdt:P2860 ?work }
+  } 
+  GROUP BY ?work
+} AS %result
+WHERE {
+  INCLUDE %result
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" }
+} 
+ORDER BY DESC(?publication_date) DESC(?number_of_citations)
+LIMIT 1000
 ''';
   scholia:aspect scholiaAspect:Sponsor ;
-  rdfs:comment "Sponsor aspect: Scatterplot of project budgets associated with a funder"@en ;
-  scholia:defaultView scholiaView:ScatterChart ;
+  rdfs:comment "Sponsor aspect: [no title]"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
-  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/sponsor_project-budgets.sparql> ;
+  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/sponsor_recently-published-sponsored-works.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

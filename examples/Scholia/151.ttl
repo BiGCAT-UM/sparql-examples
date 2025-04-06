@@ -23,16 +23,21 @@ PREFIX wdt: <http://www.wikidata.org/prop/direct/>
 PREFIX wikibase: <http://wikiba.se/ontology#>
 PREFIX target: <http://www.wikidata.org/entity/Q21109365>
 
-SELECT ?count ?protein ?proteinLabel ?species ?speciesLabel ?functions
+SELECT
+  ?count
+  ?protein ?proteinLabel (CONCAT("/protein/", SUBSTR(STR(?protein), 32)) AS ?proteinUrl)
+  ?species ?speciesLabel (CONCAT("/taxon/", SUBSTR(STR(?species), 32)) AS ?speciesUrl)
+  ?chemicals
 WITH {
-  SELECT ?protein (COUNT(?function) AS ?count)
-         (GROUP_CONCAT(?function_label; separator=" // ") AS ?functions)
+  SELECT
+    (COUNT(?chemical) AS ?count)
+    ?protein
+    (GROUP_CONCAT(?chemical_label; separator=" // ") AS ?chemicals)
   WHERE {
-    BIND(target: AS ?query_protein)
-    ?query_protein wdt:P680 ?function .
-    FILTER (?query_protein != ?protein)
-    ?protein wdt:P680 ?function . 
-    ?function rdfs:label ?function_label FILTER(lang(?function_label) = "en")
+    target: wdt:P129 ?chemical .
+    FILTER (target: != ?protein)
+    ?protein wdt:P129 ?chemical . 
+    ?chemical rdfs:label ?chemical_label FILTER(lang(?chemical_label) = "en")
   }
   GROUP BY ?protein
 } AS %result 
@@ -42,10 +47,11 @@ WHERE {
   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" . }
 }
 ORDER BY DESC(?count)
-LIMIT 500''';
+LIMIT 500
+''';
   scholia:aspect scholiaAspect:Protein ;
   rdfs:comment "Protein aspect: [no title]"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
-  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/protein_cofunctional-proteins.sparql> ;
+  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/protein_cointeracting-proteins.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

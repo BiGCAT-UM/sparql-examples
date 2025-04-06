@@ -16,71 +16,50 @@
 q:235 a sh:SPARQLExecutable,
   sh:SPARQLSelectExecutable;
   sh:prefixes _:sparql_examples_prefixes ;
-  sh:select '''PREFIX p: <http://www.wikidata.org/prop/>
+  sh:select '''PREFIX bd: <http://www.bigdata.com/rdf#>
+PREFIX p: <http://www.wikidata.org/prop/>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX wdt: <http://www.wikidata.org/prop/direct/>
-PREFIX wd: <http://wikidata.org/entity/>
+PREFIX wikibase: <http://wikiba.se/ontology#>
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
-#defaultView:BarChart
-
 PREFIX target: <http://www.wikidata.org/entity/Q60687720>
 
-SELECT
-  (STR(?year_) AS ?year)
-  (COUNT(?work) AS ?number_of_publications)
-
-  # Work type used to color the bar chart
-  ?type
+SELECT ?date ?work ?workLabel (CONCAT("/work/", SUBSTR(STR(?work), 32)) AS ?workUrl)
+  ?topicsUrl ?topics 
 WITH {
-  # Find works with the topic. Also report the year
-  SELECT
-    ?work (MIN(?years) AS ?year_) (1 AS ?dummy) (SAMPLE(?article_type_) AS ?article_type)
-  WHERE {
+  SELECT DISTINCT ?work WHERE {
     { ?work wdt:P6104 target: .}
       union 
-    { ?work wdt:P5008 target: .}
-    ?work wdt:P577 ?dates .
-    BIND(YEAR(?dates) AS ?years) .
-
-    ?work wdt:P31 ?article_type_ .
+      { ?work wdt:P5008 target: .}
   }
-  GROUP BY ?work 
 } AS %works
 WITH {
-  SELECT ?year_ WHERE {
-    # default values = 0
-    ?year_item wdt:P31 wd:Q577 . 
-    ?year_item wdt:P585 ?date .
-    BIND(YEAR(?date) AS ?year_)
-  }
-} AS %default_counts
-WITH {
-  # Find earliest publication year
-  SELECT (MIN(?year_) AS ?earliest_year) WHERE {
+  SELECT (MAX(?dates) as ?datetime) ?work (GROUP_CONCAT(DISTINCT ?topic_label; separator=" // ") AS ?topics) 
+                                    (CONCAT("../topics/", GROUP_CONCAT(DISTINCT SUBSTR(STR(?topic), 32); separator=",")) AS ?topicsUrl) 
+  WHERE {
     INCLUDE %works
+    ?work wdt:P921 ?topic . 
+    OPTIONAL { ?work wdt:P577 ?dates . }
+    ?topic rdfs:label ?topic_label .  FILTER (lang(?topic_label) = 'en')
   }
-  GROUP BY ?dummy
-} AS %earliest  
+  GROUP BY ?work
+} AS %result
 WHERE {
-  {
-    INCLUDE %works
-    ?article_type rdfs:label ?type . FILTER (LANG(?type) = "en")
-  }
-  UNION
-  {
-    INCLUDE %default_counts
-    BIND("_" AS ?type)
-  }
-  INCLUDE %earliest
-  BIND(YEAR(NOW()) AS ?this_year)
-  FILTER (?year_ >= ?earliest_year && ?year_ <= ?this_year && ?year_ >= YEAR("1900-01-01"^^xsd:dateTime))
+  INCLUDE %result
+
+  # There is a problem with BC dates
+  # BIND(xsd:date(?datetime) AS ?date)
+  BIND(REPLACE(STR(?datetime), 'T.*', '') AS ?date)
+    
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en". }
 }
-GROUP BY ?year_ ?type
-ORDER BY ?year
+GROUP BY ?date ?work ?workLabel ?topicsUrl ?topics
+ORDER BY DESC(?date)
+LIMIT 500
 ''';
   scholia:aspect scholiaAspect:Wikiproject ;
-  scholia:defaultView scholiaView:BarChart ;
   rdfs:comment "Wikiproject aspect: [no title]"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
-  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/wikiproject_publications-per-year.sparql> ;
+  spex:federatesWith <http://wikiba.se/ontology#label> ;
+  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/wikiproject_recently-published-works.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

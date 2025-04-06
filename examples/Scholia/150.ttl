@@ -18,18 +18,34 @@ q:150 a sh:SPARQLExecutable,
   sh:prefixes _:sparql_examples_prefixes ;
   sh:select '''PREFIX bd: <http://www.bigdata.com/rdf#>
 PREFIX p: <http://www.wikidata.org/prop/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX wdt: <http://www.wikidata.org/prop/direct/>
 PREFIX wikibase: <http://wikiba.se/ontology#>
-PREFIX target: <http://www.wikidata.org/prop/direct/{{ p }}>
+PREFIX target: <http://www.wikidata.org/entity/Q21109365>
 
-SELECT ?item ?itemLabel ?property_value ?property_valueLabel WHERE {
-  ?item target: ?property_value .
+SELECT ?count ?protein ?proteinLabel ?species ?speciesLabel ?functions
+WITH {
+  SELECT ?protein (COUNT(?function) AS ?count)
+         (GROUP_CONCAT(?function_label; separator=" // ") AS ?functions)
+  WHERE {
+    BIND(target: AS ?query_protein)
+    ?query_protein wdt:P680 ?function .
+    FILTER (?query_protein != ?protein)
+    ?protein wdt:P680 ?function . 
+    ?function rdfs:label ?function_label FILTER(lang(?function_label) = "en")
+  }
+  GROUP BY ?protein
+} AS %result 
+WHERE {
+  INCLUDE %result
+  OPTIONAL { ?protein wdt:P703 ?species . }
   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" . }
 }
-LIMIT 500
-''';
-  scholia:aspect scholiaAspect:Property ;
-  rdfs:comment "Property aspect: [no title]"@en ;
+ORDER BY DESC(?count)
+LIMIT 500''';
+  scholia:aspect scholiaAspect:Protein ;
+  rdfs:comment "Protein aspect: [no title]"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
-  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/property_use.sparql> ;
+  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/protein_cofunctional-proteins.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

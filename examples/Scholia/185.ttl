@@ -20,27 +20,32 @@ q:185 a sh:SPARQLExecutable,
 PREFIX p: <http://www.wikidata.org/prop/>
 PREFIX wdt: <http://www.wikidata.org/prop/direct/>
 PREFIX wikibase: <http://wikiba.se/ontology#>
-#defaultView:Map
+#defaultView:Graph
 
 PREFIX target: <http://www.wikidata.org/entity/Q45340488>
 
 SELECT
-  ?location ?locationLabel
-  ?geo
-  ?example_work ?example_workLabel
+  ?topic1 ?topic1Label ?topic2 ?topic2Label
 WITH {
   SELECT
-    ?location ?geo
-    (SAMPLE(?work) AS ?example_work)
+    (COUNT(DISTINCT ?work) AS ?count) ?topic1 ?topic2
   WHERE {
     # Find works that are marked with main subject of the topic.
     ?work wdt:P921 / ( wdt:P31*/wdt:P279* | wdt:P361+ | wdt:P1269+ ) target: .
     
-    # Identify co-occuring topic that is geo-locatable. 
-    ?work wdt:P921 ?location .
-    ?location wdt:P625 ?geo .
+    # Identify co-occuring topics. 
+    ?work wdt:P921 ?topic1, ?topic2 . 
+
+    # Exclude the topic it self
+    FILTER (target: != ?topic1 && target: != ?topic2 && ?topic1 != ?topic2)
   }
-  GROUP BY ?location ?geo
+  GROUP BY ?topic1 ?topic2
+  ORDER BY DESC(?count)
+
+  # There a performance problems in the browser: We cannot show large graphs,
+  # so we put a limit on the number of links displayed.
+  LIMIT 400
+
 } AS %results
 WHERE {
   INCLUDE %results
@@ -50,11 +55,12 @@ WHERE {
     bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" .
   }
 }
+
 ''';
   scholia:aspect scholiaAspect:Topic ;
-  scholia:defaultView scholiaView:Map ;
+  scholia:defaultView scholiaView:Graph ;
   rdfs:comment "Topic aspect: [no title]"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
-  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/topic_co-occurring-map.sparql> ;
+  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/topic_co-occurring.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

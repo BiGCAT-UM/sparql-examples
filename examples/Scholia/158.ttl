@@ -24,32 +24,36 @@ PREFIX wikibase: <http://wikiba.se/ontology#>
 PREFIX target: <http://www.wikidata.org/entity/Q73820>
 
 SELECT
-  ?number_of_editorships
-  ?editor ?editorLabel 
-  ?example_venue ?example_venueLabel
+  (SAMPLE(?number_of_works_) AS ?number_of_works)
+  (MAX(?bfi) AS ?BFI)
+  ?journal ?journalLabel
+  (GROUP_CONCAT(?themes_labels; separator=", ") as ?theme)
 WITH {
-  SELECT
-    (COUNT(?venue_) AS ?number_of_editorships)
-    ?editor
-    (SAMPLE(?venue_) AS ?example_venue)
-    # (GROUP_CONCAT(?journal_label; separator=" // ") AS ?venues)
+  SELECT 
+    ?journal
+    (COUNT(?work) AS ?number_of_works_)
   WHERE {
-    # Find editors for a work published by publisher
-    ?venue_ wdt:P123 target: .
-    ?venue_ wdt:P98 | wdt:P5769 ?editor .
-    # ?venue_ rdfs:label ?venue_label . FILTER(LANG(?venue_label) = 'en')
-  } 
-  GROUP BY ?editor
-} AS %result
+    ?journal wdt:P123 target: .
+    OPTIONAL { ?work wdt:P1433 ?journal . }
+  }
+  GROUP BY ?journal 
+} AS %journals
 WHERE {
-  # Label the result
-  INCLUDE %result 
+  INCLUDE %journals
+  OPTIONAL {
+    ?journal wdt:P921 ?themes .
+    ?themes rdfs:label ?themes_labels .
+    FILTER (LANG(?themes_labels) = 'en')
+  }
+  OPTIONAL { ?journal wdt:P1240 ?bfi . }
   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" . } 
-}
+} 
+GROUP BY ?journal ?journalLabel
+ORDER BY DESC(?number_of_works)
 ''';
   scholia:aspect scholiaAspect:Publisher ;
   rdfs:comment "Publisher aspect: [no title]"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
-  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/publisher_editors.sparql> ;
+  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/publisher_journals.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

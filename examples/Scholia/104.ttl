@@ -16,50 +16,127 @@
 q:104 a sh:SPARQLExecutable,
   sh:SPARQLSelectExecutable;
   sh:prefixes _:sparql_examples_prefixes ;
-  sh:select '''PREFIX bd: <http://www.bigdata.com/rdf#>
-PREFIX p: <http://www.wikidata.org/prop/>
+  sh:select '''PREFIX p: <http://www.wikidata.org/prop/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX wdt: <http://www.wikidata.org/prop/direct/>
-PREFIX wd: <http://wikidata.org/entity/>
-PREFIX wikibase: <http://wikiba.se/ontology#>
-PREFIX target: <http://www.wikidata.org/entity/Q1309>
+PREFIX target: <http://www.wikidata.org/entity/Q116446479>
 
-# title: Nearby academic institutions around a specified geographic entity.
-SELECT
-  ?distance ?unit ?unitLabel
-  ?organization ?organizationLabel ?organizationDescription (CONCAT("/organization/", SUBSTR(STR(?organization), 32)) AS ?organizationUrl)
-WITH {
-  # Universities, research centers, etc.
-  SELECT ?university WHERE {
-    VALUES ?university { wd:Q3918 wd:Q1371037 wd:Q7315155  wd:Q31855 }
-  }
-} AS %universities
-WITH {
-  # Academic institutions on all levels
-  SELECT DISTINCT ?organization ?other_geo WHERE {
-    INCLUDE %universities
-    ?organization wdt:P361* / wdt:P31 / wdt:P279* ?university .
-    ?organization wdt:P625 ?other_geo .
-  }
-} AS %organizations
-WITH {
-  # Compute distance.
-  SELECT ?organization ?distance ?unit WHERE {
-    INCLUDE %organizations
-    target: wdt:P159* / wdt:P625 ?geo .
-    BIND(geof:distance(?other_geo, ?geo) AS ?distance)
-    BIND(wd:Q828224 AS ?unit)
-    FILTER(?distance < 250)
-  }
-} AS %results
+SELECT DISTINCT ?description ?value ?valueUrl
 WHERE {
-  INCLUDE %results
-  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" . }
+  BIND(target: AS ?ontology)
+  {
+    BIND(1 AS ?order)
+    BIND("Website" AS ?description)
+    ?ontology wdt:P856 ?value .
+    BIND(?value AS ?valueUrl)
+  }
+  UNION
+  {
+    SELECT
+      (2 AS ?order)
+      ("Maintainer(s)" AS ?description)
+      (GROUP_CONCAT(?value_; separator=", ") AS ?value)
+      (CONCAT("../authors/", GROUP_CONCAT(?q; separator=",")) AS ?valueUrl)
+    {
+      BIND(1 AS ?dummy)
+      target: wdt:P126 ?iri .
+      BIND(SUBSTR(STR(?iri), 32) AS ?q)
+      ?iri rdfs:label ?value_string .
+      FILTER (LANG(?value_string) = 'en')
+      BIND(COALESCE(?value_string, ?q) AS ?value_)
+    }
+    GROUP BY ?dummy
+  }
+  UNION
+  {
+    SELECT
+      (3 AS ?order)
+      ("Contributors" AS ?description)
+      (GROUP_CONCAT(?value_; separator=", ") AS ?value)
+      (CONCAT("../authors/", GROUP_CONCAT(?q; separator=",")) AS ?valueUrl)
+    {
+      BIND(1 AS ?dummy)
+      target: wdt:P50 | wdt:P178 | wdt:P767 ?iri .
+      BIND(SUBSTR(STR(?iri), 32) AS ?q) 
+      ?iri rdfs:label ?value_string . 
+      FILTER (LANG(?value_string) = 'en')
+      BIND(COALESCE(?value_string, ?q) AS ?value_)
+    }
+    GROUP BY ?dummy
+  }
+  UNION
+  {
+    SELECT
+      (4 AS ?order)
+      ("Part of" AS ?description)
+      (GROUP_CONCAT(?value_; separator=", ") AS ?value)
+      (CONCAT("../topic/", GROUP_CONCAT(?q; separator=",")) AS ?valueUrl)
+    {
+      BIND(1 AS ?dummy)
+      target: wdt:P361 ?iri .
+      BIND(SUBSTR(STR(?iri), 32) AS ?q) 
+      ?iri rdfs:label ?value_string . 
+      FILTER (LANG(?value_string) = 'en')
+      BIND(COALESCE(?value_string, ?q) AS ?value_)
+    }
+    GROUP BY ?dummy
+  }
+  UNION
+  {
+    SELECT
+      (5 AS ?order)
+      ("License" AS ?description)
+      (GROUP_CONCAT(?value_; separator=", ") AS ?value)
+      (CONCAT("../topic/", GROUP_CONCAT(?q; separator=",")) AS ?valueUrl)
+    {
+      BIND(1 AS ?dummy)
+      target: wdt:P275 ?iri .
+      BIND(SUBSTR(STR(?iri), 32) AS ?q)
+      ?iri rdfs:label ?value_string .
+      FILTER (LANG(?value_string) = 'en')
+      BIND(COALESCE(?value_string, ?q) AS ?value_)
+    }
+    GROUP BY ?dummy
+  }
+  UNION
+  {
+    SELECT
+      (6 AS ?order)
+      ("Wikidata property" AS ?description)
+      (GROUP_CONCAT(?value_; separator=", ") AS ?value)
+      (CONCAT("../", GROUP_CONCAT(?q; separator=",")) AS ?valueUrl)
+    {
+      BIND(1 AS ?dummy)
+      target: wdt:P1687 ?iri .
+      BIND(SUBSTR(STR(?iri), 32) AS ?q)
+      ?iri rdfs:label ?value_string .
+      FILTER (LANG(?value_string) = 'en')
+      BIND(COALESCE(?value_string, ?q) AS ?value_)
+    }
+    GROUP BY ?dummy
+  }
+  UNION
+  {
+    SELECT
+      (7 AS ?order)
+      ("🛑 Replaced by" AS ?description)
+      (GROUP_CONCAT(?value_; separator=", ") AS ?value)
+      (CONCAT("../", GROUP_CONCAT(?q; separator=",")) AS ?valueUrl)
+    {
+      BIND(1 AS ?dummy)
+      ?iri wdt:P1365 target: .
+      BIND(SUBSTR(STR(?iri), 32) AS ?q)
+      ?iri rdfs:label ?value_string .
+      FILTER (LANG(?value_string) = 'en')
+      BIND(COALESCE(?value_string, ?q) AS ?value_)
+    }
+    GROUP BY ?dummy
+  }
 }
-ORDER BY ?distance
+ORDER BY ?order
 ''';
-  scholia:aspect scholiaAspect:Location ;
-  rdfs:comment "Location aspect: Nearby academic institutions around a specified geographic entity."@en ;
+  scholia:aspect scholiaAspect:Ontology ;
+  rdfs:comment "Ontology aspect: [no title]"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
-  spex:federatesWith <http://wikiba.se/ontology#label> ;
-  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/location_nearby-organizations.sparql> ;
+  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/ontology_data.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

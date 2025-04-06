@@ -20,41 +20,45 @@ q:217 a sh:SPARQLExecutable,
 PREFIX p: <http://www.wikidata.org/prop/>
 PREFIX wdt: <http://www.wikidata.org/prop/direct/>
 PREFIX wikibase: <http://wikiba.se/ontology#>
-# title: Most cited articles published in specific venue
+# title: Most cited authors published in venue
 
 PREFIX target: <http://www.wikidata.org/entity/Q6294930>
 
-#defaultView:Table
 SELECT
   ?count
-  ?work ?workLabel
+  ?author ?authorLabel
+  ?orcid
+  ?example_cited_work ?example_cited_workLabel
   ?example_citing_work ?example_citing_workLabel
 WITH {
-  # Count citations
+  # Count the number of citations
   SELECT
-    (COUNT(?citing_work) AS ?count)
-    ?work
+    ?author
+    (COUNT(?cited_work) AS ?count)
+    (SAMPLE(?cited_work) AS ?example_cited_work)
     (SAMPLE(?citing_work) AS ?example_citing_work)
   WHERE {
-    ?work wdt:P1433 target: .
-    ?citing_work wdt:P2860 ?work.
+    ?cited_work wdt:P1433 target: .
+    ?citing_work wdt:P2860 ?cited_work .
+    ?cited_work wdt:P50 ?author .
   }
-  GROUP BY ?work
-  ORDER BY DESC(?count)
-  LIMIT 1000  
+  GROUP BY ?author
 } AS %result
 WHERE {
-  # Label results
-  INCLUDE %result
-  SERVICE wikibase:label {
-    bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" . } 
+  INCLUDE %result 
+          
+  # Include optional ORCID iD
+  OPTIONAL { ?author wdt:P496 ?orcid . }
+  
+  # Label the results
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" . } 
 }
 ORDER BY DESC(?count)
+LIMIT 100
 ''';
   scholia:aspect scholiaAspect:Venue ;
-  rdfs:comment "Venue aspect: Most cited articles published in specific venue"@en ;
-  scholia:defaultView scholiaView:Table ;
+  rdfs:comment "Venue aspect: Most cited authors published in venue"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
-  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/venue_most-cited-articles.sparql> ;
+  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/venue_most-cited-authors.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

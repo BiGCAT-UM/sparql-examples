@@ -18,41 +18,42 @@ q:156 a sh:SPARQLExecutable,
   sh:prefixes _:sparql_examples_prefixes ;
   sh:select '''PREFIX bd: <http://www.bigdata.com/rdf#>
 PREFIX p: <http://www.wikidata.org/prop/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX wdt: <http://www.wikidata.org/prop/direct/>
 PREFIX wikibase: <http://wikiba.se/ontology#>
-#defaultView:ScatterChart
+#defaultView:ImageGrid
 
 PREFIX target: <http://www.wikidata.org/entity/Q73820>
 
-SELECT ?work_count ?citation_count ?journal ?journalLabel 
+SELECT
+  ?image
+  ?editor ?editorLabel 
+  ?venues
 WITH {
-  SELECT ?work_count ?citation_count ?journal {
-    {
-      SELECT ?journal (COUNT(?work) AS ?work_count) {
-  	    ?journal wdt:P123 target: .
-  	    ?work wdt:P1433 ?journal .
-      }
-      GROUP BY ?journal 
+  SELECT DISTINCT
+    (SAMPLE(?image_) AS ?image)
+    ?editor 
+    (GROUP_CONCAT(?venue_label; separator=" // ") AS ?venues)
+  WHERE {
+    # Find editors for journals published by publisher
+    ?venue_ wdt:P123 target: .
+    ?venue_ wdt:P98 | wdt:P5769 ?editor .
+    ?editor wdt:P18 ?image_ .
+    OPTIONAL {
+      ?venue_ rdfs:label ?venue_label . FILTER(LANG(?venue_label) = 'en')
     }
-    {
-      SELECT ?journal (COUNT(?citing_work) AS ?citation_count) {
-  	    ?journal wdt:P123 target: .
-  	    ?work wdt:P1433 ?journal .
-        ?citing_work wdt:P2860 ?work . 
-      }
-      GROUP BY ?journal 
-    } 
   }
+  GROUP BY ?editor
 } AS %result
 WHERE {
-  INCLUDE %result
+  INCLUDE %result 
   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" . } 
 }
 ''';
   scholia:aspect scholiaAspect:Publisher ;
-  scholia:defaultView scholiaView:ScatterChart ;
+  scholia:defaultView scholiaView:ImageGrid ;
   rdfs:comment "Publisher aspect: [no title]"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
-  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/publisher_citations-works.sparql> ;
+  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/publisher_editor-photos.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

@@ -18,27 +18,51 @@ q:141 a sh:SPARQLExecutable,
   sh:prefixes _:sparql_examples_prefixes ;
   sh:select '''PREFIX bd: <http://www.bigdata.com/rdf#>
 PREFIX p: <http://www.wikidata.org/prop/>
+PREFIX prov: <http://www.w3.org/ns/prov#>
+PREFIX pr: <http://www.wikidata.org/prop/reference/>
 PREFIX wdt: <http://www.wikidata.org/prop/direct/>
 PREFIX wikibase: <http://wikiba.se/ontology#>
-#defaultView:Map
-
+# Prolific authors for a specific project
 PREFIX target: <http://www.wikidata.org/entity/Q27990087>
 
-SELECT ?partner ?partnerLabel ?location
+SELECT ?count ?author ?authorLabel ?orcid ?example_work ?example_workLabel
 WITH {
-  SELECT DISTINCT ?partner ?location WHERE {
-    target: (^wdt:P1344 | wdt:P710)* / (wdt:P527 | wdt:P710 | wdt:P1416) ?partner .
-    ?partner wdt:P159* / wdt:P625 ?location .
+  SELECT DISTINCT ?work WHERE {
+    {
+      ?work wdt:P921 / (wdt:P527+ | wdt:P1269+ | (wdt:P31* / wdt:P279*) ) target: .
+    } UNION { ?work wdt:P859/(wdt:P1344|^wdt:P710)* target: .
+    } UNION {
+      target: ?propp ?statement .
+      ?statement a wikibase:BestRank ;
+                 prov:wasDerivedFrom/pr:P248 ?work .
+    }
   }
+} AS %works
+WITH {
+  SELECT
+    ?author
+    (COUNT(?work) AS ?count)
+    (SAMPLE(?work) AS ?example_work)
+  WHERE {
+    INCLUDE %works
+    ?work wdt:P50 ?author .
+  }
+  GROUP BY ?author
 } AS %result
 WHERE {
   INCLUDE %result
-  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en". }
-}''';
+          
+  # Include optional ORCID iD
+  OPTIONAL { ?author wdt:P496 ?orcid . }
+  
+  # Label the results
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" . }
+}
+ORDER BY DESC(?count)
+LIMIT 50''';
   scholia:aspect scholiaAspect:Project ;
-  scholia:defaultView scholiaView:Map ;
   rdfs:comment "Project aspect: [no title]"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
-  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/project_partners.sparql> ;
+  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/project_prolific-authors.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

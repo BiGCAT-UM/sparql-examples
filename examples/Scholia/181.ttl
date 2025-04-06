@@ -16,42 +16,55 @@
 q:181 a sh:SPARQLExecutable,
   sh:SPARQLSelectExecutable;
   sh:prefixes _:sparql_examples_prefixes ;
-  sh:select '''PREFIX hint: <http://www.bigdata.com/queryHints#>
+  sh:select '''PREFIX bd: <http://www.bigdata.com/rdf#>
 PREFIX p: <http://www.wikidata.org/prop/>
-PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX wdt: <http://www.wikidata.org/prop/direct/>
+PREFIX wikibase: <http://wikiba.se/ontology#>
+#defaultView:BubbleChart
+
 PREFIX target: <http://www.wikidata.org/entity/Q45340488>
 
-SELECT ?count 
-?award ?awardLabel (CONCAT("/award/", SUBSTR(STR(?award), 32)) AS ?awardUrl)
-?recipients ?recipientsUrl
+SELECT ?score ?author ?authorLabel
 WITH {
-  SELECT (COUNT(?researcher) AS ?count) ?award 
-  (GROUP_CONCAT(DISTINCT ?researcher_label; separator=", ") AS ?recipients) 
-  (CONCAT("../authors/", GROUP_CONCAT(DISTINCT SUBSTR(STR(?researcher), 32); separator=",")) AS ?recipientsUrl)
+  SELECT 
+    ?author
+    (SUM(?score_) AS ?score)
   WHERE {
     { 
-      SELECT DISTINCT ?researcher ?award WHERE {
-        hint:Query hint:optimizer "None" .
-        ?work wdt:P921 target: .
-        ?work wdt:P50 ?researcher .
-        ?researcher wdt:P166 ?award .
-      } 
-      LIMIT 100
+      ?author wdt:P101/wdt:P279* target: .
+      BIND(20 AS ?score_)
     }
-    ?researcher rdfs:label ?researcher_label . FILTER (LANG(?researcher_label) = 'en')
+    UNION
+    {
+      SELECT (3 AS ?score_) ?author WHERE {
+        ?work wdt:P50 ?author ;
+              wdt:P921/wdt:P279* target: .
+      }
+    }
+    UNION
+    {
+      SELECT (1 AS ?score_) ?author WHERE {
+        ?cited_work wdt:P50 ?author .
+        ?citing_work wdt:P2860 ?cited_work .
+        ?citing_work wdt:P921/wdt:P279* target: .
+      }
+    }
   }
-  GROUP BY ?award 
-} AS %result
+  GROUP BY ?author
+  ORDER BY DESC(?score)
+  LIMIT 200
+} AS %results 
 WHERE {
-  INCLUDE %result
-    ?award rdfs:label ?awardLabel . FILTER (LANG(?awardLabel) = 'en')
+  INCLUDE %results
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en,da,de,es,jp,no,ru,sv,zh". }
 }
-GROUP BY ?count ?award ?awardLabel ?recipients ?recipientsUrl
-ORDER BY DESC(?count)
+ORDER BY DESC(?score)
+LIMIT 200
 ''';
   scholia:aspect scholiaAspect:Topic ;
+  scholia:defaultView scholiaView:BubbleChart ;
   rdfs:comment "Topic aspect: [no title]"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
-  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/topic_author-awards.sparql> ;
+  spex:federatesWith <http://wikiba.se/ontology#label> ;
+  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/topic_author-scores-graph.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

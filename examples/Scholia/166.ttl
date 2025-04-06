@@ -20,33 +20,43 @@ q:166 a sh:SPARQLExecutable,
 PREFIX p: <http://www.wikidata.org/prop/>
 PREFIX wdt: <http://www.wikidata.org/prop/direct/>
 PREFIX wikibase: <http://wikiba.se/ontology#>
-PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+#description: Show software library, programming language and developer dependencies
+
 PREFIX target: <http://www.wikidata.org/entity/Q1635410>
 
-SELECT
-  ?publication_date
-  ?work ?workLabel
-WITH{
+#defaultView:Graph
+SELECT ?resource1 ?resource1Label ?image1 ?rgb ?resource2 ?resource2Label ?image2
+WITH {
   SELECT
-    ?publication_datetime
-    ?work
-  WHERE {
-    ?work wdt:P4510 / wdt:P279* target: ;
-          wdt:P577 ?publication_datetime .
-  }
-  ORDER BY DESC(?publication_datetime)
-  LIMIT 500
+    ?resource1 (SAMPLE(?image1_) AS ?image1) ?rgb
+    ?resource2 (SAMPLE(?image2_) AS ?image2)
+    {
+      {
+        # root node with coloring
+        BIND(target: AS ?resource1)
+        BIND("3080BB" AS ?rgb)
+      }
+      UNION
+      {
+        # dependencies, programming language, developer
+        target: ( wdt:P1547 | wdt:P277 | wdt:P178 | wdt:P2283 | wdt:P275 )+ ?resource1 .
+        OPTIONAL { ?resource1 wdt:P18 ?image1_ }
+      }
+      target: ( wdt:P1547 | wdt:P277 | wdt:P178 | wdt:P2283 | wdt:P275 )+ ?resource2 .
+      OPTIONAL { ?resource2 wdt:P18 ?image2_ }
+      ?resource1 ( wdt:P1547 | wdt:P277 | wdt:P178 | wdt:P2283 | wdt:P275 ) ?resource2 .
+    }
+    GROUP BY ?resource1 ?resource2 ?rgb
 } AS %result
-WHERE {
+{
   INCLUDE %result
-  BIND(xsd:date(?publication_datetime) AS ?publication_date)
   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" . }
 }
-ORDER BY DESC(?publication_date)
 ''';
   scholia:aspect scholiaAspect:Software ;
+  scholia:defaultView scholiaView:Graph ;
   rdfs:comment "Software aspect: [no title]"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
-  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/software_recent-works.sparql> ;
+  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/software_software-dependencies.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

@@ -23,23 +23,25 @@ PREFIX ps: <http://www.wikidata.org/prop/statement/>
 PREFIX wdt: <http://www.wikidata.org/prop/direct/>
 PREFIX wd: <http://wikidata.org/entity/>
 PREFIX wikibase: <http://wikiba.se/ontology#>
+#defaultView:BubbleChart
+
 PREFIX target: <http://www.wikidata.org/entity/Q6294930>
 
-SELECT ?citedArticle ?citedArticleLabel (CONCAT("/work/", SUBSTR(STR(?citedArticle), 32), "#cito") AS ?citedArticleUrl)
-(COUNT(DISTINCT ?citingArticle) AS ?count) WHERE {
-  VALUES ?JOURNAL { target: }
-  VALUES ?INTENTION { wd:Q96472102 wd:Q96471820 wd:Q101149476 }
-  ?citingArticle p:P2860 ?citationStatement .
-  ?citationStatement pq:P3712 ?INTENTION ;
+SELECT ?cito ?intentionLabel (COUNT(DISTINCT ?citingArticle) AS ?count) WHERE {
+  ?citingArticle p:P2860 ?citationStatement ;
+                 wdt:P1433 target: .
+  ?citationStatement pq:P3712 ?intention ;
                      ps:P2860 ?citedArticle .
-  ?citedArticle wdt:P1433 ?JOURNAL .
+  ?intention wdt:P31 wd:Q96471816 ;
+             wdt:P2888 ?cito .
   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en". }
-} GROUP BY ?citedArticle ?citedArticleLabel
+} GROUP BY ?cito ?intention ?intentionLabel
   ORDER BY DESC(?count)
 ''';
   scholia:aspect scholiaAspect:Venue ;
+  scholia:defaultView scholiaView:BubbleChart ;
   rdfs:comment "Venue aspect: [no title]"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
-  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/venue_most-reused-articles.sparql> ;
+  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/venue_outgoing-bubble.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

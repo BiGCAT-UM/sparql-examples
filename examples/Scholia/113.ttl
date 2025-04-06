@@ -19,44 +19,49 @@ q:113 a sh:SPARQLExecutable,
   sh:select '''PREFIX bd: <http://www.bigdata.com/rdf#>
 PREFIX p: <http://www.wikidata.org/prop/>
 PREFIX wdt: <http://www.wikidata.org/prop/direct/>
+PREFIX wd: <http://wikidata.org/entity/>
 PREFIX wikibase: <http://wikiba.se/ontology#>
-#defaultView:BarChart
+# title: Employees and affiliated with a specified organization
 
 PREFIX target: <http://www.wikidata.org/entity/Q104785223>
 
-SELECT ?year (SUM(?citations_per_author_) AS ?citations_per_author) ?researcherLabel
+SELECT
+  (SAMPLE(?number_of_works_) AS ?works)
+  (SAMPLE(?wikis_) AS ?wikis)
+  ?researcher ?researcherLabel ?researcherDescription
+  (SAMPLE(?orcid_) AS ?orcid)
 WITH {
-  # Find researchers affiliated with the organization
   SELECT DISTINCT ?researcher WHERE {
-    ?researcher wdt:P108 | wdt:P463 | wdt:P1416/wdt:P361* target: .
-  }
-} AS %researchers 
+    ?researcher ( wdt:P108 | wdt:P463 | wdt:P1416 ) / wdt:P361* target: .
+  } 
+} AS %researchers
 WITH {
-  # Find works of the researchers and count the number of citations
   SELECT
-    ?researcher ?work ?year (COUNT(DISTINCT ?citing_work) / COUNT(DISTINCT ?researcher_of_paper) AS ?citations_per_author_)
+    (COUNT(?work) AS ?number_of_works_) ?researcher
   WHERE {
     INCLUDE %researchers
-    ?work wdt:P50 | wdt:P2093 ?researcher_of_paper .
-    ?work wdt:P50 ?researcher .
-    ?citing_work wdt:P2860 ?work .
-    ?work wdt:P577 ?date . 
-    BIND(STR(YEAR(?date)) AS ?year)
-  }
-  GROUP BY ?work ?researcher ?year
-} AS %counts
+
+    # No biological pathways; they skew the statistics too much 
+    MINUS { ?work wdt:P31 wd:Q4915012 } 
+
+    # This OPTIONAL query should be after the MINUS query, otherwise
+    # researchers might not show if they do not have any papers.
+    OPTIONAL { ?work wdt:P50 ?researcher . }
+  } 
+  GROUP BY ?researcher
+} AS %researchers_and_number_of_works
 WHERE {
-  # Label the results
-  INCLUDE %counts    
-  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" . }
+  INCLUDE %researchers_and_number_of_works
+  OPTIONAL { ?researcher wdt:P496 ?orcid_ . }
+  OPTIONAL { ?researcher wikibase:sitelinks ?wikis_ }
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" . } 
 }
-GROUP BY ?year ?researcher ?researcherLabel
-ORDER BY ?year
+GROUP BY ?researcher ?researcherLabel ?researcherDescription 
+ORDER BY DESC(?works)
 ''';
   scholia:aspect scholiaAspect:Organization ;
-  scholia:defaultView scholiaView:BarChart ;
-  rdfs:comment "Organization aspect: [no title]"@en ;
+  rdfs:comment "Organization aspect: Employees and affiliated with a specified organization"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
-  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/organization_co-author-normalized-citations.sparql> ;
+  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/organization_employees-and-affiliated.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

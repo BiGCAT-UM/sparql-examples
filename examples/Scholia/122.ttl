@@ -20,37 +20,20 @@ q:122 a sh:SPARQLExecutable,
 PREFIX p: <http://www.wikidata.org/prop/>
 PREFIX wdt: <http://www.wikidata.org/prop/direct/>
 PREFIX wikibase: <http://wikiba.se/ontology#>
-PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
-#defaultView:Table
-
 PREFIX target: <http://www.wikidata.org/entity/Q28031254>
 
-SELECT ?citations ?publication_date ?citing_work ?citing_workLabel
-WITH {
-  SELECT
-    (MIN(?date) AS ?publication_date)
-    (COUNT(?citing_citing_work) AS ?citations)
-    ?citing_work
-  WHERE {
-    ?citing_work wdt:P2860 target: .
-    OPTIONAL {
-      ?citing_work wdt:P577 ?datetime .
-      BIND(xsd:date(?datetime) AS ?date)
-    }
-    OPTIONAL { ?citing_citing_work wdt:P2860 ?citing_work }
-  }
-  GROUP BY ?citing_work
-} AS %result
+SELECT ?wpid ?organism ?organismLabel ?pathwayDescription
 WHERE {
-  INCLUDE %result
+  VALUES ?pathway { target: }
+  OPTIONAL {
+    target: wdt:P2410 ?wpid ;
+    wdt:P703 ?organism .
+  }
   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" . }
-}
-ORDER BY DESC(?citations) DESC(?date)
-''';
+}''';
   scholia:aspect scholiaAspect:Pathway ;
-  scholia:defaultView scholiaView:Table ;
   rdfs:comment "Pathway aspect: [no title]"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
-  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/pathway_citing-articles.sparql> ;
+  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/pathway_optional-data-values.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

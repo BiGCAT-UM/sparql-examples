@@ -20,31 +20,31 @@ q:169 a sh:SPARQLExecutable,
 PREFIX p: <http://www.wikidata.org/prop/>
 PREFIX wdt: <http://www.wikidata.org/prop/direct/>
 PREFIX wikibase: <http://wikiba.se/ontology#>
-# title: Authors on works sponsored or funded from a specific entity.
-
 PREFIX target: <http://www.wikidata.org/entity/Q1200258>
 
-SELECT
-  ?publication_count
-  ?author ?authorLabel (CONCAT("/author/", SUBSTR(STR(?author), 32)) AS ?authorUrl)
-  ?example_work ?example_workLabel (CONCAT("/work/", SUBSTR(STR(?example_work), 32)) AS ?example_workUrl)
+# title: Co-funders to a specific funder including an example funded work
+SELECT ?count 
+?sponsor ?sponsorLabel (CONCAT("/sponsor/", SUBSTR(STR(?sponsor), 32)) AS ?sponsorUrl)
+?example_work ?example_workLabel (CONCAT("/work/", SUBSTR(STR(?example_work), 32)) AS ?example_workUrl)
 WITH {
-  SELECT ?author (count(?work) as ?publication_count) (SAMPLE(?work) AS ?example_work)
+  SELECT (COUNT(?work) AS ?count) ?sponsor (SAMPLE(?work) AS ?example_work)
   WHERE {
     ?work wdt:P859+ target: .
-    ?work wdt:P50 ?author .
+    ?work wdt:P859+ ?sponsor .
+    FILTER (target: != ?sponsor)
   }
-  GROUP BY ?author
+  GROUP BY ?sponsor
 } AS %result
 WHERE {
+  # Label the result
   INCLUDE %result
   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" }
-} 
-ORDER BY DESC(?publication_count)
+}
+ORDER BY DESC(?count)
 ''';
   scholia:aspect scholiaAspect:Sponsor ;
-  rdfs:comment "Sponsor aspect: Authors on works sponsored or funded from a specific entity."@en ;
+  rdfs:comment "Sponsor aspect: Co-funders to a specific funder including an example funded work"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
-  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/sponsor_authors-on-sponsored-works.sparql> ;
+  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/sponsor_co-sponsors.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

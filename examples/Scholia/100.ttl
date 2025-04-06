@@ -21,34 +21,32 @@ PREFIX p: <http://www.wikidata.org/prop/>
 PREFIX wdt: <http://www.wikidata.org/prop/direct/>
 PREFIX wikibase: <http://wikiba.se/ontology#>
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
-PREFIX target: <http://www.wikidata.org/entity/Q9027>
+PREFIX target: <http://www.wikidata.org/entity/Q20007257>
 
 SELECT
   ?publication_date
-  ?work ?workLabel ?workDescription (CONCAT("/work/", SUBSTR(STR(?work), 32)) AS ?workUrl)
+  ?work ?workLabel ?workDescription
 WITH {
   SELECT
     ?publication_date_
     ?work
   WHERE {
-    VALUES ?publication_date_ {
-      {% for day in range(-32, 1) %} {{ '"{}T00:00:00Z"^^xsd:dateTime'.format((datetime.datetime.now().date() + datetime.timedelta(day)).isoformat()) }} {% endfor %} 
-    }
-    ?work wdt:P407 target: ;
-          wdt:P577 ?publication_date_ ;
+    ?work wdt:P275 target: . 
+    OPTIONAL { ?work wdt:P577 ?publication_date_ . }
   }
-  LIMIT 1000
-} AS %works_sample
+  ORDER BY DESC(?publication_date_)
+  LIMIT 1100
+} AS %works
 WITH {
   SELECT
     (xsd:date(MAX(?publication_date_)) AS ?publication_date)
     ?work
   WHERE {
-    INCLUDE %works_sample
+    INCLUDE %works
   }
   GROUP BY ?work
   ORDER BY DESC(?publication_date)
-  LIMIT 500
+  LIMIT 1000
 } AS %result
 WHERE {
   INCLUDE %result
@@ -57,9 +55,9 @@ WHERE {
 ORDER BY DESC(?publication_date)
 
   ''';
-  scholia:aspect scholiaAspect:Language ;
-  rdfs:comment "Language aspect: [no title]"@en ;
+  scholia:aspect scholiaAspect:License ;
+  rdfs:comment "License aspect: [no title]"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
-  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/language_recently-published-works.sparql> ;
+  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/license_recently-published-works.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

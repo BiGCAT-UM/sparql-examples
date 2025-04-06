@@ -20,32 +20,38 @@ q:208 a sh:SPARQLExecutable,
 PREFIX p: <http://www.wikidata.org/prop/>
 PREFIX wdt: <http://www.wikidata.org/prop/direct/>
 PREFIX wikibase: <http://wikiba.se/ontology#>
-# title: Author images for a specific venue
+# title: Prolific authors for a specific journal
 
 PREFIX target: <http://www.wikidata.org/entity/Q6294930>
 
-#defaultView:ImageGrid
-SELECT (SAMPLE(?image_) AS ?image) ?author ?authorLabel ?count
+SELECT ?count ?author ?authorLabel ?orcid ?example_work ?example_workLabel
 WITH {
-  SELECT ?author (COUNT(?work) AS ?count) WHERE {
-    ?work wdt:P1433 target:;
-          wdt:P50 ?author .
+  # Count the number of works author by the author publishing in the journal
+  SELECT
+    ?author
+    (COUNT(?work) AS ?count)
+    (SAMPLE(?work) AS ?example_work)
+  WHERE {
+    ?work wdt:P50 ?author ;
+          wdt:P1433 target: .
   }
   GROUP BY ?author
-} AS %authors
+} AS %result
 WHERE {
-  INCLUDE %authors
-  ?author wdt:P18 ?image_ .
+  INCLUDE %result 
+          
+  # Include optional ORCID iD
+  OPTIONAL { ?author wdt:P496 ?orcid . }
+  
+  # Label the results
   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" . } 
 }
-GROUP BY ?author ?authorLabel ?count
 ORDER BY DESC(?count)
-LIMIT 50  
+LIMIT 50
 ''';
   scholia:aspect scholiaAspect:Venue ;
-  rdfs:comment "Venue aspect: Author images for a specific venue"@en ;
-  scholia:defaultView scholiaView:ImageGrid ;
+  rdfs:comment "Venue aspect: Prolific authors for a specific journal"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
-  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/venue_author-images.sparql> ;
+  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/venue_authors.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

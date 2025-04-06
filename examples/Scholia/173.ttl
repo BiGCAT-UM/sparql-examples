@@ -20,32 +20,39 @@ q:173 a sh:SPARQLExecutable,
 PREFIX p: <http://www.wikidata.org/prop/>
 PREFIX wdt: <http://www.wikidata.org/prop/direct/>
 PREFIX wikibase: <http://wikiba.se/ontology#>
-#defaultView:BubbleChart
+#title: Taxa that co-occur with the target taxon in the literature
+PREFIX target: <http://www.wikidata.org/entity/Q12024>
 
-PREFIX target: <http://www.wikidata.org/entity/Q1200258>
-
-SELECT
-  ?count ?topic ?topicLabel
+SELECT ?count (CONCAT("/topics/",SUBSTR(STR(target:), 32), ",", SUBSTR(STR(?taxon), 32)) AS ?countUrl)
+       ?taxon ?taxonLabel (CONCAT("/taxon/", SUBSTR(STR(?taxon), 32)) AS ?taxonUrl)
+       ?example_work ?example_workLabel (CONCAT("/work/", SUBSTR(STR(?example_work), 32)) AS ?example_workUrl)
 WITH {
-  SELECT (COUNT(?work) AS ?count) ?topic
-  WHERE {
-    ?work wdt:P859+ target: .
-    ?work wdt:P921 ?topic .
-  } 
-  GROUP BY ?topic
-  ORDER BY DESC(?count)
-  LIMIT 200
+  SELECT (COUNT(?work) AS ?count) ?taxon (SAMPLE(?work) AS ?example_work) WHERE {
+    # Find works for the specific queried topic
+	?work wdt:P921 target: .
+    
+    # Find co-occuring topics
+    ?work wdt:P921 ?taxon .
+    
+    # Filter for taxa
+    ?taxon wdt:P105 ?taxonrank .
+    
+    # Avoid listing the queried topic itself
+    FILTER (target: != ?taxon)
+  }
+  GROUP BY ?taxon
 } AS %result
 WHERE {
+  # Label the results
   INCLUDE %result
-  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" . }
-} 
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" . } 
+}
 ORDER BY DESC(?count)
+LIMIT 200
 ''';
-  scholia:aspect scholiaAspect:Sponsor ;
-  scholia:defaultView scholiaView:BubbleChart ;
-  rdfs:comment "Sponsor aspect: [no title]"@en ;
+  scholia:aspect scholiaAspect:Taxon ;
+  rdfs:comment "Taxon aspect: [no title]"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
-  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/sponsor_topics-of-sponsored-works.sparql> ;
+  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/taxon_co-occurring-taxa.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

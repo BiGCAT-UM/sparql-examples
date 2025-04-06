@@ -16,31 +16,46 @@
 q:211 a sh:SPARQLExecutable,
   sh:SPARQLSelectExecutable;
   sh:prefixes _:sparql_examples_prefixes ;
-  sh:select '''PREFIX p: <http://www.wikidata.org/prop/>
+  sh:select '''PREFIX bd: <http://www.bigdata.com/rdf#>
+PREFIX p: <http://www.wikidata.org/prop/>
 PREFIX wdt: <http://www.wikidata.org/prop/direct/>
-# title: Citation distribution for a venue
-
+PREFIX wikibase: <http://wikiba.se/ontology#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 PREFIX target: <http://www.wikidata.org/entity/Q6294930>
 
-#defaultView:LineChart
+# title: Cited venues from specific journal
 SELECT
-  ?number_of_citations (COUNT(?work) AS ?count)
-WHERE {
-  {
-    SELECT ?work (COUNT(?citing_work) AS ?number_of_citations)
-    WHERE {
-      ?work wdt:P1433 target: .
-      OPTIONAL { ?citing_work wdt:P2860 ?work . }
+  ?count
+  ?short_name
+  ?cited_journal ?cited_journalLabel
+WITH {
+  SELECT
+    (COUNT(?cited_work) AS ?count)
+    ?cited_journal
+    (SAMPLE(?short_name_) AS ?short_name)
+  WHERE {
+    ?work wdt:P1433 target: .
+    ?work wdt:P2860 ?cited_work .
+    ?cited_work wdt:P1433 ?cited_journal . 
+    OPTIONAL {
+      ?work wdt:P577 ?publication_datetime .
+      BIND(xsd:date(?publication_datetime) AS ?publication_date)
     }
-    GROUP BY ?work 
+    OPTIONAL { ?cited_journal wdt:P1813 ?short_name_ . }
   }
-} 
-GROUP BY ?number_of_citations
-ORDER BY DESC(?number_of_citations)
+  GROUP BY ?cited_journal
+} AS %result
+WHERE {
+  INCLUDE %result
+  SERVICE wikibase:label {
+    bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" . } 
+}
+ORDER BY DESC(?count)
+LIMIT 200
 ''';
   scholia:aspect scholiaAspect:Venue ;
-  rdfs:comment "Venue aspect: Citation distribution for a venue"@en ;
-  scholia:defaultView scholiaView:LineChart ;
+  rdfs:comment "Venue aspect: Cited venues from specific journal"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
-  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/venue_citation-distribution.sparql> ;
+  spex:federatesWith <http://wikiba.se/ontology#label> ;
+  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/venue_cited-venues.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

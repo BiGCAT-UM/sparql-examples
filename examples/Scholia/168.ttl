@@ -20,33 +20,31 @@ q:168 a sh:SPARQLExecutable,
 PREFIX p: <http://www.wikidata.org/prop/>
 PREFIX wdt: <http://www.wikidata.org/prop/direct/>
 PREFIX wikibase: <http://wikiba.se/ontology#>
-#defaultView:BubbleChart
+# title: Authors on works sponsored or funded from a specific entity.
 
-PREFIX target: <http://www.wikidata.org/entity/Q1635410>
+PREFIX target: <http://www.wikidata.org/entity/Q1200258>
 
 SELECT
-  ?count ?topic ?topicLabel
-WITH{
-  SELECT
-    (COUNT(?work) AS ?count) ?topic
+  ?publication_count
+  ?author ?authorLabel (CONCAT("/author/", SUBSTR(STR(?author), 32)) AS ?authorUrl)
+  ?example_work ?example_workLabel (CONCAT("/work/", SUBSTR(STR(?example_work), 32)) AS ?example_workUrl)
+WITH {
+  SELECT ?author (count(?work) as ?publication_count) (SAMPLE(?work) AS ?example_work)
   WHERE {
-    ?work (wdt:P2283 | wdt:P4510) / wdt:P279* target: .
-    ?work wdt:P921 ?topic .
+    ?work wdt:P859+ target: .
+    ?work wdt:P50 ?author .
   }
-  GROUP BY ?topic
-  ORDER BY DESC(?count)
-  LIMIT 100
+  GROUP BY ?author
 } AS %result
 WHERE {
   INCLUDE %result
-  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" . }
-}
-ORDER BY DESC(?count)
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" }
+} 
+ORDER BY DESC(?publication_count)
 ''';
-  scholia:aspect scholiaAspect:Software ;
-  scholia:defaultView scholiaView:BubbleChart ;
-  rdfs:comment "Software aspect: [no title]"@en ;
+  scholia:aspect scholiaAspect:Sponsor ;
+  rdfs:comment "Sponsor aspect: Authors on works sponsored or funded from a specific entity."@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
-  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/software_topics.sparql> ;
+  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/sponsor_authors-on-sponsored-works.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

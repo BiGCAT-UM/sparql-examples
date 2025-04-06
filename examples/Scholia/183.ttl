@@ -20,50 +20,43 @@ q:183 a sh:SPARQLExecutable,
 PREFIX p: <http://www.wikidata.org/prop/>
 PREFIX wdt: <http://www.wikidata.org/prop/direct/>
 PREFIX wikibase: <http://wikiba.se/ontology#>
+#defaultView:Table
+
 PREFIX target: <http://www.wikidata.org/entity/Q45340488>
 
-SELECT ?score 
-?author ?authorLabel (CONCAT("/author/", SUBSTR(STR(?author), 32)) AS ?authorUrl)
-?example_work ?example_workLabel (CONCAT("/work/", SUBSTR(STR(?example_work), 32)) AS ?example_workUrl)
+SELECT
+  ?count
+  ?author ?authorLabel ?authorDescription (CONCAT("/author/", SUBSTR(STR(?author), 32)) AS ?authorUrl)
+  (COALESCE(?orcid_, CONCAT("orcid-search/search/?searchQuery=", ?authorLabel)) AS ?orcid) 
 WITH {
   SELECT
-    (SUM(?score_) AS ?score)
     ?author
-    (SAMPLE(?work) AS ?example_work)
+    (count(?work) as ?count)
   WHERE {
-    { 
-      ?author wdt:P101/wdt:P279* target: .
-      BIND(20 AS ?score_)
-    }
+    { ?work wdt:P921/wdt:P31*/wdt:P279* target: . }
     UNION
-    {
-      SELECT (3 AS ?score_) ?author ?work WHERE {
-        ?work wdt:P50 ?author ;
-              wdt:P921/wdt:P279* target: .
-      }
-    }
+    { ?work wdt:P921/wdt:P361+ target: . }
     UNION
-    {
-      SELECT (1 AS ?score_) ?author ?work WHERE {
-        ?work wdt:P50 ?author .
-        ?citing_work wdt:P2860 ?work .
-        ?citing_work wdt:P921/wdt:P279* target: .
-      }
-    }
+    { ?work wdt:P921/wdt:P1269+ target: . }
+    ?work wdt:P50 ?author .
   }
   GROUP BY ?author
-  ORDER BY DESC(?score)
+  ORDER BY DESC(?count)
   LIMIT 200
-} AS %results 
+} AS %result
 WHERE {
-  INCLUDE %results
-  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en,da,de,es,jp,no,ru,sv,zh". }
+  INCLUDE %result
+          
+  # Include optional ORCID iD
+  OPTIONAL { ?author wdt:P496 ?orcid_ . }
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" . } 
 }
-ORDER BY DESC(?score)
+ORDER BY DESC(?count)
 ''';
   scholia:aspect scholiaAspect:Topic ;
+  scholia:defaultView scholiaView:Table ;
   rdfs:comment "Topic aspect: [no title]"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
-  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/topic_author-scores.sparql> ;
+  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/topic_authors.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

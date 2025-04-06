@@ -16,53 +16,60 @@
 q:142 a sh:SPARQLExecutable,
   sh:SPARQLSelectExecutable;
   sh:prefixes _:sparql_examples_prefixes ;
-  sh:select '''PREFIX bd: <http://www.bigdata.com/rdf#>
-PREFIX p: <http://www.wikidata.org/prop/>
+  sh:select '''PREFIX p: <http://www.wikidata.org/prop/>
 PREFIX prov: <http://www.w3.org/ns/prov#>
 PREFIX pr: <http://www.wikidata.org/prop/reference/>
 PREFIX wdt: <http://www.wikidata.org/prop/direct/>
+PREFIX wd: <http://wikidata.org/entity/>
 PREFIX wikibase: <http://wikiba.se/ontology#>
-# Prolific authors for a specific project
+#defaultView:BarChart
+
 PREFIX target: <http://www.wikidata.org/entity/Q27990087>
 
-SELECT ?count ?author ?authorLabel ?orcid ?example_work ?example_workLabel
-WITH {
-  SELECT DISTINCT ?work WHERE {
-    {
-      ?work wdt:P921 / (wdt:P527+ | wdt:P1269+ | (wdt:P31* / wdt:P279*) ) target: .
-    } UNION { ?work wdt:P859/(wdt:P1344|^wdt:P710)* target: .
-    } UNION {
-      target: ?propp ?statement .
-      ?statement a wikibase:BestRank ;
-                 prov:wasDerivedFrom/pr:P248 ?work .
+select ?year (count(?work) as ?number_of_publications) where {
+  {
+    select (str(?year_) as ?year) (0 as ?pages) where {
+      # default values = 0
+      ?year_item wdt:P31 wd:Q577 . 
+      ?year_item wdt:P585 ?date .
+      bind(year(?date) as ?year_)
+      {
+        select (min(?year_) as ?earliest_year) where {
+          { ?work wdt:P921/wdt:P31*/wdt:P279* target: . }
+          union { ?work wdt:P921/wdt:P527+ target: . }
+          union { ?work wdt:P921/wdt:P1269+ target: . }
+          union { ?work wdt:P859/wdt:P1344* target: . }
+          union { target: ?propp ?statement .
+                  ?statement a wikibase:BestRank ;
+                             prov:wasDerivedFrom/pr:P248 ?work . }
+          ?work wdt:P577 ?publication_date . 
+          bind(year(?publication_date) as ?year_)
+        }
+      }
+      bind(year(now()) as ?next_year)
+      filter (?year_ >= ?earliest_year && ?year_ <= ?next_year)
     }
   }
-} AS %works
-WITH {
-  SELECT
-    ?author
-    (COUNT(?work) AS ?count)
-    (SAMPLE(?work) AS ?example_work)
-  WHERE {
-    INCLUDE %works
-    ?work wdt:P50 ?author .
+  union {
+    select ?work (min(?years) as ?year) where {
+      { ?work wdt:P921/wdt:P31*/wdt:P279* target: . }
+      union { ?work wdt:P921/wdt:P527+ target: . }
+      union { ?work wdt:P921/wdt:P1269+ target: . }
+      union { ?work wdt:P859/wdt:P1344* target: . }
+      union { target: ?propp ?statement .
+              ?statement a wikibase:BestRank ;
+                         prov:wasDerivedFrom/pr:P248 ?work . }
+      ?work wdt:P577 ?dates .
+      bind(str(year(?dates)) as ?years) .
+    }
+    group by ?work 
   }
-  GROUP BY ?author
-} AS %result
-WHERE {
-  INCLUDE %result
-          
-  # Include optional ORCID iD
-  OPTIONAL { ?author wdt:P496 ?orcid . }
-  
-  # Label the results
-  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" . }
 }
-ORDER BY DESC(?count)
-LIMIT 50''';
+group by ?year 
+order by ?year''';
   scholia:aspect scholiaAspect:Project ;
+  scholia:defaultView scholiaView:BarChart ;
   rdfs:comment "Project aspect: [no title]"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
-  spex:federatesWith <http://wikiba.se/ontology#label> ;
-  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/project_prolific-authors.sparql> ;
+  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/project_publications-per-year.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

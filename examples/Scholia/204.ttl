@@ -16,54 +16,55 @@
 q:204 a sh:SPARQLExecutable,
   sh:SPARQLSelectExecutable;
   sh:prefixes _:sparql_examples_prefixes ;
-  sh:select '''PREFIX p: <http://www.wikidata.org/prop/>
+  sh:select '''PREFIX bd: <http://www.bigdata.com/rdf#>
+PREFIX p: <http://www.wikidata.org/prop/>
 PREFIX pq: <http://www.wikidata.org/prop/qualifier/>
-PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX ps: <http://www.wikidata.org/prop/statement/>
 PREFIX wdt: <http://www.wikidata.org/prop/direct/>
 PREFIX wd: <http://wikidata.org/entity/>
-#defaultView:BarChart
-
+PREFIX wikibase: <http://wikiba.se/ontology#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 PREFIX target: <http://www.wikidata.org/entity/Q6294930>
 
-# Inspired from LEGOLAS - http://abel.lis.illinois.edu/legolas/
-# Shubhanshu Mishra, Vetle Torvik
-select ?year (count(?work) as ?number_of_publications) ?intention where {
-  {
-    select (str(?year_) as ?year) (0 as ?pages) ("_" as ?intention) where {
-      # default values = 0
-      ?year_item wdt:P31 wd:Q577 . 
-      ?year_item wdt:P585 ?date .
-      bind(year(?date) as ?year_)
-      {
-        select (min(?year_) as ?earliest_year)  (max(?year_) as ?latest_year) where {
-          VALUES ?JOURNAL { target: }
-          ?work wdt:P1433 ?JOURNAL .
-          ?work wdt:P577 ?publication_date . 
-          bind(year(?publication_date) as ?year_)
-        }
-      }
-      bind(year(now())+1 as ?next_year)
-      filter (?year_ >= ?earliest_year && ?year_ <= ?latest_year)
-    }
+# title: Articles in a specific venue citing retracted articles
+SELECT DISTINCT
+  ?retracted_work ?retracted_workLabel
+  ?date
+  ?citing_work ?citing_workLabel
+WITH {
+  # Find retracted papers indicated by instance of retracted paper, 
+  # by retraction notice property or by significant event
+  SELECT DISTINCT ?retracted_work WHERE {
+    # articles marked as "retracted"
+    { ?retracted_work wdt:P31 wd:Q45182324 }
+    UNION
+    # articles linked to a retraction notice
+    { ?retracted_work wdt:P5824 [] }
+    UNION
+    # articles with a 'retraction' event
+    { ?retracted_work wdt:P793 wd:Q45203135 }
   }
-  union {
-    select ?work ?intention (min(?years) as ?year) where {
-      VALUES ?JOURNAL { target: }
-      ?work wdt:P577 ?dates ;
-            p:P2860 / pq:P3712 / rdfs:label ?intention ;
-            wdt:P1433 ?JOURNAL .
-      bind(str(year(?dates)) as ?years) .
-      FILTER (LANG(?intention) = "en")
-    }
-    group by ?work ?intention
+} AS %retracted_works
+WHERE {
+  INCLUDE %retracted_works
+  ?citing_work wdt:P2860 ?retracted_work ; wdt:P1433 target: .
+  OPTIONAL {
+    ?retracted_work wdt:P5824 ?retraction .
+    ?retraction wdt:P577 ?retraction_datetime
+    FILTER ( ?citing_work != ?retraction )
   }
+  MINUS { ?citing_work wdt:P31 wd:Q1348305 }
+  OPTIONAL {
+    ?retracted_work p:P793 [ ps:P793 wd:Q45203135 ; pq:P585 ?keyevent_datetime ]
+  }
+  BIND(COALESCE(xsd:date(COALESCE(?retraction_datetime, ?keyevent_datetime)), "Unknown date") AS ?date)
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en". }
 }
-group by ?year ?intention
-order by ?year
+ORDER BY DESC(?date)
 ''';
   scholia:aspect scholiaAspect:Venue ;
-  scholia:defaultView scholiaView:BarChart ;
-  rdfs:comment "Venue aspect: [no title]"@en ;
+  rdfs:comment "Venue aspect: Articles in a specific venue citing retracted articles"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
-  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/venue_articles-by-intention.sparql> ;
+  spex:federatesWith <http://wikiba.se/ontology#label> ;
+  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/venue_articles-citing-retracted-articles.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

@@ -21,50 +21,33 @@ PREFIX p: <http://www.wikidata.org/prop/>
 PREFIX pq: <http://www.wikidata.org/prop/qualifier/>
 PREFIX ps: <http://www.wikidata.org/prop/statement/>
 PREFIX wdt: <http://www.wikidata.org/prop/direct/>
-PREFIX wd: <http://wikidata.org/entity/>
 PREFIX wikibase: <http://wikiba.se/ontology#>
-PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 PREFIX target: <http://www.wikidata.org/entity/Q6294930>
 
-# title: Articles in a specific venue citing retracted articles
+# title: Author awards for a specific venue
 SELECT DISTINCT
-  ?retracted_work ?retracted_workLabel
-  ?date
-  ?citing_work ?citing_workLabel
-WITH {
-  # Find retracted papers indicated by instance of retracted paper, 
-  # by retraction notice property or by significant event
-  SELECT DISTINCT ?retracted_work WHERE {
-    # articles marked as "retracted"
-    { ?retracted_work wdt:P31 wd:Q45182324 }
-    UNION
-    # articles linked to a retraction notice
-    { ?retracted_work wdt:P5824 [] }
-    UNION
-    # articles with a 'retraction' event
-    { ?retracted_work wdt:P793 wd:Q45203135 }
-  }
-} AS %retracted_works
+  ?year 
+  ?author ?authorLabel
+  ?award ?awardLabel ?awardDescription
 WHERE {
-  INCLUDE %retracted_works
-  ?citing_work wdt:P2860 ?retracted_work ; wdt:P1433 target: .
+  [] wdt:P1433 target: ;
+     wdt:P50 ?author .
+  ?author p:P166 ?award_statement .
+  ?award_statement ps:P166 ?award .
   OPTIONAL {
-    ?retracted_work wdt:P5824 ?retraction .
-    ?retraction wdt:P577 ?retraction_datetime
-    FILTER ( ?citing_work != ?retraction )
+    { ?award_statement pq:P585 ?time }
+    UNION
+    { ?award_statement pq:P580 ?time }
+    BIND(YEAR(?time) AS ?year)
   }
-  MINUS { ?citing_work wdt:P31 wd:Q1348305 }
-  OPTIONAL {
-    ?retracted_work p:P793 [ ps:P793 wd:Q45203135 ; pq:P585 ?keyevent_datetime ]
-  }
-  BIND(COALESCE(xsd:date(COALESCE(?retraction_datetime, ?keyevent_datetime)), "Unknown date") AS ?date)
-  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en". }
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" . }  
 }
-ORDER BY DESC(?date)
+ORDER BY DESC(?year)
+LIMIT 500
 ''';
   scholia:aspect scholiaAspect:Venue ;
-  rdfs:comment "Venue aspect: Articles in a specific venue citing retracted articles"@en ;
+  rdfs:comment "Venue aspect: Author awards for a specific venue"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
-  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/venue_articles-citing-retracted-articles.sparql> ;
+  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/venue_author-awards.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

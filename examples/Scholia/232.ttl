@@ -22,7 +22,7 @@ PREFIX wd: <http://wikidata.org/entity/>
 PREFIX wikibase: <http://wikiba.se/ontology#>
 SELECT ?type ?typeLabel ?count WITH {
     SELECT DISTINCT ?type (COUNT(?item) AS ?count) WHERE {
-    ?item wdt:P5008 wd:Q60687720;
+    ?item wdt:P6104 wd:Q60687720;
             (wdt:P31|wdt:P279) ?type.
     }
     GROUP BY ?type ?count
@@ -37,5 +37,5 @@ ORDER BY DESC (?count)''';
   rdfs:comment "Wikiproject aspect: [no title]"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
-  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/wikiproject_focus.sparql> ;
+  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/wikiproject_maintained.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

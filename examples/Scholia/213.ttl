@@ -19,42 +19,56 @@ q:213 a sh:SPARQLExecutable,
   sh:select '''PREFIX bd: <http://www.bigdata.com/rdf#>
 PREFIX p: <http://www.wikidata.org/prop/>
 PREFIX wdt: <http://www.wikidata.org/prop/direct/>
+PREFIX wd: <http://wikidata.org/entity/>
 PREFIX wikibase: <http://wikiba.se/ontology#>
-# title: Venues citing articles from this specific journal
+# title: Co-author graph for a specific venue
 
 PREFIX target: <http://www.wikidata.org/entity/Q6294930>
 
-#defaultView:Table
-SELECT
-  ?count
-  ?short_name
-  ?citing_journal ?citing_journalLabel 
+#defaultView:Graph
+SELECT ?author1 ?author1Label ?rgb ?author2 ?author2Label
 WITH {
-  SELECT
-    (COUNT(?citing_work) AS ?count)
-    ?citing_journal
-    (SAMPLE(?short_name_) AS ?short_name)
-  WHERE {
+  # Find works published in the given venue
+  SELECT ?work WHERE {
     ?work wdt:P1433 target: .
-    ?citing_work wdt:P2860 ?work .
-    ?citing_work wdt:P1433 ?citing_journal .
-    OPTIONAL { ?citing_journal wdt:P1813 ?short_name_ . }
   }
-  GROUP BY ?citing_journal
-  ORDER BY DESC(?count)
-  LIMIT 1000
-} AS %result
+} AS %works
+WITH {
+  # Limit the number of authors
+  SELECT (COUNT(?work) AS ?count1) ?author1 WHERE {
+    INCLUDE %works
+    ?work wdt:P50 ?author1 .
+  }
+  GROUP BY ?author1
+  ORDER BY DESC(?count1)
+  LIMIT 15
+} AS %authors1
+WITH {
+  # Limit the number of coauthors
+  SELECT DISTINCT ?author2 ?author1  (COUNT(?work) AS ?count2)  WHERE {
+    INCLUDE %works
+    INCLUDE %authors1
+    ?work wdt:P50 ?author1 , ?author2 .
+    FILTER (?author1 != ?author2) 
+  }
+  GROUP BY ?author2 ?author1 
+  ORDER BY DESC(?count2)
+  LIMIT 150
+} AS %authors2
 WHERE {
-  INCLUDE %result
+#  INCLUDE %authors1
+  INCLUDE %authors2
+  OPTIONAL { ?author1 wdt:P21 ?gender1 . }
+  BIND( IF(?gender1 = wd:Q6581097, "3182BD", "E6550D") AS ?rgb)
   SERVICE wikibase:label {
-    bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" . } 
+    bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" .
+  }
 }
-ORDER BY DESC(?count)
 ''';
   scholia:aspect scholiaAspect:Venue ;
-  rdfs:comment "Venue aspect: Venues citing articles from this specific journal"@en ;
-  scholia:defaultView scholiaView:Table ;
+  rdfs:comment "Venue aspect: Co-author graph for a specific venue"@en ;
+  scholia:defaultView scholiaView:Graph ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
-  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/venue_citing-venues.sparql> ;
+  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/venue_co-author-graph.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

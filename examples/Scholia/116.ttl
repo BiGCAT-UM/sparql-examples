@@ -18,48 +18,55 @@ q:116 a sh:SPARQLExecutable,
   sh:prefixes _:sparql_examples_prefixes ;
   sh:select '''PREFIX bd: <http://www.bigdata.com/rdf#>
 PREFIX p: <http://www.wikidata.org/prop/>
-PREFIX pq: <http://www.wikidata.org/prop/qualifier/>
-PREFIX ps: <http://www.wikidata.org/prop/statement/>
 PREFIX wdt: <http://www.wikidata.org/prop/direct/>
+PREFIX wd: <http://wikidata.org/entity/>
 PREFIX wikibase: <http://wikiba.se/ontology#>
-#defaultView:BubbleChart
+#defaultView:BarChart
 
 PREFIX target: <http://www.wikidata.org/entity/Q104785223>
 
-# Bubble chart of most cited works of first author associated
-# with an organization
+# Pages per year bar chart of an organization
 SELECT
-  ?count ?work ?workLabel
+  ?year
+  (SUM(?pages_per_author) AS ?number_of_pages)
+  ?researcher ?researcherLabel
 WITH {
-  # Find researchers associated with the organization and count
-  # the number of citations.
-  SELECT
-    (COUNT(DISTINCT ?citing_work) AS ?count)
-    ?work
+  SELECT 
+    DISTINCT ?researcher
   WHERE {
     ?researcher wdt:P108 | wdt:P463 | (wdt:P1416 / wdt:P361*) target: .
-    ?work p:P50 ?researcher_statement .
-    ?researcher_statement ps:P50 ?researcher .
-    ?researcher_statement pq:P1545 "1" .
-    ?citing_work wdt:P2860 ?work .
   }
-  GROUP BY ?work                   
-  ORDER BY DESC(?count)
-  LIMIT 20
-} AS %works
+} AS %researchers
+WITH {
+    SELECT
+      ?researcher ?work ?year
+      (SAMPLE(?pages) / COUNT(?researcher_of_paper) AS ?pages_per_author)
+    WHERE {
+      INCLUDE %researchers
+      
+      ?work (wdt:P50 | wdt:P2093) ?researcher_of_paper .
+      
+      # Disabled to only look on scholarly articles
+      # ?work wdt:P31 wd:Q13442814 .
+      
+      ?work wdt:P50 ?researcher ;
+            wdt:P1104 ?pages ;
+            wdt:P577 ?date . 
+      BIND(STR(YEAR(?date)) AS ?year) 
+    } 
+    GROUP BY ?work ?researcher ?year
+} AS %results
 WHERE {
-  # Label the works
-  INCLUDE %works
-  SERVICE wikibase:label {
-    bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" .
-  }
+  INCLUDE %results
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en". }
 }
-ORDER BY DESC(?count)
+GROUP BY ?year ?researcher ?researcherLabel
+ORDER BY ?year
 ''';
   scholia:aspect scholiaAspect:Organization ;
-  scholia:defaultView scholiaView:BubbleChart ;
+  scholia:defaultView scholiaView:BarChart ;
   rdfs:comment "Organization aspect: [no title]"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
-  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/organization_most-cited-papers.sparql> ;
+  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/organization_page-production.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

@@ -23,12 +23,12 @@ PREFIX wikibase: <http://wikiba.se/ontology#>
 
 PREFIX target: <http://www.wikidata.org/prop/direct/{{ p }}>
 
-SELECT ?count ?s ?sLabel 
+SELECT ?count ?o ?oLabel 
 WITH {
-  SELECT (COUNT(?o) AS ?count) ?s WHERE {
+  SELECT (COUNT(?s) AS ?count) ?o WHERE {
     ?s target: ?o .
   }
-  GROUP BY ?s
+  GROUP BY ?o
   ORDER BY DESC(?count)
   LIMIT 100
 } AS %result
@@ -43,5 +43,5 @@ ORDER BY DESC(?count)
   rdfs:comment "Property aspect: [no title]"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
-  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/property_item-counts.sparql> ;
+  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/property_property-value-counts.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

@@ -20,56 +20,31 @@ q:224 a sh:SPARQLExecutable,
 PREFIX p: <http://www.wikidata.org/prop/>
 PREFIX wdt: <http://www.wikidata.org/prop/direct/>
 PREFIX wikibase: <http://wikiba.se/ontology#>
-#defaultView:AreaChart
+# title: Count of topics in published work in specified venue
 
 PREFIX target: <http://www.wikidata.org/entity/Q6294930>
 
-SELECT
-  ?year
-  ?works
-  ?topic ?topicLabel
+SELECT ?count ?topic ?topicLabel ?example_work ?example_workLabel
 WITH {
   SELECT 
-    ?work
+    (COUNT(?work) as ?count)
+    ?topic
+    (SAMPLE(?work) AS ?example_work)
   WHERE {
     ?work wdt:P1433 target: .
-  }
-} AS %works
-WITH {
-  SELECT
-    (COUNT(?work) AS ?count)
-    ?topic
-  WHERE {
-    INCLUDE %works
     ?work wdt:P921 ?topic .
   }
   GROUP BY ?topic
-  ORDER BY DESC(?count)
-  LIMIT 5
-} AS %topics
-WITH {
-  SELECT
-    ?year 
-    (COUNT(?work) AS ?works)
-    ?topic
-  WHERE {
-    INCLUDE %works
-    INCLUDE %topics
-    ?work wdt:P921 ?topic ;
-          wdt:P577 ?publication_datetime .
-    BIND(STR(YEAR(?publication_datetime)) AS ?year)
-  }
-  GROUP BY ?year ?topic
 } AS %result
 WHERE {
   INCLUDE %result
-  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en". }
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" . } 
 }
-ORDER BY ?year''';
+ORDER BY DESC(?count)
+''';
   scholia:aspect scholiaAspect:Venue ;
-  scholia:defaultView scholiaView:AreaChart ;
-  rdfs:comment "Venue aspect: [no title]"@en ;
+  rdfs:comment "Venue aspect: Count of topics in published work in specified venue"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
-  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/venue_top-topics-through-time.sparql> ;
+  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/venue_topics.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

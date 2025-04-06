@@ -21,30 +21,22 @@ PREFIX p: <http://www.wikidata.org/prop/>
 PREFIX wdt: <http://www.wikidata.org/prop/direct/>
 PREFIX wd: <http://wikidata.org/entity/>
 PREFIX wikibase: <http://wikiba.se/ontology#>
-PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 PREFIX target: <http://www.wikidata.org/entity/Q124262264>
 
-SELECT ?publication_date ?episode ?episodeLabel
-  (CONCAT("/podcast-episode/", SUBSTR(STR(?episode), 32)) AS ?episodeUrl)
-WITH {
-  SELECT DISTINCT ?episode (MIN(?publication_date_) AS ?publication_date) WHERE {
-    ?episode wdt:P31 wd:Q61855877 ; wdt:P179 target: .
-    OPTIONAL {
-      ?episode wdt:P577 ?publication_datetime .
-      BIND(xsd:date(?publication_datetime) AS ?publication_date_)
-    }
-  } GROUP BY ?episode
-    ORDER BY DESC(?publication_date)
-    LIMIT 50
-} AS %EPISODES WHERE {
-  INCLUDE %EPISODES
+SELECT DISTINCT ?season ?seasonLabel
+  (CONCAT("/podcast-season/", SUBSTR(STR(?season), 32)) AS ?seasonUrl)
+  (MAX(?count) AS ?episodeCount)
+WHERE {
+  ?season wdt:P31 wd:Q69154911 ; wdt:P179 target: .
+  OPTIONAL {
+    ?season wdt:P1113 ?count .
+  }
   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en". }
-} GROUP BY ?publication_date ?episode ?episodeLabel
-ORDER BY DESC(?publication_date)
+} GROUP BY ?season ?seasonLabel ?seasonUrl
 ''';
   scholia:aspect scholiaAspect:Podcast ;
   rdfs:comment "Podcast aspect: [no title]"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
-  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/podcast_recent-episodes.sparql> ;
+  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/podcast_seasons.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

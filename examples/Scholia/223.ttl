@@ -19,26 +19,57 @@ q:223 a sh:SPARQLExecutable,
   sh:select '''PREFIX bd: <http://www.bigdata.com/rdf#>
 PREFIX p: <http://www.wikidata.org/prop/>
 PREFIX wdt: <http://www.wikidata.org/prop/direct/>
-PREFIX wd: <http://wikidata.org/entity/>
 PREFIX wikibase: <http://wikiba.se/ontology#>
+#defaultView:AreaChart
+
 PREFIX target: <http://www.wikidata.org/entity/Q6294930>
 
-SELECT DISTINCT ?work ?workLabel ?doi (COUNT(DISTINCT ?citing) AS ?citations) WHERE {
-  { ?work wdt:P31 wd:Q45182324 . }
-  UNION
-  { ?work wdt:P793 wd:Q7316896 . }
-  UNION
-  { ?work wdt:P5824 [] . }
-  OPTIONAL { ?citing wdt:P2860 ?work . }
-  ?work wdt:P1433 target: ; wdt:P356 ?doi .
+SELECT
+  ?year
+  ?works
+  ?topic ?topicLabel
+WITH {
+  SELECT 
+    ?work
+  WHERE {
+    ?work wdt:P1433 target: .
+  }
+} AS %works
+WITH {
+  SELECT
+    (COUNT(?work) AS ?count)
+    ?topic
+  WHERE {
+    INCLUDE %works
+    ?work wdt:P921 ?topic .
+  }
+  GROUP BY ?topic
+  ORDER BY DESC(?count)
+  LIMIT 5
+} AS %topics
+WITH {
+  SELECT
+    ?year 
+    (COUNT(?work) AS ?works)
+    ?topic
+  WHERE {
+    INCLUDE %works
+    INCLUDE %topics
+    ?work wdt:P921 ?topic ;
+          wdt:P577 ?publication_datetime .
+    BIND(STR(YEAR(?publication_datetime)) AS ?year)
+  }
+  GROUP BY ?year ?topic
+} AS %result
+WHERE {
+  INCLUDE %result
   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en". }
-} GROUP BY ?work ?workLabel ?doi
-  ORDER BY DESC(?citations)
-  LIMIT 100
-''';
+}
+ORDER BY ?year''';
   scholia:aspect scholiaAspect:Venue ;
+  scholia:defaultView scholiaView:AreaChart ;
   rdfs:comment "Venue aspect: [no title]"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
-  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/venue_retractions.sparql> ;
+  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/venue_top-topics-through-time.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

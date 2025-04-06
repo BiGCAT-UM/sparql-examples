@@ -21,42 +21,30 @@ PREFIX p: <http://www.wikidata.org/prop/>
 PREFIX wdt: <http://www.wikidata.org/prop/direct/>
 PREFIX wd: <http://wikidata.org/entity/>
 PREFIX wikibase: <http://wikiba.se/ontology#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 PREFIX target: <http://www.wikidata.org/entity/Q124262264>
 
-# title: listings for this podcast
-SELECT
-  ?Identifier ?IdentifierLabel
-  ?value (SAMPLE(?idUrls) as ?valueUrl)
-  ?IdentifierDescription
+SELECT ?publication_date ?episode ?episodeLabel
+  (CONCAT("/podcast-episode/", SUBSTR(STR(?episode), 32)) AS ?episodeUrl)
 WITH {
-  SELECT ?Identifier ?Value ?formatterurl WHERE {
-    target: ?IDdir ?Value .
-    ?Identifier wikibase:directClaim ?IDdir ;
-            wdt:P31 wd:Q84612171 .
-    OPTIONAL { 
-      ?Identifier wdt:P1630 ?formatterurl .
+  SELECT DISTINCT ?episode (MIN(?publication_date_) AS ?publication_date) WHERE {
+    ?episode wdt:P31 wd:Q61855877 ; wdt:P179 target: .
+    OPTIONAL {
+      ?episode wdt:P577 ?publication_datetime .
+      BIND(xsd:date(?publication_datetime) AS ?publication_date_)
     }
-  } LIMIT 500
-} AS %RESULTS {
-  { SELECT * WHERE {
-      INCLUDE %RESULTS
-      BIND(IRI(REPLACE(?formatterurl, '\\\\$1', ENCODE_FOR_URI(str(?Value)))) AS ?idUrls).
-    }
-  } UNION {
-    SELECT * WHERE {
-      INCLUDE %RESULTS
-      BIND(IRI(REPLACE(?formatterurl, '\\\\$1', str(?Value))) AS ?idUrls).
-    }
-  }
-  BIND(CONCAT(?Value, " ↗") AS ?value)
+  } GROUP BY ?episode
+    ORDER BY DESC(?publication_date)
+    LIMIT 50
+} AS %EPISODES WHERE {
+  INCLUDE %EPISODES
   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en". }
-}
-GROUP BY ?Identifier ?IdentifierLabel ?IdentifierDescription ?value
-ORDER BY ASC(?IdentifierLabel)
+} GROUP BY ?publication_date ?episode ?episodeLabel
+ORDER BY DESC(?publication_date)
 ''';
   scholia:aspect scholiaAspect:Podcast ;
-  rdfs:comment "Podcast aspect: listings for this podcast"@en ;
+  rdfs:comment "Podcast aspect: [no title]"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
-  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/podcast_listings.sparql> ;
+  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/podcast_recent-episodes.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

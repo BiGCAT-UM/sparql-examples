@@ -17,50 +17,25 @@ q:231 a sh:SPARQLExecutable,
   sh:SPARQLSelectExecutable;
   sh:prefixes _:sparql_examples_prefixes ;
   sh:select '''PREFIX bd: <http://www.bigdata.com/rdf#>
-PREFIX p: <http://www.wikidata.org/prop/>
-PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX wdt: <http://www.wikidata.org/prop/direct/>
+PREFIX wd: <http://wikidata.org/entity/>
 PREFIX wikibase: <http://wikiba.se/ontology#>
-PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
-PREFIX target: <http://www.wikidata.org/entity/Q60687720>
-
-SELECT ?date ?work ?workLabel (CONCAT("/work/", SUBSTR(STR(?work), 32)) AS ?workUrl)
-?topicsUrl ?topics
-WITH {
-  SELECT DISTINCT ?work WHERE {
-    { ?work wdt:P6104 target: .}
-      union 
-      { ?work wdt:P5008 target: .}
-  }
-} AS %works
-WITH {
-  SELECT (MAX(?dates) as ?datetime) ?work (GROUP_CONCAT(DISTINCT ?topic_label; separator=" // ") AS ?topics) 
-                                    (CONCAT("../topics/", GROUP_CONCAT(DISTINCT SUBSTR(STR(?topic), 32); separator=",")) AS ?topicsUrl) 
-                                    WHERE {
-    INCLUDE %works
-    ?work wdt:P921 ?topic . 
-    ?work wdt:P577 ?dates . 
-	FILTER (!isBLANK(?dates)) .
-    ?topic rdfs:label ?topic_label .  FILTER (lang(?topic_label) = 'en')
-  }
-  GROUP BY ?work
+SELECT ?type ?typeLabel ?count WITH {
+    SELECT DISTINCT ?type (COUNT(?item) AS ?count) WHERE {
+    ?item wdt:P5008 wd:Q60687720;
+            (wdt:P31|wdt:P279) ?type.
+    }
+    GROUP BY ?type ?count
+    ORDER BY DESC (?count)
 } AS %result
 WHERE {
   INCLUDE %result
-
-  # There is a problem with BC dates
-  # BIND(xsd:date(?datetime) AS ?date)
-  BIND(REPLACE(STR(?datetime), 'T.*', '') AS ?date)
-    
-  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" . }
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en,da,de,es,fr,it,sv,uk,zh". }
 }
-GROUP BY ?date ?work ?workLabel ?topicsUrl ?topics
-ORDER BY ASC(?date)
-LIMIT 500
-''';
+ORDER BY DESC (?count)''';
   scholia:aspect scholiaAspect:Wikiproject ;
   rdfs:comment "Wikiproject aspect: [no title]"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
-  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/wikiproject_earliest-published-works.sparql> ;
+  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/wikiproject_focus.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

@@ -18,42 +18,34 @@ q:159 a sh:SPARQLExecutable,
   sh:prefixes _:sparql_examples_prefixes ;
   sh:select '''PREFIX bd: <http://www.bigdata.com/rdf#>
 PREFIX p: <http://www.wikidata.org/prop/>
-PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX wdt: <http://www.wikidata.org/prop/direct/>
 PREFIX wikibase: <http://wikiba.se/ontology#>
 PREFIX target: <http://www.wikidata.org/entity/Q73820>
 
+# Count the number of citations for each journal published by a specified publisher
 SELECT
-  (SAMPLE(?number_of_works_) AS ?number_of_works)
-  (MAX(?bfi) AS ?BFI)
-  ?journal ?journalLabel
-  (GROUP_CONCAT(?themes_labels; separator=", ") as ?theme)
+  ?number_of_citations
+  ?work ?workLabel ?journal ?journalLabel 
 WITH {
-  SELECT 
-    ?journal
-    (COUNT(?work) AS ?number_of_works_)
-  WHERE {
+  SELECT ?work ?journal (COUNT(?citing_work) AS ?number_of_citations) WHERE {
     ?journal wdt:P123 target: .
-    OPTIONAL { ?work wdt:P1433 ?journal . }
+    ?work wdt:P1433 ?journal .
+    ?citing_work wdt:P2860 ?work
   }
-  GROUP BY ?journal 
-} AS %journals
+  GROUP BY ?work ?journal
+  ORDER BY DESC(?number_of_citations)
+  LIMIT 500  
+} AS %result
 WHERE {
-  INCLUDE %journals
-  OPTIONAL {
-    ?journal wdt:P921 ?themes .
-    ?themes rdfs:label ?themes_labels .
-    FILTER (LANG(?themes_labels) = 'en')
-  }
-  OPTIONAL { ?journal wdt:P1240 ?bfi . }
+  INCLUDE %result
+  # Label the result
   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" . } 
-} 
-GROUP BY ?journal ?journalLabel
-ORDER BY DESC(?number_of_works)
+}
+ORDER BY DESC(?number_of_citations)
 ''';
   scholia:aspect scholiaAspect:Publisher ;
   rdfs:comment "Publisher aspect: [no title]"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
-  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/publisher_journals.sparql> ;
+  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/publisher_most-cited.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

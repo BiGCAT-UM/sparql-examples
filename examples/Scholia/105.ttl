@@ -16,127 +16,37 @@
 q:105 a sh:SPARQLExecutable,
   sh:SPARQLSelectExecutable;
   sh:prefixes _:sparql_examples_prefixes ;
-  sh:select '''PREFIX p: <http://www.wikidata.org/prop/>
-PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+  sh:select '''PREFIX bd: <http://www.bigdata.com/rdf#>
+PREFIX p: <http://www.wikidata.org/prop/>
 PREFIX wdt: <http://www.wikidata.org/prop/direct/>
+PREFIX wikibase: <http://wikiba.se/ontology#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 PREFIX target: <http://www.wikidata.org/entity/Q116446479>
 
-SELECT DISTINCT ?description ?value ?valueUrl
+SELECT
+  ?publication_date
+  ?work ?workLabel
+WITH{
+  SELECT
+    ?publication_datetime
+    ?work
+  WHERE {
+    ?work wdt:P4510 / wdt:P279* target: ;
+          wdt:P577 ?publication_datetime .
+  }
+  ORDER BY DESC(?publication_datetime)
+  LIMIT 500
+} AS %result
 WHERE {
-  BIND(target: AS ?ontology)
-  {
-    BIND(1 AS ?order)
-    BIND("Website" AS ?description)
-    ?ontology wdt:P856 ?value .
-    BIND(?value AS ?valueUrl)
-  }
-  UNION
-  {
-    SELECT
-      (2 AS ?order)
-      ("Maintainer(s)" AS ?description)
-      (GROUP_CONCAT(?value_; separator=", ") AS ?value)
-      (CONCAT("../authors/", GROUP_CONCAT(?q; separator=",")) AS ?valueUrl)
-    {
-      BIND(1 AS ?dummy)
-      target: wdt:P126 ?iri .
-      BIND(SUBSTR(STR(?iri), 32) AS ?q)
-      ?iri rdfs:label ?value_string .
-      FILTER (LANG(?value_string) = 'en')
-      BIND(COALESCE(?value_string, ?q) AS ?value_)
-    }
-    GROUP BY ?dummy
-  }
-  UNION
-  {
-    SELECT
-      (3 AS ?order)
-      ("Contributors" AS ?description)
-      (GROUP_CONCAT(?value_; separator=", ") AS ?value)
-      (CONCAT("../authors/", GROUP_CONCAT(?q; separator=",")) AS ?valueUrl)
-    {
-      BIND(1 AS ?dummy)
-      target: wdt:P50 | wdt:P178 | wdt:P767 ?iri .
-      BIND(SUBSTR(STR(?iri), 32) AS ?q) 
-      ?iri rdfs:label ?value_string . 
-      FILTER (LANG(?value_string) = 'en')
-      BIND(COALESCE(?value_string, ?q) AS ?value_)
-    }
-    GROUP BY ?dummy
-  }
-  UNION
-  {
-    SELECT
-      (4 AS ?order)
-      ("Part of" AS ?description)
-      (GROUP_CONCAT(?value_; separator=", ") AS ?value)
-      (CONCAT("../topic/", GROUP_CONCAT(?q; separator=",")) AS ?valueUrl)
-    {
-      BIND(1 AS ?dummy)
-      target: wdt:P361 ?iri .
-      BIND(SUBSTR(STR(?iri), 32) AS ?q) 
-      ?iri rdfs:label ?value_string . 
-      FILTER (LANG(?value_string) = 'en')
-      BIND(COALESCE(?value_string, ?q) AS ?value_)
-    }
-    GROUP BY ?dummy
-  }
-  UNION
-  {
-    SELECT
-      (5 AS ?order)
-      ("License" AS ?description)
-      (GROUP_CONCAT(?value_; separator=", ") AS ?value)
-      (CONCAT("../topic/", GROUP_CONCAT(?q; separator=",")) AS ?valueUrl)
-    {
-      BIND(1 AS ?dummy)
-      target: wdt:P275 ?iri .
-      BIND(SUBSTR(STR(?iri), 32) AS ?q)
-      ?iri rdfs:label ?value_string .
-      FILTER (LANG(?value_string) = 'en')
-      BIND(COALESCE(?value_string, ?q) AS ?value_)
-    }
-    GROUP BY ?dummy
-  }
-  UNION
-  {
-    SELECT
-      (6 AS ?order)
-      ("Wikidata property" AS ?description)
-      (GROUP_CONCAT(?value_; separator=", ") AS ?value)
-      (CONCAT("../", GROUP_CONCAT(?q; separator=",")) AS ?valueUrl)
-    {
-      BIND(1 AS ?dummy)
-      target: wdt:P1687 ?iri .
-      BIND(SUBSTR(STR(?iri), 32) AS ?q)
-      ?iri rdfs:label ?value_string .
-      FILTER (LANG(?value_string) = 'en')
-      BIND(COALESCE(?value_string, ?q) AS ?value_)
-    }
-    GROUP BY ?dummy
-  }
-  UNION
-  {
-    SELECT
-      (7 AS ?order)
-      ("🛑 Replaced by" AS ?description)
-      (GROUP_CONCAT(?value_; separator=", ") AS ?value)
-      (CONCAT("../", GROUP_CONCAT(?q; separator=",")) AS ?valueUrl)
-    {
-      BIND(1 AS ?dummy)
-      ?iri wdt:P1365 target: .
-      BIND(SUBSTR(STR(?iri), 32) AS ?q)
-      ?iri rdfs:label ?value_string .
-      FILTER (LANG(?value_string) = 'en')
-      BIND(COALESCE(?value_string, ?q) AS ?value_)
-    }
-    GROUP BY ?dummy
-  }
+  INCLUDE %result
+  BIND(xsd:date(?publication_datetime) AS ?publication_date)
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" . }
 }
-ORDER BY ?order
+ORDER BY DESC(?publication_date)
 ''';
   scholia:aspect scholiaAspect:Ontology ;
   rdfs:comment "Ontology aspect: [no title]"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
-  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/ontology_data.sparql> ;
+  spex:federatesWith <http://wikiba.se/ontology#label> ;
+  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/ontology_recent-works.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

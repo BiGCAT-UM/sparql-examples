@@ -16,44 +16,52 @@
 q:146 a sh:SPARQLExecutable,
   sh:SPARQLSelectExecutable;
   sh:prefixes _:sparql_examples_prefixes ;
-  sh:select '''PREFIX p: <http://www.wikidata.org/prop/>
-PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+  sh:select '''PREFIX bd: <http://www.bigdata.com/rdf#>
+PREFIX p: <http://www.wikidata.org/prop/>
 PREFIX wdt: <http://www.wikidata.org/prop/direct/>
-#defaultView:Timeline{"hide": ["?end_time", "?start_time"]}
+PREFIX wikibase: <http://wikiba.se/ontology#>
+#defaultView:BubbleChart
 
 PREFIX target: <http://www.wikidata.org/entity/Q27990087>
 
-SELECT DISTINCT ?start_time ?end_time ?description WHERE {
-  {  
-    target: (wdt:P571 | wdt:P580) ?start_time ;
-      (wdt:P576 | wdt:P582) ?end_time .
-    BIND("Project time" AS ?description)
-  } 
-  UNION 
-  {  
-    target: (^wdt:P1344 | wdt:P710)+ ?project .
-    ?project (wdt:P571 | wdt:P580) ?start_time ;
-             (wdt:P576 | wdt:P582) ?end_time .
-    ?project rdfs:label ?projectName .
-    FILTER (lang(?projectName) = "en")
-    BIND(?projectName AS ?description)
-  }   
-  UNION 
-  {
-    ?work wdt:P859/(wdt:P1344|^wdt:P710)* target: ;
-                wdt:P577 ?start_time .
-    BIND("Publication" AS ?description)
+SELECT ?score ?topic ?topicLabel
+WITH {
+  SELECT
+    (SUM(?score_) AS ?score)
+    ?topic
+  WHERE {
+    { 
+      target: wdt:P101 ?topic .
+      BIND(20 AS ?score_)
+    }
+    UNION 
+    {
+      SELECT (3 AS ?score_) ?topic WHERE {
+        ?work wdt:P859/wdt:P1344* target: ;
+              wdt:P921 ?topic . 
+      }
+    }
+    UNION
+    {
+      SELECT (1 AS ?score_) ?topic WHERE {
+        ?work wdt:P859/wdt:P1344* target: .
+        ?citing_work wdt:P2860 ?work .
+        ?citing_work wdt:P921 ?topic . 
+      }
+    }
   }
-  UNION
-  {
-    ?event wdt:P859 target: .
-    ?event wdt:P585 | wdt:P580 ?start_time .
-    BIND("📅 Sponsored event" AS ?description)
-  }
-}''';
+  GROUP BY ?topic
+} AS %results 
+WHERE {
+  INCLUDE %results
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en,da,de,es,jp,no,ru,sv,zh". }
+}
+ORDER BY DESC(?score)
+LIMIT 200''';
   scholia:aspect scholiaAspect:Project ;
-  scholia:defaultView scholiaView:Timeline ;
+  scholia:defaultView scholiaView:BubbleChart ;
   rdfs:comment "Project aspect: [no title]"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
-  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/project_timeline.sparql> ;
+  spex:federatesWith <http://wikiba.se/ontology#label> ;
+  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/project_topic-scores.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

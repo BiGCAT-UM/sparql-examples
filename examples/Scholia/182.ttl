@@ -20,15 +20,16 @@ q:182 a sh:SPARQLExecutable,
 PREFIX p: <http://www.wikidata.org/prop/>
 PREFIX wdt: <http://www.wikidata.org/prop/direct/>
 PREFIX wikibase: <http://wikiba.se/ontology#>
-#defaultView:BubbleChart
-
 PREFIX target: <http://www.wikidata.org/entity/Q45340488>
 
-SELECT ?score ?author ?authorLabel
+SELECT ?score 
+?author ?authorLabel (CONCAT("/author/", SUBSTR(STR(?author), 32)) AS ?authorUrl)
+?example_work ?example_workLabel (CONCAT("/work/", SUBSTR(STR(?example_work), 32)) AS ?example_workUrl)
 WITH {
-  SELECT 
-    ?author
+  SELECT
     (SUM(?score_) AS ?score)
+    ?author
+    (SAMPLE(?work) AS ?example_work)
   WHERE {
     { 
       ?author wdt:P101/wdt:P279* target: .
@@ -36,16 +37,16 @@ WITH {
     }
     UNION
     {
-      SELECT (3 AS ?score_) ?author WHERE {
+      SELECT (3 AS ?score_) ?author ?work WHERE {
         ?work wdt:P50 ?author ;
               wdt:P921/wdt:P279* target: .
       }
     }
     UNION
     {
-      SELECT (1 AS ?score_) ?author WHERE {
-        ?cited_work wdt:P50 ?author .
-        ?citing_work wdt:P2860 ?cited_work .
+      SELECT (1 AS ?score_) ?author ?work WHERE {
+        ?work wdt:P50 ?author .
+        ?citing_work wdt:P2860 ?work .
         ?citing_work wdt:P921/wdt:P279* target: .
       }
     }
@@ -59,12 +60,10 @@ WHERE {
   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en,da,de,es,jp,no,ru,sv,zh". }
 }
 ORDER BY DESC(?score)
-LIMIT 200
 ''';
   scholia:aspect scholiaAspect:Topic ;
-  scholia:defaultView scholiaView:BubbleChart ;
   rdfs:comment "Topic aspect: [no title]"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
-  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/topic_author-scores-graph.sparql> ;
+  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/topic_author-scores.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

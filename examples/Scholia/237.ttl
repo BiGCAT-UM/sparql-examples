@@ -24,34 +24,28 @@ PREFIX wikibase: <http://wikiba.se/ontology#>
 
 PREFIX target: <http://www.wikidata.org/entity/Q60687720>
 
-SELECT ?count (CONCAT("/topics/Q60687720,", SUBSTR(STR(?topic), 32)) AS ?countUrl)
-       ?topic ?topicLabel (CONCAT("/topic/", SUBSTR(STR(?topic), 32)) AS ?topicUrl)
-       ?example_work ?example_workLabel (CONCAT("/work/", SUBSTR(STR(?example_work), 32)) AS ?example_workUrl)
+SELECT ?count ?short_name 
+?venue ?venueLabel (CONCAT("/venue/", SUBSTR(STR(?venue), 32)) AS ?venueUrl)
 WITH {
-  SELECT (COUNT(?work) AS ?count) ?topic (SAMPLE(?work) AS ?example_work) WHERE {
-    # Find works for the specific queried topic
-	  VALUES ?p { wdt:P6104 wdt:P5008 }
-	  SERVICE bd:sample { ?work ?p target: . bd:serviceParam bd:sample.limit 10000 }
-    
-    # Find co-occuring topics
-    ?work wdt:P921 ?topic .
-    
-    # Avoid listing the queried topic
-      FILTER (target: != ?topic)
+  SELECT (count(?work) as ?count) ?venue (SAMPLE(?short_name_) AS ?short_name) WHERE {
+    { ?work wdt:P6104 target: . }
+    union { ?work wdt:P5008 target: . }
+    ?work wdt:P1433/wdt:P179* ?venue .
+    OPTIONAL { ?venue wdt:P1813 ?short_name_ . }
   }
-  GROUP BY ?topic
+  GROUP BY ?venue
 } AS %result
 WHERE {
-  # Label the results
   INCLUDE %result
   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" . } 
 }
 ORDER BY DESC(?count)
+LIMIT 200
 ''';
   scholia:aspect scholiaAspect:Wikiproject ;
   scholia:defaultView scholiaView:Table ;
   rdfs:comment "Wikiproject aspect: [no title]"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
-  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/wikiproject_topics.sparql> ;
+  cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/wikiproject_venues.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .
