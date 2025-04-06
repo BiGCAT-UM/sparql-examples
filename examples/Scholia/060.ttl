@@ -56,7 +56,7 @@ WHERE {
 } ''';
   scholia:aspect scholiaAspect:Country ;
   rdfs:comment "Country aspect: Locations as topics for a specific country"@en ;
-  scholia:defaultView scholiaView:Map{"markercluster" ;
+  scholia:defaultView scholiaView:Map ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
   cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/country_locations-as-topics.sparql> ;
