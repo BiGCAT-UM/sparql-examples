@@ -69,7 +69,7 @@ group by ?year
 order by ?year''';
   scholia:aspect scholiaAspect:Project ;
   scholia:defaultView scholiaView:BarChart ;
-  rdfs:comment "Project aspect: [no title]"@en ;
+  rdfs:comment "Project aspect: publications per year"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/project_publications-per-year.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

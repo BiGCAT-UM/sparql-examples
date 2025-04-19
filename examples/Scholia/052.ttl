@@ -115,7 +115,7 @@ WHERE {
 } 
 ORDER BY ?order''';
   scholia:aspect scholiaAspect:Clinical-trial ;
-  rdfs:comment "Clinical-trial aspect: [no title]"@en ;
+  rdfs:comment "Clinical-trial aspect: data"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/clinical-trial_data.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

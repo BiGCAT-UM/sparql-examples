@@ -50,7 +50,7 @@ ORDER BY DESC(?number_of_citations)
 LIMIT 200
 ''';
   scholia:aspect scholiaAspect:Topic ;
-  rdfs:comment "Topic aspect: [no title]"@en ;
+  rdfs:comment "Topic aspect: most cited authors"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
   cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/topic_most-cited-authors.sparql> ;

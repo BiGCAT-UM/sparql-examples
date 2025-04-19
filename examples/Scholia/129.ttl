@@ -40,7 +40,7 @@ WHERE {
   ORDER BY DESC(?podcastLabel)
 ''';
   scholia:aspect scholiaAspect:Podcast-language ;
-  rdfs:comment "Podcast-language aspect: [no title]"@en ;
+  rdfs:comment "Podcast-language aspect: podcast list"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
   cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/podcast-language_podcast-list.sparql> ;

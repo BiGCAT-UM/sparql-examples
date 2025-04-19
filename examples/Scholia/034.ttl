@@ -41,7 +41,7 @@ ORDER BY ASC(?IDpredLabel)
 LIMIT 500
 ''';
   scholia:aspect scholiaAspect:Chemical-class ;
-  rdfs:comment "Chemical-class aspect: [no title]"@en ;
+  rdfs:comment "Chemical-class aspect: identifiers"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
   cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/chemical-class_identifiers.sparql> ;

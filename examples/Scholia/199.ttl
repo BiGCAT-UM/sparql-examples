@@ -53,7 +53,7 @@ WHERE {
 ORDER BY DESC(?count) 
 ''';
   scholia:aspect scholiaAspect:Use ;
-  rdfs:comment "Use aspect: [no title]"@en ;
+  rdfs:comment "Use aspect: co used"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
   cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/use_co-used.sparql> ;

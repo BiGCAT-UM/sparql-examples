@@ -59,7 +59,7 @@ group by ?year
 order by ?year''';
   scholia:aspect scholiaAspect:Disease ;
   scholia:defaultView scholiaView:BarChart ;
-  rdfs:comment "Disease aspect: [no title]"@en ;
+  rdfs:comment "Disease aspect: publications per year"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/disease_publications-per-year.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

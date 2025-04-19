@@ -37,7 +37,7 @@ WHERE {
 }''';
   scholia:aspect scholiaAspect:Project ;
   scholia:defaultView scholiaView:Map ;
-  rdfs:comment "Project aspect: [no title]"@en ;
+  rdfs:comment "Project aspect: partners"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
   cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/project_partners.sparql> ;

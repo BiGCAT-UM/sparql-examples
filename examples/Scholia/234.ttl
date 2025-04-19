@@ -80,7 +80,7 @@ ORDER BY ?year
 ''';
   scholia:aspect scholiaAspect:Wikiproject ;
   scholia:defaultView scholiaView:BarChart ;
-  rdfs:comment "Wikiproject aspect: [no title]"@en ;
+  rdfs:comment "Wikiproject aspect: publications per year"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/wikiproject_publications-per-year.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

@@ -53,7 +53,7 @@ WITH {
 ORDER BY DESC(?publication_date)
 ''';
   scholia:aspect scholiaAspect:Venue ;
-  rdfs:comment "Venue aspect: [no title]"@en ;
+  rdfs:comment "Venue aspect: recently published works"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
   cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/venue_recently-published-works.sparql> ;

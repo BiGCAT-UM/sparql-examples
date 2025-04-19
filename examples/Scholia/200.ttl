@@ -45,7 +45,7 @@ WHERE {
 ORDER BY DESC(?publication_date)
 ''';
   scholia:aspect scholiaAspect:Use ;
-  rdfs:comment "Use aspect: [no title]"@en ;
+  rdfs:comment "Use aspect: recent work using the used"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
   cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/use_recent-work-using-the-used.sparql> ;

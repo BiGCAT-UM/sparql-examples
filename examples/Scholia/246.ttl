@@ -344,7 +344,7 @@ WHERE {
 ORDER BY ?order
 ''';
   scholia:aspect scholiaAspect:Work ;
-  rdfs:comment "Work aspect: [no title]"@en ;
+  rdfs:comment "Work aspect: data"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/work_data.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

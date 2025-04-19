@@ -125,7 +125,7 @@ WHERE {
 ORDER BY ?order
 ''';
   scholia:aspect scholiaAspect:Event ;
-  rdfs:comment "Event aspect: [no title]"@en ;
+  rdfs:comment "Event aspect: data"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
   cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/event_data.sparql> ;

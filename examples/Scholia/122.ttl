@@ -32,7 +32,7 @@ WHERE {
   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" . }
 }''';
   scholia:aspect scholiaAspect:Pathway ;
-  rdfs:comment "Pathway aspect: [no title]"@en ;
+  rdfs:comment "Pathway aspect: optional data values"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
   cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/pathway_optional-data-values.sparql> ;

@@ -30,7 +30,7 @@ SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,
 }
 ORDER BY ?publication_date''';
   scholia:aspect scholiaAspect:Author ;
-  rdfs:comment "Author aspect: [no title]"@en ;
+  rdfs:comment "Author aspect: topics works matrix"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
   cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/author_topics-works-matrix.sparql> ;

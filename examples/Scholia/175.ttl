@@ -58,7 +58,7 @@ GROUP BY ?Identifier ?IdentifierLabel ?IdentifierDescription ?id
 ORDER BY ASC(?IdentifierLabel)
 ''';
   scholia:aspect scholiaAspect:Taxon ;
-  rdfs:comment "Taxon aspect: [no title]"@en ;
+  rdfs:comment "Taxon aspect: identifiers"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
   cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/taxon_identifiers.sparql> ;

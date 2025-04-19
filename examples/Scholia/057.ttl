@@ -46,7 +46,7 @@ WHERE {
 } ORDER BY ASC(?partLabel)
 ''';
   scholia:aspect scholiaAspect:Complex ;
-  rdfs:comment "Complex aspect: [no title]"@en ;
+  rdfs:comment "Complex aspect: participants"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
   cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/complex_participants.sparql> ;

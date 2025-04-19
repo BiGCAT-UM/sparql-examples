@@ -96,7 +96,7 @@ WHERE {
 ORDER BY DESC(?score)
 ''';
   scholia:aspect scholiaAspect:Event ;
-  rdfs:comment "Event aspect: [no title]"@en ;
+  rdfs:comment "Event aspect: related events timelocation"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
   cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/event_related-events-timelocation.sparql> ;

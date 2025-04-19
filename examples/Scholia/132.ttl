@@ -31,7 +31,7 @@ WHERE {
 }
 ''';
   scholia:aspect scholiaAspect:Podcast-season ;
-  rdfs:comment "Podcast-season aspect: [no title]"@en ;
+  rdfs:comment "Podcast-season aspect: episodes"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
   cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/podcast-season_episodes.sparql> ;

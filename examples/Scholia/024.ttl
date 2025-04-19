@@ -38,7 +38,7 @@ WHERE {
 ORDER BY DESC(?count)
 ''';
   scholia:aspect scholiaAspect:Award ;
-  rdfs:comment "Award aspect: [no title]"@en ;
+  rdfs:comment "Award aspect: gender distribution"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
   cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/award_gender-distribution.sparql> ;

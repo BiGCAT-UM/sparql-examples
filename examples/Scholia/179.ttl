@@ -77,7 +77,7 @@ WHERE {
 ''';
   scholia:aspect scholiaAspect:Taxon ;
   scholia:defaultView scholiaView:Graph ;
-  rdfs:comment "Taxon aspect: [no title]"@en ;
+  rdfs:comment "Taxon aspect: tree"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/taxon_tree.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

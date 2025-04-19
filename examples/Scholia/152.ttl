@@ -39,7 +39,7 @@ WHERE {
 } ORDER BY ASC(?partLabel)
 ''';
   scholia:aspect scholiaAspect:Protein ;
-  rdfs:comment "Protein aspect: [no title]"@en ;
+  rdfs:comment "Protein aspect: participates in"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
   cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/protein_participates-in.sparql> ;

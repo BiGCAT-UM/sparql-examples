@@ -62,7 +62,7 @@ SELECT
 ORDER BY DESC(?count)
 ''';
   scholia:aspect scholiaAspect:Disease ;
-  rdfs:comment "Disease aspect: [no title]"@en ;
+  rdfs:comment "Disease aspect: related diseases"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
   cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/disease_related-diseases.sparql> ;

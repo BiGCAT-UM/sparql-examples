@@ -41,7 +41,7 @@ ORDER BY DESC(?count)
 ''';
   scholia:aspect scholiaAspect:Author ;
   scholia:defaultView scholiaView:BubbleChart ;
-  rdfs:comment "Author aspect: [no title]"@en ;
+  rdfs:comment "Author aspect: venue statistics chart"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/author_venue-statistics-chart.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

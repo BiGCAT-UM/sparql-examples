@@ -102,7 +102,7 @@ WHERE {
 ORDER BY ?order
 ''';
   scholia:aspect scholiaAspect:Podcast-episode ;
-  rdfs:comment "Podcast-episode aspect: [no title]"@en ;
+  rdfs:comment "Podcast-episode aspect: data"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/podcast-episode_data.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

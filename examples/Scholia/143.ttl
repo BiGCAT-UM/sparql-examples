@@ -79,7 +79,7 @@ WHERE {
 ORDER BY DESC(?date)
 LIMIT 500''';
   scholia:aspect scholiaAspect:Project ;
-  rdfs:comment "Project aspect: [no title]"@en ;
+  rdfs:comment "Project aspect: recent articles"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
   cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/project_recent-articles.sparql> ;

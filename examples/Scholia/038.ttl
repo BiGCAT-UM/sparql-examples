@@ -48,7 +48,7 @@ SELECT DISTINCT ?allotrope ?allotropeLabel ?density ?densityUnit ?densityUnitLab
 } ORDER BY ASC(?allotropeLabel)
 ''';
   scholia:aspect scholiaAspect:Chemical-element ;
-  rdfs:comment "Chemical-element aspect: [no title]"@en ;
+  rdfs:comment "Chemical-element aspect: allotropes"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
   cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/chemical-element_allotropes.sparql> ;

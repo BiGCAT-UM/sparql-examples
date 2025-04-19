@@ -78,7 +78,7 @@ WHERE {
 ''';
   scholia:aspect scholiaAspect:Wikiproject ;
   scholia:defaultView scholiaView:Graph ;
-  rdfs:comment "Wikiproject aspect: [no title]"@en ;
+  rdfs:comment "Wikiproject aspect: context"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
   cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/wikiproject_context.sparql> ;

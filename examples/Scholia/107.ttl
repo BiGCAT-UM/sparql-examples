@@ -33,7 +33,7 @@ WHERE {
 } GROUP BY ?usedByOntology
 ''';
   scholia:aspect scholiaAspect:Ontology ;
-  rdfs:comment "Ontology aspect: [no title]"@en ;
+  rdfs:comment "Ontology aspect: used by ontologies"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/ontology_used-by-ontologies.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

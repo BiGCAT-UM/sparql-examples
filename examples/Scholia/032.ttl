@@ -76,7 +76,7 @@ WHERE {
 }''';
   scholia:aspect scholiaAspect:Chemical-class ;
   scholia:defaultView scholiaView:Graph ;
-  rdfs:comment "Chemical-class aspect: [no title]"@en ;
+  rdfs:comment "Chemical-class aspect: class hierarchy"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/chemical-class_class-hierarchy.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

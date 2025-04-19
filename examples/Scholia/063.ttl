@@ -55,7 +55,7 @@ ORDER BY DESC(?citations) DESC(?publication_date)
 ''';
   scholia:aspect scholiaAspect:Dataset ;
   scholia:defaultView scholiaView:Table ;
-  rdfs:comment "Dataset aspect: [no title]"@en ;
+  rdfs:comment "Dataset aspect: citations"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
   cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/dataset_citations.sparql> ;

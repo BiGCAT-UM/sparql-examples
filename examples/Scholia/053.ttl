@@ -59,7 +59,7 @@ WHERE {
 ORDER BY DESC(?score)
 ''';
   scholia:aspect scholiaAspect:Clinical-trial ;
-  rdfs:comment "Clinical-trial aspect: [no title]"@en ;
+  rdfs:comment "Clinical-trial aspect: related trials"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
   cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/clinical-trial_related-trials.sparql> ;

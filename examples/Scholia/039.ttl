@@ -84,7 +84,7 @@ WHERE {
 ORDER BY ?order
 ''';
   scholia:aspect scholiaAspect:Chemical-element ;
-  rdfs:comment "Chemical-element aspect: [no title]"@en ;
+  rdfs:comment "Chemical-element aspect: data"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/chemical-element_data.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

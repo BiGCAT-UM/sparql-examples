@@ -55,7 +55,7 @@ WITH {
 ''';
   scholia:aspect scholiaAspect:Software ;
   scholia:defaultView scholiaView:Graph ;
-  rdfs:comment "Software aspect: [no title]"@en ;
+  rdfs:comment "Software aspect: software dependencies"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
   cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/software_software-dependencies.sparql> ;

@@ -78,7 +78,7 @@ ORDER BY ?year
 ''';
   scholia:aspect scholiaAspect:Complex ;
   scholia:defaultView scholiaView:BarChart ;
-  rdfs:comment "Complex aspect: [no title]"@en ;
+  rdfs:comment "Complex aspect: articles by year"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/complex_articles-by-year.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

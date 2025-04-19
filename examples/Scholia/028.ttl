@@ -44,7 +44,7 @@ ORDER BY DESC(?publication_date)
 LIMIT 500
 ''';
   scholia:aspect scholiaAspect:Award ;
-  rdfs:comment "Award aspect: [no title]"@en ;
+  rdfs:comment "Award aspect: recent publications by recipients"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
   cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/award_recent-publications-by-recipients.sparql> ;

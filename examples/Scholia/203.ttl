@@ -63,7 +63,7 @@ order by ?year
 ''';
   scholia:aspect scholiaAspect:Venue ;
   scholia:defaultView scholiaView:BarChart ;
-  rdfs:comment "Venue aspect: [no title]"@en ;
+  rdfs:comment "Venue aspect: articles by intention"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/venue_articles-by-intention.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

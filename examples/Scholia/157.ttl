@@ -48,7 +48,7 @@ WHERE {
 }
 ''';
   scholia:aspect scholiaAspect:Publisher ;
-  rdfs:comment "Publisher aspect: [no title]"@en ;
+  rdfs:comment "Publisher aspect: editors"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
   cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/publisher_editors.sparql> ;

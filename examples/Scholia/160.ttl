@@ -43,7 +43,7 @@ LIMIT 50
 ''';
   scholia:aspect scholiaAspect:Publisher ;
   scholia:defaultView scholiaView:Timeline ;
-  rdfs:comment "Publisher aspect: [no title]"@en ;
+  rdfs:comment "Publisher aspect: timeline"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
   cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/publisher_timeline.sparql> ;

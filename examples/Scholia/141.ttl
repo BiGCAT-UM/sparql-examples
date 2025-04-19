@@ -61,7 +61,7 @@ WHERE {
 ORDER BY DESC(?count)
 LIMIT 50''';
   scholia:aspect scholiaAspect:Project ;
-  rdfs:comment "Project aspect: [no title]"@en ;
+  rdfs:comment "Project aspect: prolific authors"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
   cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/project_prolific-authors.sparql> ;

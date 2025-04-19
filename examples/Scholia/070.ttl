@@ -45,7 +45,7 @@ ORDER BY ?year
 ''';
   scholia:aspect scholiaAspect:Event-series ;
   scholia:defaultView scholiaView:LineChart ;
-  rdfs:comment "Event-series aspect: [no title]"@en ;
+  rdfs:comment "Event-series aspect: acceptance rate"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
   cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/event-series_acceptance-rate.sparql> ;

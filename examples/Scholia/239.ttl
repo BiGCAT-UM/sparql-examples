@@ -101,7 +101,7 @@ WHERE {
 ORDER BY DESC(?count)''';
   scholia:aspect scholiaAspect:Work ;
   scholia:defaultView scholiaView:Graph ;
-  rdfs:comment "Work aspect: [no title]"@en ;
+  rdfs:comment "Work aspect: citation graph"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/work_citation-graph.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

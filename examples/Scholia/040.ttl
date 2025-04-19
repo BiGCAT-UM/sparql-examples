@@ -41,7 +41,7 @@ WHERE {
 } ORDER BY ?neutrons
 ''';
   scholia:aspect scholiaAspect:Chemical-element ;
-  rdfs:comment "Chemical-element aspect: [no title]"@en ;
+  rdfs:comment "Chemical-element aspect: isotopes"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
   cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/chemical-element_isotopes.sparql> ;

@@ -40,7 +40,7 @@ SELECT ?intention ?intentionLabel (COUNT(DISTINCT ?citingArticle) AS ?count) WHE
 ''';
   scholia:aspect scholiaAspect:Venue ;
   scholia:defaultView scholiaView:BubbleChart ;
-  rdfs:comment "Venue aspect: [no title]"@en ;
+  rdfs:comment "Venue aspect: incoming bubble"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
   cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/venue_incoming-bubble.sparql> ;

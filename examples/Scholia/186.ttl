@@ -66,7 +66,7 @@ WHERE {
 ''';
   scholia:aspect scholiaAspect:Topic ;
   scholia:defaultView scholiaView:Graph ;
-  rdfs:comment "Topic aspect: [no title]"@en ;
+  rdfs:comment "Topic aspect: coauthor graph"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
   cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/topic_coauthor-graph.sparql> ;

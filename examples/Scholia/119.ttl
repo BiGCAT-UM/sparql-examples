@@ -55,7 +55,7 @@ GROUP BY ?researchers ?topic ?topicLabel ?topicDescription ?samplework ?samplewo
 ORDER BY DESC(?researchers)
 ''';
   scholia:aspect scholiaAspect:Organization ;
-  rdfs:comment "Organization aspect: [no title]"@en ;
+  rdfs:comment "Organization aspect: topics"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
   cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/organization_topics.sparql> ;

@@ -56,7 +56,7 @@ ORDER BY DESC(?date)
 LIMIT 500
 ''';
   scholia:aspect scholiaAspect:Topic ;
-  rdfs:comment "Topic aspect: [no title]"@en ;
+  rdfs:comment "Topic aspect: recently published works"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
   cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/topic_recently-published-works.sparql> ;

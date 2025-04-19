@@ -65,7 +65,7 @@ ORDER BY ?year
 ''';
   scholia:aspect scholiaAspect:Organization ;
   scholia:defaultView scholiaView:BarChart ;
-  rdfs:comment "Organization aspect: [no title]"@en ;
+  rdfs:comment "Organization aspect: page production"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
   cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/organization_page-production.sparql> ;

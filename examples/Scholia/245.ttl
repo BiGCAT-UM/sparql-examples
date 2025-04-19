@@ -47,7 +47,7 @@ GROUP BY ?intention ?intentionLabel ?count ?example_work_for_intention ?example_
 ORDER BY DESC(?count)
 ''';
   scholia:aspect scholiaAspect:Work ;
-  rdfs:comment "Work aspect: [no title]"@en ;
+  rdfs:comment "Work aspect: cito incoming"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
   cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/work_cito-incoming.sparql> ;

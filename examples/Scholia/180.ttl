@@ -51,7 +51,7 @@ GROUP BY ?count ?award ?awardLabel ?recipients ?recipientsUrl
 ORDER BY DESC(?count)
 ''';
   scholia:aspect scholiaAspect:Topic ;
-  rdfs:comment "Topic aspect: [no title]"@en ;
+  rdfs:comment "Topic aspect: author awards"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/topic_author-awards.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

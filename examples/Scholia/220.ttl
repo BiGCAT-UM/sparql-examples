@@ -39,7 +39,7 @@ SELECT ?intention ?intentionLabel (CONCAT("/cito/", SUBSTR(STR(?intention), 32))
   ORDER BY DESC(?count)
 ''';
   scholia:aspect scholiaAspect:Venue ;
-  rdfs:comment "Venue aspect: [no title]"@en ;
+  rdfs:comment "Venue aspect: outgoing"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
   cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/venue_outgoing.sparql> ;

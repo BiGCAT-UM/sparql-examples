@@ -45,7 +45,7 @@ WHERE {
 }
 ORDER BY DESC(?count)''';
   scholia:aspect scholiaAspect:Software ;
-  rdfs:comment "Software aspect: [no title]"@en ;
+  rdfs:comment "Software aspect: dependent software"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
   cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/software_dependent-software.sparql> ;

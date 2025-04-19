@@ -63,7 +63,7 @@ LIMIT 200
 ''';
   scholia:aspect scholiaAspect:Topic ;
   scholia:defaultView scholiaView:BubbleChart ;
-  rdfs:comment "Topic aspect: [no title]"@en ;
+  rdfs:comment "Topic aspect: author scores graph"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
   cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/topic_author-scores-graph.sparql> ;

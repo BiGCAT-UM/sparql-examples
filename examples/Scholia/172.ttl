@@ -44,7 +44,7 @@ ORDER BY DESC(?count)
 ''';
   scholia:aspect scholiaAspect:Sponsor ;
   scholia:defaultView scholiaView:BubbleChart ;
-  rdfs:comment "Sponsor aspect: [no title]"@en ;
+  rdfs:comment "Sponsor aspect: topics of sponsored works"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
   cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/sponsor_topics-of-sponsored-works.sparql> ;

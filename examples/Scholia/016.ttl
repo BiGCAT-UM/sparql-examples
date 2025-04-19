@@ -132,7 +132,7 @@ WHERE {
 ''';
   scholia:aspect scholiaAspect:Author ;
   scholia:defaultView scholiaView:Timeline ;
-  rdfs:comment "Author aspect: [no title]"@en ;
+  rdfs:comment "Author aspect: timeline"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/author_timeline.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

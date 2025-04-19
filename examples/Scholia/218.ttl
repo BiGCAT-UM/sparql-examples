@@ -38,7 +38,7 @@ SELECT ?citedArticle ?citedArticleLabel (CONCAT("/work/", SUBSTR(STR(?citedArtic
   ORDER BY DESC(?count)
 ''';
   scholia:aspect scholiaAspect:Venue ;
-  rdfs:comment "Venue aspect: [no title]"@en ;
+  rdfs:comment "Venue aspect: most reused articles"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
   cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/venue_most-reused-articles.sparql> ;

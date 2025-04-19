@@ -40,7 +40,7 @@ SELECT DISTINCT ?taxon ?taxonLabel (CONCAT("/taxon/", SUBSTR(STR(?taxon), 32)) A
   LIMIT 250
 ''';
   scholia:aspect scholiaAspect:Chemical ;
-  rdfs:comment "Chemical aspect: [no title]"@en ;
+  rdfs:comment "Chemical aspect: found in taxon"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
   cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/chemical_found-in-taxon.sparql> ;

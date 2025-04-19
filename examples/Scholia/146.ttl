@@ -60,7 +60,7 @@ ORDER BY DESC(?score)
 LIMIT 200''';
   scholia:aspect scholiaAspect:Project ;
   scholia:defaultView scholiaView:BubbleChart ;
-  rdfs:comment "Project aspect: [no title]"@en ;
+  rdfs:comment "Project aspect: topic scores"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
   cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/project_topic-scores.sparql> ;

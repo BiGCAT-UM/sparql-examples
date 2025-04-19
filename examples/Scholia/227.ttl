@@ -53,7 +53,7 @@ ORDER BY DESC(?count)
 ''';
   scholia:aspect scholiaAspect:Wikiproject ;
   scholia:defaultView scholiaView:Table ;
-  rdfs:comment "Wikiproject aspect: [no title]"@en ;
+  rdfs:comment "Wikiproject aspect: authors"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
   cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/wikiproject_authors.sparql> ;

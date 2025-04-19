@@ -46,7 +46,7 @@ ORDER BY DESC (?count)
 ''';
   scholia:aspect scholiaAspect:Author ;
   scholia:defaultView scholiaView:Map ;
-  rdfs:comment "Author aspect: [no title]"@en ;
+  rdfs:comment "Author aspect: coauthor map"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
   cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/author_coauthor-map.sparql> ;

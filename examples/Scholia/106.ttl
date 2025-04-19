@@ -55,7 +55,7 @@ WHERE {
 ''';
   scholia:aspect scholiaAspect:Ontology ;
   scholia:defaultView scholiaView:Graph ;
-  rdfs:comment "Ontology aspect: [no title]"@en ;
+  rdfs:comment "Ontology aspect: reuse graph"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/ontology_reuse-graph.sparql> ;
   dcterms:license <https://www.gnu.org/licenses/gpl-3.0> .

@@ -28,7 +28,7 @@ SELECT ?item ?itemLabel ?property_value ?property_valueLabel WHERE {
 LIMIT 500
 ''';
   scholia:aspect scholiaAspect:Property ;
-  rdfs:comment "Property aspect: [no title]"@en ;
+  rdfs:comment "Property aspect: use"@en ;
   schema:target <https://query.wikidata.org/sparql> ;
   spex:federatesWith <http://wikiba.se/ontology#label> ;
   cito:usesMethodIn <https://github.com/WDscholia/scholia/tree/master/scholia/app/templates/property_use.sparql> ;
