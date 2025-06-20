@@ -26,4 +26,5 @@ Select ?identifier ?image ?smilesDepict where {
                             cheminf:SIO_000300 ?smilesDepict].
 } LIMIT 100""" ;
     schema:target <https://chemblmirror.rdf.bigcat-bioinformatics.org> , <https://idsm.elixir-czech.cz/sparql/endpoint/idsm> ;
+    schema:keywords "SMILES" ;
     cito:usesMethodIn <https://www.wikipathways.org/sparql.html> .

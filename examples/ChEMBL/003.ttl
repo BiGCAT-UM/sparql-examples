@@ -36,4 +36,5 @@ GROUP BY ?targetLabel ?tType ?molLabel ?type
 HAVING(count(DISTINCT ?value) > 30)
 limit 100""" ;
     schema:target <https://chemblmirror.rdf.bigcat-bioinformatics.org> , <https://idsm.elixir-czech.cz/sparql/endpoint/idsm> ;
+    schema:keywords "vironistat", "histone", "deacetylase" ;
     cito:usesMethodIn <https://www.wikipathways.org/sparql.html> .

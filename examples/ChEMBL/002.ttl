@@ -18,4 +18,5 @@ select distinct ?o WHERE{
 }
 """ ;
     schema:target <https://chemblmirror.rdf.bigcat-bioinformatics.org> , <https://idsm.elixir-czech.cz/sparql/endpoint/idsm> ;
+    schema:keywords "organism" ;
     cito:usesMethodIn <https://www.wikipathways.org/sparql.html> .
