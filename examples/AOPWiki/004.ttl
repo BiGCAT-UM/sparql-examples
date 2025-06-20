@@ -7,7 +7,7 @@
 
 ex:004 a sh:SPARQLExecutable,
        sh:SPARQLSelectExecutable ;
-    rdfs:comment "[fill out comment here]"@en ;
+    rdfs:comment "List chemicals and their CAS registry numbers"@en ;
     sh:prefixes _:sparql_examples_prefixes ;
     sh:select """PREFIX cheminf: <http://semanticscience.org/resource/CHEMINF_>
 PREFIX dc: <http://purl.org/dc/elements/1.1/>

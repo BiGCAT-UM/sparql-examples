@@ -7,7 +7,7 @@
 
 ex:003 a sh:SPARQLExecutable,
        sh:SPARQLSelectExecutable ;
-    rdfs:comment "[fill out comment here]"@en ;
+    rdfs:comment "List key events and linked HGNC identifiers."@en ;
     sh:prefixes _:sparql_examples_prefixes ;
     sh:select """PREFIX aopo: <http://aopkb.org/aop_ontology#>
 PREFIX dc: <http://purl.org/dc/elements/1.1/>
