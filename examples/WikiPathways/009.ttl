@@ -22,4 +22,5 @@ WHERE {
  }
 ORDER BY ?wpIdentifier""" ;
     schema:target <https://sparql.wikipathways.org/sparql> ;
-    schema:keywords "organism", "mouse" .
+    schema:keywords "organism", "mouse" ;
+    cito:usesMethodIn <https://www.wikipathways.org/sparql.html> .

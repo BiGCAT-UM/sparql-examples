@@ -20,4 +20,5 @@ WHERE {
 }
 ORDER BY DESC(?pathwayCount)""" ;
     schema:target <https://sparql.wikipathways.org/sparql> ;
-    schema:keywords "organism" .
+    schema:keywords "organism" ;
+    cito:usesMethodIn <https://www.wikipathways.org/sparql.html> .
