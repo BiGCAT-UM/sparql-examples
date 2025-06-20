@@ -3,6 +3,7 @@
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix schema: <https://schema.org/> .
 @prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix cito: <http://purl.org/spar/cito/> .
 
 ex:001 a sh:SPARQLExecutable,
        sh:SPARQLSelectExecutable ;
@@ -16,7 +17,7 @@ PREFIX foaf: <http://xmlns.com/foaf/0.1/>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX schema: <https://schema.org/>
 
-Select ?identifier ?image ?smilesDepict where{
+Select ?identifier ?image ?smilesDepict where {
   
   ?s a chembl:SmallMolecule.
   ?s chembl:chemblId ?identifier.
@@ -24,4 +25,5 @@ Select ?identifier ?image ?smilesDepict where{
   ?s cheminf:SIO_000008 [ a cheminf:CHEMINF_000018; 
                             cheminf:SIO_000300 ?smilesDepict].
 } LIMIT 100""" ;
-    schema:target <https://chemblmirror.rdf.bigcat-bioinformatics.org> , <https://idsm.elixir-czech.cz/sparql/endpoint/idsm> .
+    schema:target <https://chemblmirror.rdf.bigcat-bioinformatics.org> , <https://idsm.elixir-czech.cz/sparql/endpoint/idsm> ;
+    cito:usesMethodIn <https://www.wikipathways.org/sparql.html> .

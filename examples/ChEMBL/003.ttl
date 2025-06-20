@@ -1,0 +1,39 @@
+@prefix ex: <https://bigcat-um.github.io/sparql-examples/ChEMBL/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix schema: <https://schema.org/> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+
+ex:003 a sh:SPARQLExecutable,
+       sh:SPARQLSelectExecutable ;
+    rdfs:comment "Count the number of data points for vorinostat binding to histone deacetylases."@en ;
+    sh:prefixes _:sparql_examples_prefixes ;
+    sh:select """PREFIX chembl: <http://rdf.ebi.ac.uk/terms/chembl#>
+
+SELECT distinct ?targetLabel ?tType ?molLabel (count(DISTINCT ?value) as ?cnt) WHERE {
+
+  ?assay  chembl:hasTarget ?target.
+  
+  ?target chembl:targetType ?tType.
+  FILTER(?tType = "SINGLE PROTEIN")
+
+  ?activity chembl:hasAssay  ?assay.
+  ?activity chembl:hasMolecule ?molecule .
+  
+  #?assay chembl:hasCellLine ?cellLine.
+
+  ?target rdfs:label ?targetLabel.
+  ?molecule rdfs:label ?molLabel.
+  ?assay  rdfs:label ?assayLabel.
+  
+  FILTER(strstarts(?targetLabel, STR("Histone deacetylase")))
+  FILTER(?molLabel = "VORINOSTAT")
+  
+  ?activity chembl:type ?type.
+  ?activity chembl:standardValue ?value.
+} 
+GROUP BY ?targetLabel ?tType ?molLabel ?type
+HAVING(count(DISTINCT ?value) > 30)
+limit 100""" ;
+    schema:target <https://chemblmirror.rdf.bigcat-bioinformatics.org> , <https://idsm.elixir-czech.cz/sparql/endpoint/idsm> ;
+    cito:usesMethodIn <https://www.wikipathways.org/sparql.html> .
