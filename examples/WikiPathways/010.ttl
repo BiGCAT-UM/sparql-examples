@@ -6,7 +6,7 @@
 @prefix obo: <http://purl.obolibrary.org/obo/> .
 @prefix cito: <http://purl.org/spar/cito/> .
 
-ex:009 a sh:SPARQLExecutable,
+ex:010 a sh:SPARQLExecutable,
        sh:SPARQLSelectExecutable ;
     rdfs:comment "List all homology converted pathways."@en ;
     sh:prefixes _:sparql_examples_prefixes ;
