@@ -1,0 +1,25 @@
+@prefix ex: <https://bigcat-um.github.io/sparql-examples/WikiPathways/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix schema: <https://schema.org/> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix obo: <http://purl.obolibrary.org/obo/> .
+
+ex:009 a sh:SPARQLExecutable,
+       sh:SPARQLSelectExecutable ;
+    rdfs:comment "List all pathways for species 'Mus musculus'."@en ;
+    sh:prefixes _:sparql_examples_prefixes ;
+    sh:select """PREFIX wp: <http://vocabularies.wikipathways.org/wp#>
+PREFIX dc: <http://purl.org/dc/elements/1.1/>
+PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+
+SELECT DISTINCT ?wpIdentifier ?pathway ?page
+WHERE {
+    ?pathway dc:title ?title .
+    ?pathway foaf:page ?page .
+    ?pathway dc:identifier ?wpIdentifier .
+    ?pathway wp:organismName "Mus musculus" .
+ }
+ORDER BY ?wpIdentifier""" ;
+    schema:target <https://sparql.wikipathways.org/sparql> ;
+    schema:keywords "organism", "mouse" .

@@ -1,0 +1,23 @@
+@prefix ex: <https://bigcat-um.github.io/sparql-examples/WikiPathways/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix schema: <https://schema.org/> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix obo: <http://purl.obolibrary.org/obo/> .
+
+ex:008 a sh:SPARQLExecutable,
+       sh:SPARQLSelectExecutable ;
+    rdfs:comment "List the species captured in WikiPathways and the number of pathways per species."@en ;
+    sh:prefixes _:sparql_examples_prefixes ;
+    sh:select """PREFIX wp: <http://vocabularies.wikipathways.org/wp#>
+PREFIX dc: <http://purl.org/dc/elements/1.1/>
+
+SELECT DISTINCT ?organism (str(?label) as ?name) (count(?pw) as ?pathwayCount)
+WHERE {
+    ?pw dc:title ?title ;
+      wp:organism ?organism ;
+      wp:organismName ?label .
+}
+ORDER BY DESC(?pathwayCount)""" ;
+    schema:target <https://sparql.wikipathways.org/sparql> ;
+    schema:keywords "organism" .
