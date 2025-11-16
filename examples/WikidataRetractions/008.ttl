@@ -22,7 +22,6 @@ SELECT (COUNT(DISTINCT ?author) AS ?count) WHERE {
   ?retracted wdt:P31 wd:Q45182324 .
 }""";
     schema:target <https://query.wikidata.org/sparql> ;
-    spex:federatesWith <http://wikiba.se/ontology#label> ;
     dc:contributor "Egon Willighagen" ;
     dcterms:license <http://creativecommons.org/publicdomain/zero/1.0/> ;
     cito:usesMethodIn <https://www.wikidata.org/wiki/Wikidata:WikiProject_Retractions/SPARQL> ;

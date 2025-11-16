@@ -24,7 +24,6 @@ SELECT ?journal ?journalLabel (COUNT(DISTINCT ?citesRetracted) AS ?count) WHERE 
   ORDER BY DESC(?count)
   LIMIT 100""";
     schema:target <https://qlever.dev/api/wikidata> ;
-    spex:federatesWith <http://wikiba.se/ontology#label> ;
     dc:contributor "Egon Willighagen" ;
     dcterms:license <http://creativecommons.org/publicdomain/zero/1.0/> ;
     cito:usesMethodIn <https://www.wikidata.org/wiki/Wikidata:WikiProject_Retractions/SPARQL> ;
