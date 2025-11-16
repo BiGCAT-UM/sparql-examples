@@ -16,7 +16,6 @@ PREFIX dc: <http://purl.org/dc/elements/1.1/>
 SELECT DISTINCT (str(?title) as ?pathway) (str(?label) as ?organism)
 WHERE {
     ?pw dc:title ?title ;
-      wp:organism ?organism ;
       wp:organismName ?label .
 }""" ;
     schema:target <https://sparql.wikipathways.org/sparql> ;

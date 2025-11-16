@@ -10,6 +10,7 @@ ex:003 a sh:SPARQLExecutable,
     rdfs:comment "Count the number of data points for vorinostat binding to histone deacetylases."@en ;
     sh:prefixes _:sparql_examples_prefixes ;
     sh:select """PREFIX chembl: <http://rdf.ebi.ac.uk/terms/chembl#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 
 SELECT distinct ?targetLabel ?tType ?molLabel (count(DISTINCT ?value) as ?cnt) WHERE {
 

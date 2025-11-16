@@ -18,7 +18,7 @@ WHERE {
     ?pw dc:title ?title ;
       wp:organism ?organism ;
       wp:organismName ?label .
-}
+} GROUP BY ?organism ?label
 ORDER BY DESC(?pathwayCount)""" ;
     schema:target <https://sparql.wikipathways.org/sparql> ;
     schema:keywords "organism" ;
