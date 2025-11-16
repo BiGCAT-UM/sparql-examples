@@ -12,25 +12,20 @@ ex:001 a sh:SPARQLExecutable,
        sh:SPARQLSelectExecutable ;
     rdfs:comment "List of the 100 most cited retracted articles."@en ;
     sh:prefixes _:sparql_examples_prefixes ;
-    sh:select """PREFIX wd: <http://wikidata.org/entity/>
-PREFIX wdt: <http://wikidata.org/prop/direct/>
-PREFIX wikibase: <http://wikiba.se/ontology#>
-PREFIX bd: <http://www.bigdata.com/rdf#>
+    sh:select """PREFIX wd: <http://www.wikidata.org/entity/>
+PREFIX wdt: <http://www.wikidata.org/prop/direct/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 
-SELECT ?work ?workLabel ?count WITH {
-  SELECT ?work (COUNT(DISTINCT ?citation) AS ?count) WHERE {
-    { ?work wdt:P31 wd:Q45182324 . } UNION
-    { ?work wdt:P793 wd:Q7316896 . } UNION
-    { ?work wdt:P5824 [] . }
-    ?work wdt:P1433 / wdt:P123 ?publisher .
-    ?citation wdt:P2860 ?work .
-  } GROUP BY ?work ORDER BY DESC(?count) LIMIT 100
-} AS %RETRACTIONS WHERE {
-  INCLUDE %RETRACTIONS
-  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en". }
-} ORDER BY DESC(?count)""";
-    schema:target <https://query.wikidata.org/sparql> ;
-    spex:federatesWith <http://wikiba.se/ontology#label> ;
+SELECT ?work ?workLabel (COUNT(DISTINCT ?citation) AS ?count) WHERE {
+  { ?work wdt:P31 wd:Q45182324 . } UNION
+  { ?work wdt:P793 wd:Q7316896 . } UNION
+  { ?work wdt:P5824 [] . }
+  ?work wdt:P1433 / wdt:P123 ?publisher .
+  ?work rdfs:label ?workLabel . FILTER (LANG(?workLabel) = "en") .
+  ?citation wdt:P2860 ?work .
+} GROUP BY ?work ?workLabel
+  ORDER BY DESC(?count) LIMIT 100""";
+    schema:target <https://qlever.dev/api/wikidata> ;
     dc:contributor "Egon Willighagen" ;
     dcterms:license <http://creativecommons.org/publicdomain/zero/1.0/> ;
     schema:keywords "retraction" .
