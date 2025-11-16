@@ -12,28 +12,26 @@ ex:010 a sh:SPARQLExecutable,
        sh:SPARQLSelectExecutable ;
     rdfs:comment "Wikidata statements with a retracted paper as reference."@en ;
     sh:prefixes _:sparql_examples_prefixes ;
-    sh:select """PREFIX wd: <http://wikidata.org/entity/>
-PREFIX wdt: <http://wikidata.org/prop/direct/>
+    sh:select """PREFIX wd: <http://www.wikidata.org/entity/>
+PREFIX wdt: <http://www.wikidata.org/prop/direct/>
 PREFIX wikibase: <http://wikiba.se/ontology#>
-PREFIX bd: <http://www.bigdata.com/rdf#>
 PREFIX prov: <http://www.w3.org/ns/prov#>
 PREFIX pr: <http://www.wikidata.org/prop/reference/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 
-SELECT DISTINCT ?entity ?entityLabel ?propertyLabel ?valueLabel ?retracted ?retractedLabel WITH {
-  SELECT DISTINCT ?entity ?p ?statement ?retracted WHERE {
-    ?retracted wdt:P31 wd:Q45182324 .
-    ?entity ?p ?statement .
-    ?statement prov:wasDerivedFrom / pr:P248 ?retracted .
-  }
-} AS %STATEMENTS WHERE {
-  INCLUDE %STATEMENTS
+SELECT DISTINCT ?entity ?entityLabel ?propertyLabel ?valueLabel ?retracted ?retractedLabel WHERE {
+  ?retracted wdt:P31 wd:Q45182324 .
+  ?entity ?p ?statement .
+  ?statement prov:wasDerivedFrom / pr:P248 ?retracted .
   ?p ^wikibase:claim ?property .
   ?statement ?ps ?value .
   ?ps ^wikibase:statementProperty ?property .
-  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],en". }
+  ?entity rdfs:label ?entityLabel . FILTER (LANG(?entityLabel) = "en") .
+  ?property rdfs:label ?propertyLabel . FILTER (LANG(?propertyLabel) = "en") .
+  ?value rdfs:label ?valueLabel . FILTER (LANG(?valueLabel) = "en") .
+  ?retracted rdfs:label ?retractedLabel . FILTER (LANG(?retractedLabel) = "en") .
 }""";
-    schema:target <https://query.wikidata.org/sparql> ;
-    spex:federatesWith <http://wikiba.se/ontology#label> ;
+    schema:target <https://qlever.dev/api/wikidata> ;
     dc:contributor "Egon Willighagen" ;
     dcterms:license <http://creativecommons.org/publicdomain/zero/1.0/> ;
     cito:usesMethodIn <https://www.wikidata.org/wiki/Wikidata:WikiProject_Retractions/SPARQL> ;

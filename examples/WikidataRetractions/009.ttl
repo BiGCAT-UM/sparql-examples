@@ -26,7 +26,7 @@ WHERE {
           wdt:P50 ?author .
       ?author ( wdt:P108| wdt:P463 | wdt:P1416 ) / wdt:P361* ?organization .
       ?organization (wdt:P625 | ((wdt:P276|wdt:P159)/wdt:P625)) ?geo_ .
-    } GROUP BY ?organization ?geo ?count
+    } GROUP BY ?organization ?geo_
       ORDER BY DESC (?count)
       LIMIT 2000
   }
