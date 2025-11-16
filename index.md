@@ -16,7 +16,6 @@ Futhermore, we have collected many SPARQL queries around Wikidata, some of which
  * [Citation Typing Ontology](./examples/WikidataCiTO/)
  * [Mastodon queries](./examples/WikidataMastodon/)
  * [Retractions](./examples/WikidataRetractions/)
- * [Scholia](./examples/Scholia/)
 
 This repository is based on the work by the [SIB Swiss Institute of Bioinformatics](https://www.sib.swiss/),
 and specifically [this website repository](https://github.com/sib-swiss/sparql-examples) and
