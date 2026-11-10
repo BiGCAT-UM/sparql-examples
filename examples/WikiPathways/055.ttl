@@ -5,6 +5,7 @@
 @prefix schema: <https://schema.org/> .
 @prefix sh: <http://www.w3.org/ns/shacl#> .
 @prefix spex: <https://purl.expasy.org/sparql-examples/ontology#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
 ex:055 a sh:SPARQLExecutable,
        sh:SPARQLSelectExecutable ;
@@ -50,5 +51,6 @@ SERVICE <https://idsm.elixir-czech.cz/sparql/endpoint/chebi> {
     schema:target <https://sparql.wikipathways.org/sparql> ;
     schema:keywords "chemistry" ;
     spex:federatesWith <https://idsm.elixir-czech.cz/sparql/endpoint/chebi> ;
-    dcterms:source <https://github.com/wikipathways/SPARQLQueries/blob/master/H.%20Chemistry/IDSM_similaritySearch.rq> ;
+    dcterms:source <https://github.com/wikipathways/SPARQLQueries/blob/2f7566a161f01130c02bd00c981d238c055f8bd6/H.%20Chemistry/IDSM_similaritySearch.rq> ;
+    dcterms:modified "2026-03-08"^^xsd:date ;
     dcterms:license <https://www.gnu.org/licenses/gpl-3.0.html> .

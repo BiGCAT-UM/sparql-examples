@@ -5,6 +5,7 @@
 @prefix schema: <https://schema.org/> .
 @prefix sh: <http://www.w3.org/ns/shacl#> .
 @prefix spex: <https://purl.expasy.org/sparql-examples/ontology#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
 ex:016 a sh:SPARQLExecutable,
        sh:SPARQLSelectExecutable ;
@@ -27,5 +28,6 @@ SELECT ?pred (COUNT(DISTINCT ?entity) AS ?count) WHERE {
   ORDER BY DESC(?count)""" ;
     schema:target <https://sparql.wikipathways.org/sparql> ;
     schema:keywords "metadata", "counts" ;
-    dcterms:source <https://github.com/wikipathways/SPARQLQueries/blob/master/A.%20Metadata/datacounts/linkoutCounts.rq> ;
+    dcterms:source <https://github.com/wikipathways/SPARQLQueries/blob/56af22ea28b931bcc0f93575c2e65a5c585b8a12/A.%20Metadata/datacounts/linkoutCounts.rq> ;
+    dcterms:modified "2026-03-08"^^xsd:date ;
     dcterms:license <https://www.gnu.org/licenses/gpl-3.0.html> .

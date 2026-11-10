@@ -5,6 +5,7 @@
 @prefix schema: <https://schema.org/> .
 @prefix sh: <http://www.w3.org/ns/shacl#> .
 @prefix spex: <https://purl.expasy.org/sparql-examples/ontology#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
 ex:061 a sh:SPARQLExecutable,
        sh:SPARQLSelectExecutable ;
@@ -32,5 +33,6 @@ SELECT ?pathway ?version ?ordinal ?author_ ?name ?orcid ?page WHERE {
 } ORDER BY ASC(?pathway) ASC(?ordinal)""" ;
     schema:target <https://sparql.wikipathways.org/sparql> ;
     schema:keywords "authors" ;
-    dcterms:source <https://github.com/wikipathways/SPARQLQueries/blob/master/J.%20Authors/authorsOfAPathway.rq> ;
+    dcterms:source <https://github.com/wikipathways/SPARQLQueries/blob/4431b11d148e0e1bcc3533e90b80225376c80d1a/J.%20Authors/authorsOfAPathway.rq> ;
+    dcterms:modified "2026-03-08"^^xsd:date ;
     dcterms:license <https://www.gnu.org/licenses/gpl-3.0.html> .

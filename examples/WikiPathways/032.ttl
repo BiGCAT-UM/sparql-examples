@@ -5,6 +5,7 @@
 @prefix schema: <https://schema.org/> .
 @prefix sh: <http://www.w3.org/ns/shacl#> .
 @prefix spex: <https://purl.expasy.org/sparql-examples/ontology#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
 ex:032 a sh:SPARQLExecutable,
        sh:SPARQLSelectExecutable ;
@@ -49,5 +50,6 @@ VALUES ?PWID {"WP5275"}
     schema:target <https://sparql.wikipathways.org/sparql> ;
     schema:keywords "collaborations", "MetaNetX", "reaction" ;
     spex:federatesWith <https://rdf.metanetx.org/sparql/> ;
-    dcterms:source <https://github.com/wikipathways/SPARQLQueries/blob/master/C.%20Collaborations/MetaNetX/reactionID_mapping.rq> ;
+    dcterms:source <https://github.com/wikipathways/SPARQLQueries/blob/769e44d643956539cbb80185e3de0477ad3d4d45/C.%20Collaborations/MetaNetX/reactionID_mapping.rq> ;
+    dcterms:modified "2026-11-10"^^xsd:date ;
     dcterms:license <https://www.gnu.org/licenses/gpl-3.0.html> .

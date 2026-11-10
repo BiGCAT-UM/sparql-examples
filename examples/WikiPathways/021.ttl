@@ -5,6 +5,7 @@
 @prefix schema: <https://schema.org/> .
 @prefix sh: <http://www.w3.org/ns/shacl#> .
 @prefix spex: <https://purl.expasy.org/sparql-examples/ontology#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
 ex:021 a sh:SPARQLExecutable,
        sh:SPARQLSelectExecutable ;
@@ -25,5 +26,6 @@ FILTER regex(str(?label), "metabolic pathway")
 }""" ;
     schema:target <https://sparql.wikipathways.org/sparql> ;
     schema:keywords "communities", "inborn errors of metabolism", "metabolism" ;
-    dcterms:source <https://github.com/wikipathways/SPARQLQueries/blob/master/B.%20Communities/Inborn%20Errors%20of%20Metabolism/countMetabolicPWs.rq> ;
+    dcterms:source <https://github.com/wikipathways/SPARQLQueries/blob/f9de718ebdcca57dadb773d47fa4e342cf386857/B.%20Communities/Inborn%20Errors%20of%20Metabolism/countMetabolicPWs.rq> ;
+    dcterms:modified "2026-11-10"^^xsd:date ;
     dcterms:license <https://www.gnu.org/licenses/gpl-3.0.html> .

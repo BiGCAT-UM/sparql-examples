@@ -30,3 +30,12 @@ queries (`# param:` headers, `{{name}}` placeholders) are written with their def
 every example runs as it is. `--check` writes nothing and exits with 1 if anything would change.
 
 Fix query syntax in SPARQLQueries itself, not in the generated files: they are overwritten on the next run.
+
+## Versions
+
+An example IRI always stands for the current version of the query. Each generated example also
+records which version of the SNORQL query it was made from: `dcterms:source` links to the `.rq`
+file at the commit that last changed it, and `dcterms:modified` gives that commit's date. The
+generator therefore refuses `.rq` files with uncommitted changes and commits that are not on
+SPARQLQueries' `master` yet (`--allow-unmerged` to try out a branch). Merge pull requests there
+with a merge commit, not a squash, or the recorded commits disappear from `master`.

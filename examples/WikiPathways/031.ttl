@@ -5,6 +5,7 @@
 @prefix schema: <https://schema.org/> .
 @prefix sh: <http://www.w3.org/ns/shacl#> .
 @prefix spex: <https://purl.expasy.org/sparql-examples/ontology#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
 ex:031 a sh:SPARQLExecutable,
        sh:SPARQLSelectExecutable ;
@@ -34,5 +35,6 @@ ORDER BY ?ChemicalName ?pathwayName""" ;
     schema:target <https://sparql.wikipathways.org/sparql> ;
     schema:keywords "collaborations", "AOP-Wiki", "metabolite" ;
     spex:federatesWith <https://aopwiki.rdf.bigcat-bioinformatics.org/sparql/> ;
-    dcterms:source <https://github.com/wikipathways/SPARQLQueries/blob/master/C.%20Collaborations/AOP-Wiki/MetaboliteInAOP-Wiki.rq> ;
+    dcterms:source <https://github.com/wikipathways/SPARQLQueries/blob/7a6a9c7bb1c188b1422d851f705492d6c78c49f4/C.%20Collaborations/AOP-Wiki/MetaboliteInAOP-Wiki.rq> ;
+    dcterms:modified "2026-10-07"^^xsd:date ;
     dcterms:license <https://www.gnu.org/licenses/gpl-3.0.html> .

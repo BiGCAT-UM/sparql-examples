@@ -5,6 +5,7 @@
 @prefix schema: <https://schema.org/> .
 @prefix sh: <http://www.w3.org/ns/shacl#> .
 @prefix spex: <https://purl.expasy.org/sparql-examples/ontology#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
 ex:036 a sh:SPARQLExecutable,
        sh:SPARQLSelectExecutable ;
@@ -30,5 +31,6 @@ select distinct ?pathway (str(?label) as ?geneProduct) where {
 }""" ;
     schema:target <https://sparql.wikipathways.org/sparql> ;
     schema:keywords "general" ;
-    dcterms:source <https://github.com/wikipathways/SPARQLQueries/blob/master/D.%20General/GenesofPathway.rq> ;
+    dcterms:source <https://github.com/wikipathways/SPARQLQueries/blob/f9de718ebdcca57dadb773d47fa4e342cf386857/D.%20General/GenesofPathway.rq> ;
+    dcterms:modified "2026-11-10"^^xsd:date ;
     dcterms:license <https://www.gnu.org/licenses/gpl-3.0.html> .

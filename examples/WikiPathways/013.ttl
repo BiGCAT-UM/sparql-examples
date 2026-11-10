@@ -5,6 +5,7 @@
 @prefix schema: <https://schema.org/> .
 @prefix sh: <http://www.w3.org/ns/shacl#> .
 @prefix spex: <https://purl.expasy.org/sparql-examples/ontology#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
 ex:013 a sh:SPARQLExecutable,
        sh:SPARQLSelectExecutable ;
@@ -19,5 +20,6 @@ WHERE {
 }""" ;
     schema:target <https://sparql.wikipathways.org/sparql> ;
     schema:keywords "metadata", "counts" ;
-    dcterms:source <https://github.com/wikipathways/SPARQLQueries/blob/master/A.%20Metadata/datacounts/countOfEntityType.rq> ;
+    dcterms:source <https://github.com/wikipathways/SPARQLQueries/blob/3fd553e6b24c4c9d88604eda578ecd8ad192a5c6/A.%20Metadata/datacounts/countOfEntityType.rq> ;
+    dcterms:modified "2026-03-30"^^xsd:date ;
     dcterms:license <https://www.gnu.org/licenses/gpl-3.0.html> .

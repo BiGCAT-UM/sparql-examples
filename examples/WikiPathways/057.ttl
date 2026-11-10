@@ -5,6 +5,7 @@
 @prefix schema: <https://schema.org/> .
 @prefix sh: <http://www.w3.org/ns/shacl#> .
 @prefix spex: <https://purl.expasy.org/sparql-examples/ontology#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
 ex:057 a sh:SPARQLExecutable,
        sh:SPARQLSelectExecutable ;
@@ -41,5 +42,6 @@ FILTER(?wikidata != ?wikidata2)
 } GROUP BY ?metaboliteID""" ;
     schema:target <https://sparql.wikipathways.org/sparql> ;
     schema:keywords "DSMN", "directed small molecules network" ;
-    dcterms:source <https://github.com/wikipathways/SPARQLQueries/blob/master/I.%20DirectedSmallMoleculesNetwork%20%28DSMN%29/controlling%20duplicate%20mappings%20from%20Wikidata.rq> ;
+    dcterms:source <https://github.com/wikipathways/SPARQLQueries/blob/85c9912c600413a9ae0f5f9a3529420e38747f04/I.%20DirectedSmallMoleculesNetwork%20%28DSMN%29/controlling%20duplicate%20mappings%20from%20Wikidata.rq> ;
+    dcterms:modified "2026-03-08"^^xsd:date ;
     dcterms:license <https://www.gnu.org/licenses/gpl-3.0.html> .

@@ -5,6 +5,7 @@
 @prefix schema: <https://schema.org/> .
 @prefix sh: <http://www.w3.org/ns/shacl#> .
 @prefix spex: <https://purl.expasy.org/sparql-examples/ontology#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
 ex:024 a sh:SPARQLExecutable,
        sh:SPARQLSelectExecutable ;
@@ -34,5 +35,6 @@ GROUP BY ?lipid ?name ?formula ?lmid""" ;
     schema:target <https://sparql.wikipathways.org/sparql> ;
     schema:keywords "communities", "lipids", "LIPID MAPS" ;
     spex:federatesWith <https://lipidmaps.org/sparql> ;
-    dcterms:source <https://github.com/wikipathways/SPARQLQueries/blob/master/B.%20Communities/Lipids/LIPIDMAPS_Federated.rq> ;
+    dcterms:source <https://github.com/wikipathways/SPARQLQueries/blob/769e44d643956539cbb80185e3de0477ad3d4d45/B.%20Communities/Lipids/LIPIDMAPS_Federated.rq> ;
+    dcterms:modified "2026-11-10"^^xsd:date ;
     dcterms:license <https://www.gnu.org/licenses/gpl-3.0.html> .

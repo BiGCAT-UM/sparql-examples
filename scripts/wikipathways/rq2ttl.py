@@ -23,12 +23,20 @@ Usage, from the repository root:
 
 New .rq files in the source checkout are appended to sources.tsv with the next
 free number. --check writes nothing and exits with 1 if any file would change.
+
+Each generated example links (dcterms:source) to the .rq file at the commit that
+last changed it, and records that commit's date as dcterms:modified, so the link
+keeps showing the version the example was made from. The source checkout must
+therefore be clean for the .rq files and those commits must be on the upstream
+master branch (as last fetched); --allow-unmerged skips the second check, for
+trying out a branch before its pull request is merged.
 """
 
 import argparse
 import csv
 import pathlib
 import re
+import subprocess
 import sys
 import urllib.parse
 
@@ -43,7 +51,8 @@ PREFIXES_TTL = OUT_DIR / "prefixes.ttl"
 
 EX_BASE = "https://bigcat-um.github.io/sparql-examples/WikiPathways/"
 TARGET = "https://sparql.wikipathways.org/sparql"
-SOURCE_BASE = "https://github.com/wikipathways/SPARQLQueries/blob/master/"
+SOURCE_BASE = "https://github.com/wikipathways/SPARQLQueries/blob/"
+UPSTREAM_BRANCH = "origin/master"
 LICENSE = "https://www.gnu.org/licenses/gpl-3.0.html"
 
 SH = Namespace("http://www.w3.org/ns/shacl#")
@@ -237,7 +246,25 @@ def keywords_for(rq):
     return result
 
 
-def render(ex_id, rq, namespaces):
+def git(source, *args):
+    return subprocess.run(["git", "-C", str(source), *args], capture_output=True, text=True)
+
+
+def source_version(source, rel, allow_unmerged):
+    """Commit (hash, date) that last changed `rel` in the source checkout."""
+    if git(source, "status", "--porcelain", "--", rel).stdout.strip():
+        raise ValueError(f"{rel} has uncommitted changes in {source}")
+    out = git(source, "log", "-1", "--format=%H %cs", "--", rel).stdout.split()
+    if len(out) != 2:
+        raise ValueError(f"{rel} has no git history in {source}")
+    sha, date = out
+    if not allow_unmerged and git(source, "merge-base", "--is-ancestor", sha, UPSTREAM_BRANCH).returncode != 0:
+        raise ValueError(f"{rel}: commit {sha[:7]} is not on {UPSTREAM_BRANCH}; merge it upstream "
+                         "(and fetch) first, or pass --allow-unmerged to try it out")
+    return sha, date
+
+
+def render(ex_id, rq, namespaces, version):
     query = rq.query(namespaces).rstrip("\n")
     form = query_form(query)
     cls, prop, _ = QUERY_FORMS[form]
@@ -250,6 +277,7 @@ def render(ex_id, rq, namespaces):
         "@prefix schema: <https://schema.org/> .",
         "@prefix sh: <http://www.w3.org/ns/shacl#> .",
         "@prefix spex: <https://purl.expasy.org/sparql-examples/ontology#> .",
+        "@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .",
         "",
         f"ex:{ex_id} a sh:SPARQLExecutable,",
         f"       {'spex' if form == 'DESCRIBE' else 'sh'}:{cls} ;",
@@ -262,7 +290,9 @@ def render(ex_id, rq, namespaces):
     ]
     for service in services(query):
         lines.append(f"    spex:federatesWith <{service}> ;")
-    lines.append(f"    dcterms:source <{SOURCE_BASE}{urllib.parse.quote(rq.rel)}> ;")
+    sha, date = version
+    lines.append(f"    dcterms:source <{SOURCE_BASE}{sha}/{urllib.parse.quote(rq.rel)}> ;")
+    lines.append(f'    dcterms:modified "{date}"^^xsd:date ;')
     lines.append(f"    dcterms:license <{LICENSE}> .")
     ttl = "\n".join(lines) + "\n"
     check_round_trip(ex_id, ttl, query, prop, form)
@@ -310,6 +340,8 @@ def main():
                     help="checkout of https://github.com/wikipathways/SPARQLQueries")
     ap.add_argument("--check", action="store_true",
                     help="write nothing; exit 1 if any file would change")
+    ap.add_argument("--allow-unmerged", action="store_true",
+                    help=f"accept source commits that are not on {UPSTREAM_BRANCH} yet")
     args = ap.parse_args()
 
     source = args.source.resolve()
@@ -340,7 +372,8 @@ def main():
             continue
         if row["kind"] != "rq":
             continue
-        outputs[OUT_DIR / f"{row['id']}.ttl"] = render(row["id"], RqQuery(path, row["source"]), namespaces)
+        version = source_version(source, row["source"], args.allow_unmerged)
+        outputs[OUT_DIR / f"{row['id']}.ttl"] = render(row["id"], RqQuery(path, row["source"]), namespaces, version)
 
     for path, ttl in outputs.items():
         old = path.read_text(encoding="utf-8") if path.exists() else None
