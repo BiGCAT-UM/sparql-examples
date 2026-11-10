@@ -6,6 +6,7 @@
 
 ex:003 a sh:SPARQLExecutable,
        sh:SPARQLSelectExecutable ;
+    rdfs:label "SPARQL Prefixes"@en ;
     rdfs:comment "Lists prefixes used in this database."@en ;
     sh:prefixes _:sparql_examples_prefixes ;
     sh:select """PREFIX sh: <http://www.w3.org/ns/shacl#>
@@ -18,4 +19,5 @@ SELECT ?prefix ?namespace WHERE {
   ] .
 }""" ;
     schema:target <https://sparql.wikipathways.org/sparql> ;
-    schema:keywords "prefix", "namespace" .
+    schema:keywords "prefix", "namespace" ;
+    rdfs:seeAlso <https://github.com/wikipathways/SPARQLQueries/blob/master/A.%20Metadata/prefixes.rq> .

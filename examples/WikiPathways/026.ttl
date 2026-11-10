@@ -1,0 +1,34 @@
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix ex: <https://bigcat-um.github.io/sparql-examples/WikiPathways/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix schema: <https://schema.org/> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix spex: <https://purl.expasy.org/sparql-examples/ontology#> .
+
+ex:026 a sh:SPARQLExecutable,
+       sh:SPARQLSelectExecutable ;
+    rdfs:label "Lipids Count per Pathway"@en ;
+    rdfs:comment "Counts the total number of lipids with LIPID MAPS identifiers per human pathway, ordered by count. This example uses the default value (Species \"Homo sapiens\"); the WikiPathways SNORQL UI lets you change it."@en ;
+    sh:prefixes _:sparql_examples_prefixes ;
+    sh:select """PREFIX dc: <http://purl.org/dc/elements/1.1/>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+PREFIX wp: <http://vocabularies.wikipathways.org/wp#>
+prefix lipidmaps:      <https://identifiers.org/lipidmaps/> #IRI can be used to create URLs from identifiers in line 7
+select distinct ?pathwayRes (str(?wpid) as ?pathway) (str(?title) as ?pathwayTitle) (count(distinct ?lipidID) AS ?LipidsInPWs)
+where {
+  ?metabolite a wp:Metabolite ;    #Define what are metabolites
+    dcterms:identifier ?id ;       #Find the identifier of a certain metabolite
+    dcterms:isPartOf ?pathwayRes ; #Define metabolites are part of a pathway
+    wp:bdbLipidMaps ?lipidID .     #Find the LIPID MAPS identifier for a certain metabolite
+  ?pathwayRes a wp:Pathway ;       #Define what is a pathway
+              wp:organismName "Homo sapiens" ; #Filter pathways on species Human
+    dcterms:identifier ?wpid ;     #Obtain identifier of pathway
+    dc:title ?title .              #Obtain title of pathway
+}
+GROUP BY ?pathwayRes ?wpid ?title
+ORDER BY DESC(?LipidsInPWs)""" ;
+    schema:target <https://sparql.wikipathways.org/sparql> ;
+    schema:keywords "communities", "lipids", "LIPID MAPS" ;
+    dcterms:source <https://github.com/wikipathways/SPARQLQueries/blob/master/B.%20Communities/Lipids/LipidsCountPerPathway.rq> ;
+    dcterms:license <https://www.gnu.org/licenses/gpl-3.0.html> .

@@ -1,0 +1,36 @@
+@prefix cito: <http://purl.org/spar/cito/> .
+@prefix ex: <https://bigcat-um.github.io/sparql-examples/WikiPathways/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix schema: <https://schema.org/> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix spex: <https://purl.expasy.org/sparql-examples/ontology#> .
+
+ex:083 a sh:SPARQLExecutable,
+       sh:SPARQLSelectExecutable ;
+    rdfs:label "Enzymatic Reactions between Metabolites"@en ;
+    rdfs:comment "Lists catalysed reactions between two metabolites, with the pathway, the label of the catalyst, the source and target metabolites, and their Wikidata identifiers."@en ;
+    sh:prefixes _:sparql_examples_prefixes ;
+    sh:select """PREFIX dc: <http://purl.org/dc/elements/1.1/>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX wp: <http://vocabularies.wikipathways.org/wp#>
+
+SELECT DISTINCT ?wpid ?catalyst ?source ?sourceDb ?target ?targetDb WHERE {
+  ?pathway a wp:Pathway ;
+      dc:identifier / dcterms:identifier ?wpid .
+  ?catalysis dcterms:isPartOf ?pathway ;
+    wp:source / rdfs:label ?catalyst ;
+    wp:participants ?reaction .
+  ?reaction a wp:Interaction .
+  ?reaction wp:source ?source .
+  ?source a wp:Metabolite .
+  OPTIONAL{?source wp:bdbWikidata ?sourceDb .}
+
+  ?reaction wp:target ?target .
+  ?target a wp:Metabolite .
+  OPTIONAL{?target wp:bdbWikidata ?targetDb .}
+} ORDER BY ASC(?source)""" ;
+    schema:target <https://sparql.wikipathways.org/sparql> ;
+    schema:keywords "metabolite", "reaction", "catalysis" ;
+    cito:usesMethodIn <https://www.wikipathways.org/metabolome.html> .

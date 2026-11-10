@@ -1,0 +1,119 @@
+id	kind	source	note
+001	manual		dataset title, date and license
+002	manual		linksets
+003	manual		prefixes declared in the endpoint
+004	manual		AOP community pathways
+005	manual		diseases with pathway counts
+006	manual	https://www.wikipathways.org/sparql.html	species with their IRIs
+007	manual	https://www.wikipathways.org/sparql.html	pathways and their species
+008	manual	https://www.wikipathways.org/sparql.html	species with pathway counts
+009	manual	https://www.wikipathways.org/sparql.html	pathways for Mus musculus
+010	manual		homology-converted pathways
+001	same	A. Metadata/metadata.rq	
+002	same	A. Metadata/linksets.rq	
+003	same	A. Metadata/prefixes.rq	
+004	same	B. Communities/communityPathways.rq	example uses the default community AOP
+008	same	A. Metadata/species/countPathwaysPerSpecies.rq	
+009	same	A. Metadata/species/PWsforSpecies.rq	only the species differs (default Homo sapiens)
+-	skip	C. Collaborations/neXtProt/ProteinCellularLocation.rq	neXtProt SPARQL endpoint archived (redirects to expasy.org/archives/nextprot), checked 2026-11-10
+-	skip	C. Collaborations/neXtProt/ProteinMitochondria.rq	neXtProt SPARQL endpoint archived (redirects to expasy.org/archives/nextprot), checked 2026-11-10
+011	rq	A. Metadata/authors.rq	
+012	rq	A. Metadata/datacounts/averagePerPathway.rq	
+013	rq	A. Metadata/datacounts/countOfEntityType.rq	
+014	rq	A. Metadata/datacounts/countPathways.rq	
+015	rq	A. Metadata/datacounts/countSignalingPathways.rq	
+016	rq	A. Metadata/datacounts/linkoutCounts.rq	
+017	rq	A. Metadata/datasources/pathwaysForDatasource.rq	
+018	rq	A. Metadata/species/countEntityPerSpecies.rq	
+019	rq	B. Communities/communityProteins.rq	
+020	rq	B. Communities/Inborn Errors of Metabolism/allMetabolicPWs.rq	
+021	rq	B. Communities/Inborn Errors of Metabolism/countMetabolicPWs.rq	
+022	rq	B. Communities/Inborn Errors of Metabolism/countProteinsMetabolitesRheaDiseases.rq	
+023	rq	B. Communities/Lipids/LipidClassesTotal.rq	
+024	rq	B. Communities/Lipids/LIPIDMAPS_Federated.rq	
+025	rq	B. Communities/Lipids/LipidsClassesCountPerPathway.rq	
+026	rq	B. Communities/Lipids/LipidsCountPerPathway.rq	
+027	rq	B. Communities/Reactome/getPathways.rq	
+028	rq	B. Communities/Reactome/refsReactomeAndWP.rq	
+029	rq	B. Communities/Reactome/refsReactomeNotWP.rq	
+030	rq	B. Communities/Reactome/refsWPNotReactome.rq	
+031	rq	C. Collaborations/AOP-Wiki/MetaboliteInAOP-Wiki.rq	
+032	rq	C. Collaborations/MetaNetX/reactionID_mapping.rq	
+033	rq	C. Collaborations/MolMeDB/ONEpubchem_MANYpathways.rq	
+034	rq	C. Collaborations/MolMeDB/SUBSETpathways_ONEpubchem.rq	
+035	rq	C. Collaborations/smallMolecules_Rhea_IDSM/molecularSimularity_Reactions.rq	
+036	rq	D. General/GenesofPathway.rq	
+037	rq	D. General/InteractionsofPathway.rq	
+038	rq	D. General/MetabolitesofPathway.rq	
+039	rq	D. General/OntologyofPathway.rq	
+040	rq	E. Literature/allPathwayswithPubMed.rq	
+041	rq	E. Literature/allReferencesForInteraction.rq	
+042	rq	E. Literature/countRefsPerPW.rq	
+043	rq	E. Literature/referencesForInteraction.rq	
+044	rq	E. Literature/referencesForSpecificInteraction.rq	
+045	rq	F. Datadump/CyTargetLinkerLinksetInput.rq	
+046	rq	F. Datadump/dumpOntologyAndPW.rq	
+047	rq	F. Datadump/dumpPWsofSpecies.rq	
+048	rq	G. Curation/countPWsMetabolitesOccurSorted.rq	
+049	rq	G. Curation/countPWsWithoutRef.rq	
+050	rq	G. Curation/MetabolitesDoubleMappingWikidata.rq	
+051	rq	G. Curation/MetabolitesNotClassified.rq	
+052	rq	G. Curation/MetabolitesWithoutLinkWikidata.rq	
+053	rq	G. Curation/PWsWithoutDatanodes.rq	
+054	rq	G. Curation/PWsWithoutRef.rq	
+055	rq	H. Chemistry/IDSM_similaritySearch.rq	
+056	rq	H. Chemistry/smiles.rq	
+057	rq	I. DirectedSmallMoleculesNetwork (DSMN)/controlling duplicate mappings from Wikidata.rq	
+058	rq	I. DirectedSmallMoleculesNetwork (DSMN)/extracting directed metabolic reactions.rq	
+059	rq	I. DirectedSmallMoleculesNetwork (DSMN)/extracting ontologies and references for metabolic reactions.rq	
+060	rq	I. DirectedSmallMoleculesNetwork (DSMN)/extracting protein titles and identifiers for metabolic reactions.rq	
+061	rq	J. Authors/authorsOfAPathway.rq	
+062	rq	J. Authors/contributors.rq	
+063	rq	J. Authors/firstAuthors.rq	
+064	rq	J. Authors/pathwayCountWithAtLeastXAuthors.rq	
+065	web	https://www.wikipathways.org/sparql.html	block 6: Pathways with a Particular Gene
+066	web	https://www.wikipathways.org/sparql.html	block 7: Groups and Complexes with a Particular Gene
+067	web	https://www.wikipathways.org/sparql.html	block 9: Pathway Count per Ontology Term
+068	web	https://www.wikipathways.org/sparql.html	block 10: Pathway Count per Curation Tag
+069	web	https://www.wikipathways.org/sparql.html	block 11: Pathways with a Particular Ontology Term
+070	web	https://www.wikipathways.org/sparql.html	block 17: Metabolite Count per Species
+071	web	https://www.wikipathways.org/sparql.html	block 18: Interactions for a Particular Data Node
+072	web	https://www.wikipathways.org/sparql.html	block 19: All Data Sources
+073	web	https://www.wikipathways.org/sparql.html	block 20: Entry Count per Data Source
+074	web	https://www.wikipathways.org/sparql.html	block 21: ChEMBL Compounds and Their Pathways
+075	web	https://www.wikipathways.org/federated.html	block 3: Metabolites with InChIKeys from Wikidata
+076	web	https://www.wikipathways.org/metabolome.html	block 4: All Metabolites
+077	web	https://www.wikipathways.org/metabolome.html	block 5: Metabolites in Zebrafish Pathways
+078	web	https://www.wikipathways.org/metabolome.html	block 6: Metabolite Identifier Count per Data Source
+079	web	https://www.wikipathways.org/metabolome.html	block 7: Metabolites with a KEGG Identifier
+080	web	https://www.wikipathways.org/metabolome.html	block 10: Human Metabolome
+081	web	https://www.wikipathways.org/metabolome.html	block 12: Pathways with the Most Metabolites
+082	web	https://www.wikipathways.org/metabolome.html	block 13: Metabolites in the Most Pathways
+083	web	https://www.wikipathways.org/metabolome.html	block 14: Enzymatic Reactions between Metabolites
+001	same	https://www.wikipathways.org/sparql.html	block 1: dataset metadata
+006	same	https://www.wikipathways.org/sparql.html	block 2
+007	same	https://www.wikipathways.org/sparql.html	block 3
+008	same	https://www.wikipathways.org/sparql.html	block 4
+009	same	https://www.wikipathways.org/sparql.html	block 5
+036	same	https://www.wikipathways.org/sparql.html	block 8: genes on pathway WP1560
+039	same	https://www.wikipathways.org/sparql.html	block 12: ontology terms of pathway WP1560
+027	same	https://www.wikipathways.org/sparql.html	block 13: Reactome pathways
+026	same	https://www.wikipathways.org/sparql.html	block 14: lipids per pathway
+023	same	https://www.wikipathways.org/sparql.html	block 15: lipids per LIPID MAPS class
+025	same	https://www.wikipathways.org/sparql.html	block 16: pathways per LIPID MAPS class
+029	same	https://www.wikipathways.org/sparql.html	block 22
+030	same	https://www.wikipathways.org/sparql.html	block 23
+028	same	https://www.wikipathways.org/sparql.html	block 24
+033	same	https://www.wikipathways.org/federated.html	block 4: MolMeDB compound in pathways
+034	same	https://www.wikipathways.org/federated.html	block 5: MolMeDB compound in pathway subset
+024	same	https://www.wikipathways.org/federated.html	block 6: LIPID MAPS
+032	same	https://www.wikipathways.org/federated.html	block 7: MetaNetX reactions
+001	same	https://www.wikipathways.org/metabolome.html	block 1: dataset version (title)
+001	same	https://www.wikipathways.org/metabolome.html	block 2: dataset version (title), repeated on the page
+013	same	https://www.wikipathways.org/metabolome.html	block 3: metabolite count; only the entity type differs
+079	same	https://www.wikipathways.org/metabolome.html	block 8: HMDB identifiers; only the data source differs
+008	same	https://www.wikipathways.org/metabolome.html	block 9: pathways per species
+080	same	https://www.wikipathways.org/metabolome.html	block 11: Arabidopsis thaliana metabolome; only the taxon differs
+065	same	https://www.wikipathways.org/rdf.html	block 1: genes matching CYP and their pathways
+-	skip	https://www.wikipathways.org/federated.html	block 1: ChEMBL assays for a gene's pathways: the BiGCaT ChEMBL mirror has no Ensembl target xrefs, so no assay is ever bound (checked 2026-11-10)
+-	skip	https://www.wikipathways.org/federated.html	block 2: molecules targeting a pathway via ChEMBL: Virtuoso refuses the SERVICE subquery (SR619 LOAD SERVICE DATA access denied) and the mirror has no Ensembl target xrefs (checked 2026-11-10)

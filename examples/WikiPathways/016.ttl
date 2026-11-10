@@ -1,0 +1,31 @@
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix ex: <https://bigcat-um.github.io/sparql-examples/WikiPathways/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix schema: <https://schema.org/> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix spex: <https://purl.expasy.org/sparql-examples/ontology#> .
+
+ex:016 a sh:SPARQLExecutable,
+       sh:SPARQLSelectExecutable ;
+    rdfs:label "External Linkout Counts"@en ;
+    rdfs:comment "Counts the number of distinct entities linked to each external database (ChEBI, ChemSpider, HMDB, PubChem, Ensembl, NCBI Gene, HGNC, Rhea, UniProt)."@en ;
+    sh:prefixes _:sparql_examples_prefixes ;
+    sh:select """PREFIX wp: <http://vocabularies.wikipathways.org/wp#>
+
+SELECT ?pred (COUNT(DISTINCT ?entity) AS ?count) WHERE {
+  VALUES ?pred {
+    # metabolites
+    wp:bdbChEBI wp:bdbChemspider wp:bdbHmdb wp:bdbPubChem
+    # gene products
+    wp:bdbEnsembl wp:bdbEntrezGene wp:bdbHgncSymbol
+    # interactions
+    wp:bdbRhea wp:bdbUniprot
+  }
+  ?entity ?pred []
+} GROUP BY ?pred
+  ORDER BY DESC(?count)""" ;
+    schema:target <https://sparql.wikipathways.org/sparql> ;
+    schema:keywords "metadata", "counts" ;
+    dcterms:source <https://github.com/wikipathways/SPARQLQueries/blob/master/A.%20Metadata/datacounts/linkoutCounts.rq> ;
+    dcterms:license <https://www.gnu.org/licenses/gpl-3.0.html> .

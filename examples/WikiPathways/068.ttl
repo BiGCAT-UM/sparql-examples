@@ -1,0 +1,25 @@
+@prefix cito: <http://purl.org/spar/cito/> .
+@prefix ex: <https://bigcat-um.github.io/sparql-examples/WikiPathways/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix schema: <https://schema.org/> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix spex: <https://purl.expasy.org/sparql-examples/ontology#> .
+
+ex:068 a sh:SPARQLExecutable,
+       sh:SPARQLSelectExecutable ;
+    rdfs:label "Pathway Count per Curation Tag"@en ;
+    rdfs:comment "Counts the pathways per curation and community tag."@en ;
+    sh:prefixes _:sparql_examples_prefixes ;
+    sh:select """PREFIX wp: <http://vocabularies.wikipathways.org/wp#>
+
+SELECT ?curationTag (count(DISTINCT ?pathway) as ?pathwayCount)
+WHERE {
+  ?pathway wp:ontologyTag ?curationTag .
+  FILTER contains(STR(?curationTag), "Curation:")
+}
+GROUP BY ?curationTag
+ORDER BY DESC(?pathwayCount)""" ;
+    schema:target <https://sparql.wikipathways.org/sparql> ;
+    schema:keywords "curation", "community", "counts" ;
+    cito:usesMethodIn <https://www.wikipathways.org/sparql.html> .

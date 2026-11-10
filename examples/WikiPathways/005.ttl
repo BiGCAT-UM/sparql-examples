@@ -7,6 +7,7 @@
 
 ex:005 a sh:SPARQLExecutable,
        sh:SPARQLSelectExecutable ;
+    rdfs:label "Pathway Count per Disease"@en ;
     rdfs:comment "List all diseases and the number of pathways they are linked to, in decreasing order."@en ;
     sh:prefixes _:sparql_examples_prefixes ;
     sh:select """PREFIX wp: <http://vocabularies.wikipathways.org/wp#>

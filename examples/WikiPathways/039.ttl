@@ -1,0 +1,30 @@
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix ex: <https://bigcat-um.github.io/sparql-examples/WikiPathways/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix schema: <https://schema.org/> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix spex: <https://purl.expasy.org/sparql-examples/ontology#> .
+
+ex:039 a sh:SPARQLExecutable,
+       sh:SPARQLSelectExecutable ;
+    rdfs:label "Ontology Terms of a Pathway"@en ;
+    rdfs:comment "Retrieves all ontology tags associated with a given pathway, returning the ontology term URI, pathway title, and identifier. This example uses the default value (Pathway ID \"WP1560\"); the WikiPathways SNORQL UI lets you change it."@en ;
+    sh:prefixes _:sparql_examples_prefixes ;
+    sh:select """PREFIX dc: <http://purl.org/dc/elements/1.1/>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+PREFIX wp: <http://vocabularies.wikipathways.org/wp#>
+
+SELECT (?o as ?pwOntologyTerm) (str(?titleLit) as ?title) ?pathway
+WHERE {
+  ?pathwayRDF wp:ontologyTag ?o ;
+    dc:identifier ?pathway ;
+    dc:title ?titleLit ;
+    dcterms:identifier "WP1560" .
+
+  FILTER (! regex(str(?pathway), "group"))
+}""" ;
+    schema:target <https://sparql.wikipathways.org/sparql> ;
+    schema:keywords "general" ;
+    dcterms:source <https://github.com/wikipathways/SPARQLQueries/blob/master/D.%20General/OntologyofPathway.rq> ;
+    dcterms:license <https://www.gnu.org/licenses/gpl-3.0.html> .

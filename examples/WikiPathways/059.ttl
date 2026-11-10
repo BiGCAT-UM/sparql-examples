@@ -1,0 +1,50 @@
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix ex: <https://bigcat-um.github.io/sparql-examples/WikiPathways/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix schema: <https://schema.org/> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix spex: <https://purl.expasy.org/sparql-examples/ontology#> .
+
+ex:059 a sh:SPARQLExecutable,
+       sh:SPARQLSelectExecutable ;
+    rdfs:label "Extracting Ontologies and References for Metabolic Reactions"@en ;
+    rdfs:comment "Retrieves ontology annotations, curation status, and literature references for directed metabolic reactions in human pathways as part of the DSMN workflow. This example uses the default value (Species \"Homo sapiens\"); the WikiPathways SNORQL UI lets you change it."@en ;
+    sh:prefixes _:sparql_examples_prefixes ;
+    sh:select """PREFIX dc: <http://purl.org/dc/elements/1.1/>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+PREFIX wp: <http://vocabularies.wikipathways.org/wp#>
+
+### Part 1: ###
+SELECT DISTINCT ?interaction ?sourceDb ?targetDb ?PWOnt ?DiseaseOnt
+?curationstatus ?InteractionRef ?PWref ?sourceLit ?targetLit 
+WHERE {
+?pathway a wp:Pathway ; 
+         	wp:organismName "Homo sapiens";
+         	dc:title ?titleLit . 
+?interaction dcterms:isPartOf ?pathway ; 
+   a wp:DirectedInteraction ; 
+   wp:source ?source ;
+   wp:target ?target . 
+?source a wp:Metabolite . 
+?source wp:bdbWikidata ?sourceDb . 
+?target a wp:Metabolite . 
+?target wp:bdbWikidata ?targetDb . 
+
+### Part 2: ###
+#OPTIONAL{?pathway wp:pathwayOntologyTag ?PWOnt} . 
+#OPTIONAL{?pathway wp:diseaseOntologyTag ?DiseaseOnt} . 
+
+### Part 3: ###
+#OPTIONAL{?pathway wp:ontologyTag ?curationstatus} . 
+
+### Part 4: ###
+OPTIONAL{?interaction dcterms:bibliographicCitation ?InteractionRef} . 
+OPTIONAL{?pathway dcterms:references ?PWref} . 
+OPTIONAL{?source dcterms:bibliographicCitation ?sourceLit} . 
+OPTIONAL{?target dcterms:bibliographicCitation ?targetLit} . 
+}""" ;
+    schema:target <https://sparql.wikipathways.org/sparql> ;
+    schema:keywords "DSMN", "directed small molecules network" ;
+    dcterms:source <https://github.com/wikipathways/SPARQLQueries/blob/master/I.%20DirectedSmallMoleculesNetwork%20%28DSMN%29/extracting%20ontologies%20and%20references%20for%20metabolic%20reactions.rq> ;
+    dcterms:license <https://www.gnu.org/licenses/gpl-3.0.html> .

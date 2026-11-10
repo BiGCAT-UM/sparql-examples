@@ -1,0 +1,26 @@
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix ex: <https://bigcat-um.github.io/sparql-examples/WikiPathways/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix schema: <https://schema.org/> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix spex: <https://purl.expasy.org/sparql-examples/ontology#> .
+
+ex:054 a sh:SPARQLExecutable,
+       sh:SPARQLSelectExecutable ;
+    rdfs:label "Pathways Without References"@en ;
+    rdfs:comment "Lists pathways that have no associated publication references, returning species, title, and pathway identifier sorted alphabetically."@en ;
+    sh:prefixes _:sparql_examples_prefixes ;
+    sh:select """PREFIX dc: <http://purl.org/dc/elements/1.1/>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+PREFIX wp: <http://vocabularies.wikipathways.org/wp#>
+
+SELECT (STR(?speciesLabelLit) AS ?species) (STR(?titleLit) AS ?title) ?pathway WHERE {
+  ?pathway a wp:Pathway ; dc:title ?titleLit ; wp:organismName ?speciesLabelLit .
+  MINUS { ?pubmed a       wp:PublicationReference .
+          ?pubmed dcterms:isPartOf ?pathway }
+} ORDER BY ASC(?species) ASC(?title)""" ;
+    schema:target <https://sparql.wikipathways.org/sparql> ;
+    schema:keywords "curation" ;
+    dcterms:source <https://github.com/wikipathways/SPARQLQueries/blob/master/G.%20Curation/PWsWithoutRef.rq> ;
+    dcterms:license <https://www.gnu.org/licenses/gpl-3.0.html> .

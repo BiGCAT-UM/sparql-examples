@@ -1,0 +1,30 @@
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix ex: <https://bigcat-um.github.io/sparql-examples/WikiPathways/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix schema: <https://schema.org/> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix spex: <https://purl.expasy.org/sparql-examples/ontology#> .
+
+ex:017 a sh:SPARQLExecutable,
+       sh:SPARQLSelectExecutable ;
+    rdfs:label "WikiPathways for Datasource Identifiers"@en ;
+    rdfs:comment "Lists pathways containing entities with identifiers from a selected data source, showing the pathway title and identifier URI. This example uses the default value (Data Source \"Ensembl\"); the WikiPathways SNORQL UI lets you change it."@en ;
+    sh:prefixes _:sparql_examples_prefixes ;
+    sh:select """PREFIX dc: <http://purl.org/dc/elements/1.1/>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+PREFIX wp: <http://vocabularies.wikipathways.org/wp#>
+
+SELECT DISTINCT ?pathwayRes (str(?wpid) AS ?pathway) (str(?title) AS ?pathwayTitle) ?identifier
+WHERE {
+  ?gene dcterms:identifier ?id ;
+    dcterms:isPartOf ?pathwayRes ;
+    wp:bdbEnsembl ?identifier .
+  ?pathwayRes a wp:Pathway ;
+    dcterms:identifier ?wpid ;
+    dc:title ?title .
+}""" ;
+    schema:target <https://sparql.wikipathways.org/sparql> ;
+    schema:keywords "data sources" ;
+    dcterms:source <https://github.com/wikipathways/SPARQLQueries/blob/master/A.%20Metadata/datasources/pathwaysForDatasource.rq> ;
+    dcterms:license <https://www.gnu.org/licenses/gpl-3.0.html> .

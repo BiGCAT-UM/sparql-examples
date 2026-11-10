@@ -1,0 +1,47 @@
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix ex: <https://bigcat-um.github.io/sparql-examples/WikiPathways/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix schema: <https://schema.org/> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix spex: <https://purl.expasy.org/sparql-examples/ontology#> .
+
+ex:060 a sh:SPARQLExecutable,
+       sh:SPARQLSelectExecutable ;
+    rdfs:label "Extracting Protein Titles and Identifiers for Metabolic Reactions"@en ;
+    rdfs:comment "Extracts catalyzing proteins for directed metabolic reactions in human AnalysisCollection pathways, returning Ensembl identifiers and protein names as part of the DSMN workflow. This example uses the default value (Species \"Homo sapiens\"); the WikiPathways SNORQL UI lets you change it."@en ;
+    sh:prefixes _:sparql_examples_prefixes ;
+    sh:select """PREFIX cur: <http://vocabularies.wikipathways.org/wp#Curation:>
+PREFIX dc: <http://purl.org/dc/elements/1.1/>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX wp: <http://vocabularies.wikipathways.org/wp#>
+
+### Part 1: ###
+SELECT DISTINCT ?interaction ?sourceDb ?targetDb ?proteinDBWPs ?proteinName
+WHERE {
+?pathway a wp:Pathway ; 
+wp:ontologyTag cur:AnalysisCollection ;
+wp:organismName "Homo sapiens";
+dc:title ?titleLit . 
+?interaction dcterms:isPartOf ?pathway ;				
+   a wp:DirectedInteraction ; 
+   wp:source ?source ; 
+ 	   wp:target ?target .   
+?source a wp:Metabolite . 
+?source wp:bdbWikidata ?sourceDb . 
+?target a wp:Metabolite . 
+?target wp:bdbWikidata ?targetDb . 
+
+### Part 2: ###
+?interactions2 dcterms:isPartOf ?pathway;
+               a wp:Catalysis; 
+               wp:source ?sources2;
+               wp:target ?interaction . 
+OPTIONAL{?sources2 wp:bdbEnsembl ?proteinDBWPs}.
+OPTIONAL{?sources2 rdfs:label ?proteinName} .
+}""" ;
+    schema:target <https://sparql.wikipathways.org/sparql> ;
+    schema:keywords "DSMN", "directed small molecules network" ;
+    dcterms:source <https://github.com/wikipathways/SPARQLQueries/blob/master/I.%20DirectedSmallMoleculesNetwork%20%28DSMN%29/extracting%20protein%20titles%20and%20identifiers%20for%20metabolic%20reactions.rq> ;
+    dcterms:license <https://www.gnu.org/licenses/gpl-3.0.html> .

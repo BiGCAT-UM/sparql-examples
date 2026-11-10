@@ -1,0 +1,26 @@
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix ex: <https://bigcat-um.github.io/sparql-examples/WikiPathways/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix schema: <https://schema.org/> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix spex: <https://purl.expasy.org/sparql-examples/ontology#> .
+
+ex:040 a sh:SPARQLExecutable,
+       sh:SPARQLSelectExecutable ;
+    rdfs:label "All Pathways with PubMed References"@en ;
+    rdfs:comment "Lists pathways that have associated PubMed publication references, returning pathway and PubMed identifiers ordered by pathway."@en ;
+    sh:prefixes _:sparql_examples_prefixes ;
+    sh:select """PREFIX dcterms: <http://purl.org/dc/terms/>
+PREFIX wp: <http://vocabularies.wikipathways.org/wp#>
+
+SELECT DISTINCT ?pathway ?pubmed
+WHERE
+     {?pubmed a       wp:PublicationReference .
+      ?pubmed dcterms:isPartOf ?pathway }
+ORDER BY ?pathway
+LIMIT 50""" ;
+    schema:target <https://sparql.wikipathways.org/sparql> ;
+    schema:keywords "literature" ;
+    dcterms:source <https://github.com/wikipathways/SPARQLQueries/blob/master/E.%20Literature/allPathwayswithPubMed.rq> ;
+    dcterms:license <https://www.gnu.org/licenses/gpl-3.0.html> .

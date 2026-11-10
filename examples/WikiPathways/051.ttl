@@ -1,0 +1,29 @@
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix ex: <https://bigcat-um.github.io/sparql-examples/WikiPathways/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix schema: <https://schema.org/> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix spex: <https://purl.expasy.org/sparql-examples/ontology#> .
+
+ex:051 a sh:SPARQLExecutable,
+       sh:SPARQLSelectExecutable ;
+    rdfs:label "Unclassified Metabolites"@en ;
+    rdfs:comment "Finds data nodes with a data source annotation that are not classified as metabolites, grouped by data source with counts sorted descending."@en ;
+    sh:prefixes _:sparql_examples_prefixes ;
+    sh:select """PREFIX dc: <http://purl.org/dc/elements/1.1/>
+prefix wp:      <http://vocabularies.wikipathways.org/wp#>
+prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
+prefix dcterms:  <http://purl.org/dc/terms/>
+
+select (str(?datasourceLit) as ?datasource) (count(?identifier) as ?count)
+where {
+  ?mb dc:source ?datasourceLit ;
+    dcterms:identifier ?identifier .
+  FILTER NOT EXISTS { ?mb a wp:Metabolite }
+} group by ?datasourceLit
+order by desc(?count)""" ;
+    schema:target <https://sparql.wikipathways.org/sparql> ;
+    schema:keywords "curation" ;
+    dcterms:source <https://github.com/wikipathways/SPARQLQueries/blob/master/G.%20Curation/MetabolitesNotClassified.rq> ;
+    dcterms:license <https://www.gnu.org/licenses/gpl-3.0.html> .

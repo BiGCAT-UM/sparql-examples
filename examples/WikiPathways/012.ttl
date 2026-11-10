@@ -1,0 +1,31 @@
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix ex: <https://bigcat-um.github.io/sparql-examples/WikiPathways/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix schema: <https://schema.org/> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix spex: <https://purl.expasy.org/sparql-examples/ontology#> .
+
+ex:012 a sh:SPARQLExecutable,
+       sh:SPARQLSelectExecutable ;
+    rdfs:label "Average Entity Type per Pathway"@en ;
+    rdfs:comment "Calculates the average, minimum, and maximum number of a selected entity type per pathway in WikiPathways. This example uses the default value (Entity Type \"DataNode\"); the WikiPathways SNORQL UI lets you change it."@en ;
+    sh:prefixes _:sparql_examples_prefixes ;
+    sh:select """PREFIX dcterms: <http://purl.org/dc/terms/>
+PREFIX wp: <http://vocabularies.wikipathways.org/wp#>
+
+SELECT (AVG(?no) AS ?avg)
+       (MIN(?no) AS ?min)
+       (MAX(?no) AS ?max)
+WHERE {
+    SELECT ?Pathway (COUNT(?entity) AS ?no)
+    WHERE {
+    ?entity a wp:DataNode ;
+       dcterms:isPartOf ?Pathway .
+    ?Pathway a wp:Pathway .}
+    GROUP BY ?Pathway
+}""" ;
+    schema:target <https://sparql.wikipathways.org/sparql> ;
+    schema:keywords "metadata", "counts" ;
+    dcterms:source <https://github.com/wikipathways/SPARQLQueries/blob/master/A.%20Metadata/datacounts/averagePerPathway.rq> ;
+    dcterms:license <https://www.gnu.org/licenses/gpl-3.0.html> .

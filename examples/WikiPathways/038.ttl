@@ -1,0 +1,32 @@
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix ex: <https://bigcat-um.github.io/sparql-examples/WikiPathways/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix schema: <https://schema.org/> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix spex: <https://purl.expasy.org/sparql-examples/ontology#> .
+
+ex:038 a sh:SPARQLExecutable,
+       sh:SPARQLSelectExecutable ;
+    rdfs:label "Metabolites of a Pathway"@en ;
+    rdfs:comment "Lists all metabolites in a given pathway, returning the pathway identifier and metabolite labels. This example uses the default value (Pathway ID \"WP1560\"); the WikiPathways SNORQL UI lets you change it."@en ;
+    sh:prefixes _:sparql_examples_prefixes ;
+    sh:select """PREFIX dcterms: <http://purl.org/dc/terms/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX wp: <http://vocabularies.wikipathways.org/wp#>
+
+select distinct ?pathway (str(?label) as ?Metabolite) where {
+    {
+        SELECT ?pathway WHERE {
+            ?pathway dcterms:identifier "WP1560" .
+            ?pathway a wp:Pathway .
+        }
+    }
+    ?metabolite a wp:Metabolite ;
+       rdfs:label ?label ;
+       dcterms:isPartOf ?pathway .
+}""" ;
+    schema:target <https://sparql.wikipathways.org/sparql> ;
+    schema:keywords "general" ;
+    dcterms:source <https://github.com/wikipathways/SPARQLQueries/blob/master/D.%20General/MetabolitesofPathway.rq> ;
+    dcterms:license <https://www.gnu.org/licenses/gpl-3.0.html> .

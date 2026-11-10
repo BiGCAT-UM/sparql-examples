@@ -1,0 +1,25 @@
+@prefix cito: <http://purl.org/spar/cito/> .
+@prefix ex: <https://bigcat-um.github.io/sparql-examples/WikiPathways/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix schema: <https://schema.org/> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix spex: <https://purl.expasy.org/sparql-examples/ontology#> .
+
+ex:079 a sh:SPARQLExecutable,
+       sh:SPARQLSelectExecutable ;
+    rdfs:label "Metabolites with a KEGG Identifier"@en ;
+    rdfs:comment "Lists all KEGG Compound identifiers used for metabolite data nodes. Change the data source, for example to \"HMDB\", to list the identifiers from another database."@en ;
+    sh:prefixes _:sparql_examples_prefixes ;
+    sh:select """PREFIX dc: <http://purl.org/dc/elements/1.1/>
+PREFIX wp: <http://vocabularies.wikipathways.org/wp#>
+
+SELECT DISTINCT ?identifier
+WHERE {
+  ?mb a wp:Metabolite ;
+    dc:source "KEGG Compound" ;
+    dc:identifier ?identifier .
+} ORDER BY ?identifier""" ;
+    schema:target <https://sparql.wikipathways.org/sparql> ;
+    schema:keywords "metabolite", "KEGG", "data sources" ;
+    cito:usesMethodIn <https://www.wikipathways.org/metabolome.html> .

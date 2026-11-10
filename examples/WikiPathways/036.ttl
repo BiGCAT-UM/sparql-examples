@@ -1,0 +1,34 @@
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix ex: <https://bigcat-um.github.io/sparql-examples/WikiPathways/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix schema: <https://schema.org/> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix spex: <https://purl.expasy.org/sparql-examples/ontology#> .
+
+ex:036 a sh:SPARQLExecutable,
+       sh:SPARQLSelectExecutable ;
+    rdfs:label "Genes of a Pathway"@en ;
+    rdfs:comment "Lists all gene products in a given pathway, returning the pathway identifier and gene product labels. This example uses the default value (Pathway ID \"WP1560\"); the WikiPathways SNORQL UI lets you change it."@en ;
+    sh:prefixes _:sparql_examples_prefixes ;
+    sh:select """PREFIX dc: <http://purl.org/dc/elements/1.1/>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX wp: <http://vocabularies.wikipathways.org/wp#>
+
+select distinct ?pathway (str(?label) as ?geneProduct) where {
+    {
+        SELECT ?pathwayRev ?pathway WHERE {
+            ?pathwayRev dcterms:identifier "WP1560" .
+            ?pathwayRev a wp:Pathway .
+            ?pathwayRev dc:identifier ?pathway .
+        }
+    }
+    ?gene dcterms:isPartOf ?pathwayRev .
+    ?gene a wp:GeneProduct .
+    ?gene rdfs:label ?label .
+}""" ;
+    schema:target <https://sparql.wikipathways.org/sparql> ;
+    schema:keywords "general" ;
+    dcterms:source <https://github.com/wikipathways/SPARQLQueries/blob/master/D.%20General/GenesofPathway.rq> ;
+    dcterms:license <https://www.gnu.org/licenses/gpl-3.0.html> .

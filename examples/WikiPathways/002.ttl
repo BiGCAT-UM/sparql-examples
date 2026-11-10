@@ -6,6 +6,7 @@
 
 ex:002 a sh:SPARQLExecutable,
        sh:SPARQLSelectExecutable ;
+    rdfs:label "Linksets Overview"@en ;
     rdfs:comment "Lists all linksets defined in this database with their titles, licenses, and creation dates."@en ;
     sh:prefixes _:sparql_examples_prefixes ;
     sh:select """PREFIX void: <http://rdfs.org/ns/void#>
@@ -23,4 +24,5 @@ WHERE {
 }
 """ ;
     schema:target <https://sparql.wikipathways.org/sparql> ;
-    schema:keywords "linkset", "metadata" .
+    schema:keywords "linkset", "metadata" ;
+    rdfs:seeAlso <https://github.com/wikipathways/SPARQLQueries/blob/master/A.%20Metadata/linksets.rq> .

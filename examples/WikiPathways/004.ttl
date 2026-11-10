@@ -6,6 +6,7 @@
 
 ex:004 a sh:SPARQLExecutable,
        sh:SPARQLSelectExecutable ;
+    rdfs:label "AOP Community Pathways"@en ;
     rdfs:comment "List all pathways in the AOP community portal and their title."@en ;
     sh:prefixes _:sparql_examples_prefixes ;
     sh:select """PREFIX wp: <http://vocabularies.wikipathways.org/wp#>
@@ -19,4 +20,5 @@ WHERE {
   dc:title ?title .
 }""" ;
     schema:target <https://sparql.wikipathways.org/sparql> ;
-    schema:keywords "AOP", "community" .
+    schema:keywords "AOP", "community" ;
+    rdfs:seeAlso <https://github.com/wikipathways/SPARQLQueries/blob/master/B.%20Communities/communityPathways.rq> .
