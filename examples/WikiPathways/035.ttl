@@ -59,6 +59,5 @@ SERVICE <https://idsm.elixir-czech.cz/sparql/endpoint/chebi> {
     schema:target <https://sparql.wikipathways.org/sparql> ;
     schema:keywords "collaborations", "Rhea", "IDSM", "reaction" ;
     spex:federatesWith <https://idsm.elixir-czech.cz/sparql/endpoint/chebi> ;
-    spex:federatesWith <https://sparql.rhea-db.org/sparql> ;
     dcterms:source <https://github.com/wikipathways/SPARQLQueries/blob/master/C.%20Collaborations/smallMolecules_Rhea_IDSM/molecularSimularity_Reactions.rq> ;
     dcterms:license <https://www.gnu.org/licenses/gpl-3.0.html> .
