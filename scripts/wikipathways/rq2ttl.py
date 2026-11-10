@@ -145,8 +145,11 @@ class RqQuery:
         return (prologue + body).strip() + "\n"
 
 
-def strip_strings_iris_comments(query):
-    """Blank out IRIs, string literals and comments so prefixed names can be found."""
+def strip_strings_iris_comments(query, keep_iris=False):
+    """Blank out IRIs, string literals and comments so prefixed names can be found.
+
+    With keep_iris=True only comments and string literals are removed.
+    """
     out = []
     i, n = 0, len(query)
     while i < n:
@@ -158,7 +161,7 @@ def strip_strings_iris_comments(query):
             j = query.find(">", i)
             # A '<' that is a comparison operator has whitespace or '=' after it.
             if j > 0 and not re.search(r"[\s]", query[i:j]):
-                out.append(" ")
+                out.append(query[i:j + 1] if keep_iris else " ")
                 i = j + 1
             else:
                 out.append(c)
@@ -199,7 +202,8 @@ def query_form(query):
 
 
 def services(query):
-    return sorted(set(re.findall(r"(?i)\bSERVICE\s+(?:SILENT\s+)?<([^>]+)>", query)))
+    code = strip_strings_iris_comments(query, keep_iris=True)
+    return sorted(set(re.findall(r"(?i)\bSERVICE\s+(?:SILENT\s+)?<([^>]+)>", code)))
 
 
 def load_namespaces():
