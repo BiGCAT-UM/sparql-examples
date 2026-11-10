@@ -39,6 +39,15 @@ jobs:
     - name: generate rq files
       run: java -jar sparql-examples-utils-uber.jar convert -i examples/ -r
 
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+
+    - name: generate redirects so that the example IRIs resolve
+      run: |
+        pip install rdflib
+        python scripts/make_iri_redirects.py
+
     - name: Setup Pages
       id: pages
       uses: actions/configure-pages@v5
