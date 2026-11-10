@@ -1,0 +1,25 @@
+@prefix cito: <http://purl.org/spar/cito/> .
+@prefix ex: <https://bigcat-um.github.io/sparql-examples/WikiPathways/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix schema: <https://schema.org/> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix spex: <https://purl.expasy.org/sparql-examples/ontology#> .
+
+ex:071 a sh:SPARQLExecutable,
+       sh:SPARQLSelectExecutable ;
+    rdfs:label "Interactions for a Particular Data Node"@en ;
+    rdfs:comment "Finds all interactions (wp:Interaction) connected to a particular data node, here the Ensembl gene ENSG00000125845."@en ;
+    sh:prefixes _:sparql_examples_prefixes ;
+    sh:select """PREFIX dcterms: <http://purl.org/dc/terms/>
+PREFIX wp: <http://vocabularies.wikipathways.org/wp#>
+
+SELECT DISTINCT ?interaction ?pathway WHERE {
+   ?pathway a wp:Pathway .
+   ?interaction dcterms:isPartOf ?pathway .
+   ?interaction a wp:Interaction .
+   ?interaction wp:participants <https://identifiers.org/ensembl/ENSG00000125845> .
+}""" ;
+    schema:target <https://sparql.wikipathways.org/sparql> ;
+    schema:keywords "interaction", "gene" ;
+    cito:usesMethodIn <https://www.wikipathways.org/sparql.html> .

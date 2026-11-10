@@ -8,6 +8,7 @@
 
 ex:008 a sh:SPARQLExecutable,
        sh:SPARQLSelectExecutable ;
+    rdfs:label "Pathways per Species"@en ;
     rdfs:comment "List the species captured in WikiPathways and the number of pathways per species."@en ;
     sh:prefixes _:sparql_examples_prefixes ;
     sh:select """PREFIX wp: <http://vocabularies.wikipathways.org/wp#>
@@ -22,4 +23,5 @@ WHERE {
 ORDER BY DESC(?pathwayCount)""" ;
     schema:target <https://sparql.wikipathways.org/sparql> ;
     schema:keywords "organism" ;
-    cito:usesMethodIn <https://www.wikipathways.org/sparql.html> .
+    cito:usesMethodIn <https://www.wikipathways.org/sparql.html> ;
+    rdfs:seeAlso <https://github.com/wikipathways/SPARQLQueries/blob/master/A.%20Metadata/species/countPathwaysPerSpecies.rq> .

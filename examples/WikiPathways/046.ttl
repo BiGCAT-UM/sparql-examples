@@ -1,0 +1,31 @@
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix ex: <https://bigcat-um.github.io/sparql-examples/WikiPathways/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix schema: <https://schema.org/> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix spex: <https://purl.expasy.org/sparql-examples/ontology#> .
+
+ex:046 a sh:SPARQLExecutable,
+       sh:SPARQLSelectExecutable ;
+    rdfs:label "Ontology and Pathway Data Export"@en ;
+    rdfs:comment "Exports pathway metadata including page URLs, titles, species, identifiers, and associated ontology tags for bulk download."@en ;
+    sh:prefixes _:sparql_examples_prefixes ;
+    sh:select """PREFIX dc: <http://purl.org/dc/elements/1.1/>
+PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+PREFIX wp: <http://vocabularies.wikipathways.org/wp#>
+
+SELECT DISTINCT ?depicts (str(?titleLit) as ?title) (str(?speciesLabelLit) as ?speciesLabel) ?identifier ?ontology
+WHERE {
+	?pathway foaf:page ?depicts .
+        ?pathway dc:title ?titleLit .
+        ?pathway wp:organism ?species .
+        ?pathway wp:organismName ?speciesLabelLit .
+        ?pathway dc:identifier ?identifier .
+
+        OPTIONAL {?pathway wp:ontologyTag ?ontology .}
+}""" ;
+    schema:target <https://sparql.wikipathways.org/sparql> ;
+    schema:keywords "data export" ;
+    dcterms:source <https://github.com/wikipathways/SPARQLQueries/blob/master/F.%20Datadump/dumpOntologyAndPW.rq> ;
+    dcterms:license <https://www.gnu.org/licenses/gpl-3.0.html> .

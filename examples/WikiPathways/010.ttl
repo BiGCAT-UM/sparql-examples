@@ -8,6 +8,7 @@
 
 ex:010 a sh:SPARQLExecutable,
        sh:SPARQLSelectExecutable ;
+    rdfs:label "Homology-Converted Pathways"@en ;
     rdfs:comment "List all homology converted pathways."@en ;
     sh:prefixes _:sparql_examples_prefixes ;
     sh:select """PREFIX wp: <http://vocabularies.wikipathways.org/wp#>

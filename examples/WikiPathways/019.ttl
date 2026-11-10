@@ -1,0 +1,30 @@
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix ex: <https://bigcat-um.github.io/sparql-examples/WikiPathways/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix schema: <https://schema.org/> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix spex: <https://purl.expasy.org/sparql-examples/ontology#> .
+
+ex:019 a sh:SPARQLExecutable,
+       sh:SPARQLSelectExecutable ;
+    rdfs:label "Community Proteins"@en ;
+    rdfs:comment "Lists all proteins found in pathways tagged with a selected community. This example uses the default value (Community \"AOP\"); the WikiPathways SNORQL UI lets you change it."@en ;
+    sh:prefixes _:sparql_examples_prefixes ;
+    sh:select """PREFIX cur: <http://vocabularies.wikipathways.org/wp#Curation:>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX wp: <http://vocabularies.wikipathways.org/wp#>
+
+SELECT DISTINCT ?pathway (str(?label) AS ?Protein)
+WHERE {
+  ?pathway wp:ontologyTag cur:AOP ;
+    a wp:Pathway .
+  ?protein a wp:Protein ;
+    rdfs:label ?label ;
+    dcterms:isPartOf ?pathway .
+}""" ;
+    schema:target <https://sparql.wikipathways.org/sparql> ;
+    schema:keywords "communities" ;
+    dcterms:source <https://github.com/wikipathways/SPARQLQueries/blob/master/B.%20Communities/communityProteins.rq> ;
+    dcterms:license <https://www.gnu.org/licenses/gpl-3.0.html> .

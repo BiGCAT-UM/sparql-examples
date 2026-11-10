@@ -1,0 +1,26 @@
+@prefix cito: <http://purl.org/spar/cito/> .
+@prefix ex: <https://bigcat-um.github.io/sparql-examples/WikiPathways/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix schema: <https://schema.org/> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix spex: <https://purl.expasy.org/sparql-examples/ontology#> .
+
+ex:077 a sh:SPARQLExecutable,
+       sh:SPARQLSelectExecutable ;
+    rdfs:label "Metabolites in Zebrafish Pathways"@en ;
+    rdfs:comment "Lists the metabolites in Danio rerio (zebrafish) pathways, with the pathway title."@en ;
+    sh:prefixes _:sparql_examples_prefixes ;
+    sh:select """PREFIX dc: <http://purl.org/dc/elements/1.1/>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+PREFIX wp: <http://vocabularies.wikipathways.org/wp#>
+
+SELECT DISTINCT ?metabolite (str(?titleLit) as ?title) WHERE {
+  ?metabolite a wp:Metabolite ;
+    dcterms:isPartOf ?pw .
+  ?pw dc:title ?titleLit ;
+    wp:organismName "Danio rerio" .
+}""" ;
+    schema:target <https://sparql.wikipathways.org/sparql> ;
+    schema:keywords "metabolite", "organism", "zebrafish" ;
+    cito:usesMethodIn <https://www.wikipathways.org/metabolome.html> .

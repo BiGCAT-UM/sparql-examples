@@ -1,0 +1,36 @@
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix ex: <https://bigcat-um.github.io/sparql-examples/WikiPathways/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix schema: <https://schema.org/> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix spex: <https://purl.expasy.org/sparql-examples/ontology#> .
+
+ex:061 a sh:SPARQLExecutable,
+       sh:SPARQLSelectExecutable ;
+    rdfs:label "Authors of a Pathway"@en ;
+    rdfs:comment "Lists all authors of a given pathway in ordinal order, returning name, ORCID, homepage, and pathway version. This example uses the default value (Pathway ID \"WP4846\"); the WikiPathways SNORQL UI lets you change it."@en ;
+    sh:prefixes _:sparql_examples_prefixes ;
+    sh:select """PREFIX gpml: <http://vocabularies.wikipathways.org/gpml#>
+PREFIX wp: <http://vocabularies.wikipathways.org/wp#>
+PREFIX dc:    <http://purl.org/dc/elements/1.1/>
+PREFIX foaf:  <http://xmlns.com/foaf/0.1/>
+PREFIX wpq:   <http://www.wikidata.org/prop/qualifier/>
+PREFIX pav:   <http://purl.org/pav/>
+
+SELECT ?pathway ?version ?ordinal ?author_ ?name ?orcid ?page WHERE {
+  VALUES ?pathway { <https://identifiers.org/wikipathways/WP4846> }
+  ?author_ a foaf:Person ;
+    wp:hasAuthorship ?authorship .
+  ?authorship ^wp:hasAuthorship ?pathway ;
+    wpq:series_ordinal ?ordinal .
+  ?pathway pav:hasVersion ?pathway_ .
+  ?pathway_ a wp:Pathway ; wp:isAbout / gpml:version ?version .
+  OPTIONAL { ?author_ foaf:homepage ?page }
+  OPTIONAL { ?author_ foaf:name ?name }
+  OPTIONAL { ?author_ dc:identifier ?orcid }
+} ORDER BY ASC(?pathway) ASC(?ordinal)""" ;
+    schema:target <https://sparql.wikipathways.org/sparql> ;
+    schema:keywords "authors" ;
+    dcterms:source <https://github.com/wikipathways/SPARQLQueries/blob/master/J.%20Authors/authorsOfAPathway.rq> ;
+    dcterms:license <https://www.gnu.org/licenses/gpl-3.0.html> .

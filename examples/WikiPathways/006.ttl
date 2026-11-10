@@ -8,6 +8,7 @@
 
 ex:006 a sh:SPARQLExecutable,
        sh:SPARQLSelectExecutable ;
+    rdfs:label "Species with Their IRIs"@en ;
     rdfs:comment "Get the species currently in WikiPathways with their respective URIs."@en ;
     sh:prefixes _:sparql_examples_prefixes ;
     sh:select """PREFIX wp: <http://vocabularies.wikipathways.org/wp#>

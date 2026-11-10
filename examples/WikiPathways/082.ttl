@@ -1,0 +1,26 @@
+@prefix cito: <http://purl.org/spar/cito/> .
+@prefix ex: <https://bigcat-um.github.io/sparql-examples/WikiPathways/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix schema: <https://schema.org/> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix spex: <https://purl.expasy.org/sparql-examples/ontology#> .
+
+ex:082 a sh:SPARQLExecutable,
+       sh:SPARQLSelectExecutable ;
+    rdfs:label "Metabolites in the Most Pathways"@en ;
+    rdfs:comment "Counts in how many pathways each metabolite data node occurs. The results are per data node, not per unique metabolite, because no identifier mapping is applied."@en ;
+    sh:prefixes _:sparql_examples_prefixes ;
+    sh:select """PREFIX dcterms: <http://purl.org/dc/terms/>
+PREFIX wp: <http://vocabularies.wikipathways.org/wp#>
+
+SELECT ?mb (count(distinct ?pathway) as ?pwCount)
+WHERE {
+  ?mb a wp:Metabolite ;
+    dcterms:isPartOf ?pathway .
+}
+GROUP BY ?mb
+ORDER BY DESC(?pwCount)""" ;
+    schema:target <https://sparql.wikipathways.org/sparql> ;
+    schema:keywords "metabolite", "counts" ;
+    cito:usesMethodIn <https://www.wikipathways.org/metabolome.html> .
