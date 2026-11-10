@@ -5,6 +5,7 @@
 @prefix schema: <https://schema.org/> .
 @prefix sh: <http://www.w3.org/ns/shacl#> .
 @prefix spex: <https://purl.expasy.org/sparql-examples/ontology#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
 ex:064 a sh:SPARQLExecutable,
        sh:SPARQLSelectExecutable ;
@@ -26,5 +27,6 @@ SELECT ?atLeast (COUNT(DISTINCT ?pathway) AS ?count) WHERE {
   ORDER BY ASC(xsd:integer(?atLeast))""" ;
     schema:target <https://sparql.wikipathways.org/sparql> ;
     schema:keywords "authors" ;
-    dcterms:source <https://github.com/wikipathways/SPARQLQueries/blob/master/J.%20Authors/pathwayCountWithAtLeastXAuthors.rq> ;
+    dcterms:source <https://github.com/wikipathways/SPARQLQueries/blob/85c9912c600413a9ae0f5f9a3529420e38747f04/J.%20Authors/pathwayCountWithAtLeastXAuthors.rq> ;
+    dcterms:modified "2026-03-08"^^xsd:date ;
     dcterms:license <https://www.gnu.org/licenses/gpl-3.0.html> .

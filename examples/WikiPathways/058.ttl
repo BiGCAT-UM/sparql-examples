@@ -5,6 +5,7 @@
 @prefix schema: <https://schema.org/> .
 @prefix sh: <http://www.w3.org/ns/shacl#> .
 @prefix spex: <https://purl.expasy.org/sparql-examples/ontology#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
 ex:058 a sh:SPARQLExecutable,
        sh:SPARQLSelectExecutable ;
@@ -58,5 +59,6 @@ OPTIONAL{?interaction wp:bdbRhea ?InteractionID} .
 } ORDER BY DESC(?InteractionID)""" ;
     schema:target <https://sparql.wikipathways.org/sparql> ;
     schema:keywords "DSMN", "directed small molecules network" ;
-    dcterms:source <https://github.com/wikipathways/SPARQLQueries/blob/master/I.%20DirectedSmallMoleculesNetwork%20%28DSMN%29/extracting%20directed%20metabolic%20reactions.rq> ;
+    dcterms:source <https://github.com/wikipathways/SPARQLQueries/blob/c42d381565e5c49c7c754d037d6f253b3214601f/I.%20DirectedSmallMoleculesNetwork%20%28DSMN%29/extracting%20directed%20metabolic%20reactions.rq> ;
+    dcterms:modified "2026-03-09"^^xsd:date ;
     dcterms:license <https://www.gnu.org/licenses/gpl-3.0.html> .

@@ -5,6 +5,7 @@
 @prefix schema: <https://schema.org/> .
 @prefix sh: <http://www.w3.org/ns/shacl#> .
 @prefix spex: <https://purl.expasy.org/sparql-examples/ontology#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
 ex:037 a sh:SPARQLExecutable,
        sh:SPARQLSelectExecutable ;
@@ -29,5 +30,6 @@ WHERE {
 }""" ;
     schema:target <https://sparql.wikipathways.org/sparql> ;
     schema:keywords "general" ;
-    dcterms:source <https://github.com/wikipathways/SPARQLQueries/blob/master/D.%20General/InteractionsofPathway.rq> ;
+    dcterms:source <https://github.com/wikipathways/SPARQLQueries/blob/1366822debc316b6cdaf88354b020008d0d3cb71/D.%20General/InteractionsofPathway.rq> ;
+    dcterms:modified "2026-03-30"^^xsd:date ;
     dcterms:license <https://www.gnu.org/licenses/gpl-3.0.html> .

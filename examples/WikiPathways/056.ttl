@@ -5,6 +5,7 @@
 @prefix schema: <https://schema.org/> .
 @prefix sh: <http://www.w3.org/ns/shacl#> .
 @prefix spex: <https://purl.expasy.org/sparql-examples/ontology#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
 ex:056 a sh:SPARQLExecutable,
        sh:SPARQLSelectExecutable ;
@@ -19,5 +20,6 @@ SELECT ?mol ?smilesDepict WHERE {
 } LIMIT 25""" ;
     schema:target <https://sparql.wikipathways.org/sparql> ;
     schema:keywords "chemistry" ;
-    dcterms:source <https://github.com/wikipathways/SPARQLQueries/blob/master/H.%20Chemistry/smiles.rq> ;
+    dcterms:source <https://github.com/wikipathways/SPARQLQueries/blob/85c9912c600413a9ae0f5f9a3529420e38747f04/H.%20Chemistry/smiles.rq> ;
+    dcterms:modified "2026-03-08"^^xsd:date ;
     dcterms:license <https://www.gnu.org/licenses/gpl-3.0.html> .

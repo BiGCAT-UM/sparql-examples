@@ -5,6 +5,7 @@
 @prefix schema: <https://schema.org/> .
 @prefix sh: <http://www.w3.org/ns/shacl#> .
 @prefix spex: <https://purl.expasy.org/sparql-examples/ontology#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
 ex:041 a sh:SPARQLExecutable,
        sh:SPARQLSelectExecutable ;
@@ -27,5 +28,6 @@ SELECT DISTINCT ?pathway ?interaction ?pubmed ?partnerref WHERE {
 } LIMIT 100""" ;
     schema:target <https://sparql.wikipathways.org/sparql> ;
     schema:keywords "literature" ;
-    dcterms:source <https://github.com/wikipathways/SPARQLQueries/blob/master/E.%20Literature/allReferencesForInteraction.rq> ;
+    dcterms:source <https://github.com/wikipathways/SPARQLQueries/blob/4431b11d148e0e1bcc3533e90b80225376c80d1a/E.%20Literature/allReferencesForInteraction.rq> ;
+    dcterms:modified "2026-03-08"^^xsd:date ;
     dcterms:license <https://www.gnu.org/licenses/gpl-3.0.html> .

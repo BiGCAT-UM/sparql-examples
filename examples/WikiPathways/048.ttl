@@ -5,6 +5,7 @@
 @prefix schema: <https://schema.org/> .
 @prefix sh: <http://www.w3.org/ns/shacl#> .
 @prefix spex: <https://purl.expasy.org/sparql-examples/ontology#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
 ex:048 a sh:SPARQLExecutable,
        sh:SPARQLSelectExecutable ;
@@ -25,5 +26,6 @@ SELECT ?metabolite (count(DISTINCT ?pathwayRes) as ?pathways) WHERE {
 } GROUP BY ?metabolite ORDER BY DESC(?pathways)""" ;
     schema:target <https://sparql.wikipathways.org/sparql> ;
     schema:keywords "curation" ;
-    dcterms:source <https://github.com/wikipathways/SPARQLQueries/blob/master/G.%20Curation/countPWsMetabolitesOccurSorted.rq> ;
+    dcterms:source <https://github.com/wikipathways/SPARQLQueries/blob/fa9e83ba0da9ac61f188219e5b7d91ea73f7a5cc/G.%20Curation/countPWsMetabolitesOccurSorted.rq> ;
+    dcterms:modified "2026-03-08"^^xsd:date ;
     dcterms:license <https://www.gnu.org/licenses/gpl-3.0.html> .

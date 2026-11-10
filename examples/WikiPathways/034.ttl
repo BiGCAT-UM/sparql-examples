@@ -5,6 +5,7 @@
 @prefix schema: <https://schema.org/> .
 @prefix sh: <http://www.w3.org/ns/shacl#> .
 @prefix spex: <https://purl.expasy.org/sparql-examples/ontology#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
 ex:034 a sh:SPARQLExecutable,
        sh:SPARQLSelectExecutable ;
@@ -39,5 +40,6 @@ SELECT DISTINCT ?pathwayRes (str(?wpid) as ?pathway) (str(?title) as ?pathwayTit
     schema:keywords "collaborations", "MolMeDB", "PubChem" ;
     spex:federatesWith <https://idsm.elixir-czech.cz/sparql/endpoint/molmedb> ;
     spex:federatesWith <https://sparql.wikipathways.org/sparql> ;
-    dcterms:source <https://github.com/wikipathways/SPARQLQueries/blob/master/C.%20Collaborations/MolMeDB/SUBSETpathways_ONEpubchem.rq> ;
+    dcterms:source <https://github.com/wikipathways/SPARQLQueries/blob/c42d381565e5c49c7c754d037d6f253b3214601f/C.%20Collaborations/MolMeDB/SUBSETpathways_ONEpubchem.rq> ;
+    dcterms:modified "2026-03-09"^^xsd:date ;
     dcterms:license <https://www.gnu.org/licenses/gpl-3.0.html> .
