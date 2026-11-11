@@ -1,5 +1,7 @@
 @prefix dcterms: <http://purl.org/dc/terms/> .
 @prefix ex: <https://bigcat-um.github.io/sparql-examples/WikiPathways/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix schema: <https://schema.org/> .
@@ -10,7 +12,7 @@
 ex:061 a sh:SPARQLExecutable,
        sh:SPARQLSelectExecutable ;
     rdfs:label "Authors of a Pathway"@en ;
-    rdfs:comment "Lists all authors of a given pathway in ordinal order, returning name, ORCID, homepage, and pathway version. This example uses the default value (Pathway ID \"WP4846\"); the WikiPathways SNORQL UI lets you change it."@en ;
+    rdfs:comment "Lists all authors of a given pathway in ordinal order, returning name, ORCID, homepage, and pathway version. This example uses the default values (Pathway ID \"WP4846\"); open it in the WikiPathways SPARQL editor to change them: https://sparql.wikipathways.org/?example=WPQ061"@en ;
     sh:prefixes _:sparql_examples_prefixes ;
     sh:select """PREFIX gpml: <http://vocabularies.wikipathways.org/gpml#>
 PREFIX wp: <http://vocabularies.wikipathways.org/wp#>
@@ -33,6 +35,12 @@ SELECT ?pathway ?version ?ordinal ?author_ ?name ?orcid ?page WHERE {
 } ORDER BY ASC(?pathway) ASC(?ordinal)""" ;
     schema:target <https://sparql.wikipathways.org/sparql> ;
     schema:keywords "authors" ;
-    dcterms:source <https://github.com/wikipathways/SPARQLQueries/blob/4431b11d148e0e1bcc3533e90b80225376c80d1a/J.%20Authors/authorsOfAPathway.rq> ;
-    dcterms:modified "2026-03-08"^^xsd:date ;
+    prov:wasDerivedFrom <https://github.com/wikipathways/SPARQLQueries/blob/4431b11d148e0e1bcc3533e90b80225376c80d1a/J.%20Authors/authorsOfAPathway.rq> ;
+    dcterms:creator <https://orcid.org/0000-0001-7542-0286> ;
+    dcterms:contributor <https://orcid.org/0000-0003-2230-0840> ;
+    dcterms:created "2026-02-14"^^xsd:date ;
+    dcterms:modified "2026-11-11"^^xsd:date ;
+    schema:version "1.0.0" ;
+    owl:sameAs <https://sparql.wikipathways.org/.well-known/sparql-examples/WPQ061> ;
+    dcterms:source <https://github.com/wikipathways/SPARQLQueries/blob/fed6a2dc597c5bd82160de17a46cbe36185f21a6/J.%20Authors/authorsOfAPathway.ttl> ;
     dcterms:license <https://www.gnu.org/licenses/gpl-3.0.html> .

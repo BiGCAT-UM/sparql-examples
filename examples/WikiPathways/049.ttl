@@ -1,5 +1,7 @@
 @prefix dcterms: <http://purl.org/dc/terms/> .
 @prefix ex: <https://bigcat-um.github.io/sparql-examples/WikiPathways/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix schema: <https://schema.org/> .
@@ -23,6 +25,12 @@ SELECT (count(DISTINCT ?pathway) AS ?pathwayCount) WHERE {
 }""" ;
     schema:target <https://sparql.wikipathways.org/sparql> ;
     schema:keywords "curation" ;
-    dcterms:source <https://github.com/wikipathways/SPARQLQueries/blob/f9de718ebdcca57dadb773d47fa4e342cf386857/G.%20Curation/countPWsWithoutRef.rq> ;
-    dcterms:modified "2026-11-10"^^xsd:date ;
+    prov:wasDerivedFrom <https://github.com/wikipathways/SPARQLQueries/blob/f9de718ebdcca57dadb773d47fa4e342cf386857/G.%20Curation/countPWsWithoutRef.rq> ;
+    dcterms:creator <https://github.com/laurent2207> ;
+    dcterms:contributor <https://orcid.org/0000-0003-2230-0840> ;
+    dcterms:created "2020-10-09"^^xsd:date ;
+    dcterms:modified "2026-11-11"^^xsd:date ;
+    schema:version "1.0.0" ;
+    owl:sameAs <https://sparql.wikipathways.org/.well-known/sparql-examples/WPQ049> ;
+    dcterms:source <https://github.com/wikipathways/SPARQLQueries/blob/fed6a2dc597c5bd82160de17a46cbe36185f21a6/G.%20Curation/countPWsWithoutRef.ttl> ;
     dcterms:license <https://www.gnu.org/licenses/gpl-3.0.html> .

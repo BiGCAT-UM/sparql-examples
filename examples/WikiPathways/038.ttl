@@ -1,5 +1,7 @@
 @prefix dcterms: <http://purl.org/dc/terms/> .
 @prefix ex: <https://bigcat-um.github.io/sparql-examples/WikiPathways/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix schema: <https://schema.org/> .
@@ -10,7 +12,7 @@
 ex:038 a sh:SPARQLExecutable,
        sh:SPARQLSelectExecutable ;
     rdfs:label "Metabolites of a Pathway"@en ;
-    rdfs:comment "Lists all metabolites in a given pathway, returning the pathway identifier and metabolite labels. This example uses the default value (Pathway ID \"WP1560\"); the WikiPathways SNORQL UI lets you change it."@en ;
+    rdfs:comment "Lists all metabolites in a given pathway, returning the pathway identifier and metabolite labels. This example uses the default values (Pathway ID \"WP1560\"); open it in the WikiPathways SPARQL editor to change them: https://sparql.wikipathways.org/?example=WPQ038"@en ;
     sh:prefixes _:sparql_examples_prefixes ;
     sh:select """PREFIX dcterms: <http://purl.org/dc/terms/>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
@@ -19,7 +21,8 @@ PREFIX wp: <http://vocabularies.wikipathways.org/wp#>
 select distinct ?pathway (str(?label) as ?Metabolite) where {
     {
         SELECT ?pathway WHERE {
-            ?pathway dcterms:identifier "WP1560" .
+            VALUES ?pathwayId { "WP1560" }
+            ?pathway dcterms:identifier ?pathwayId .
             ?pathway a wp:Pathway .
         }
     }
@@ -29,6 +32,12 @@ select distinct ?pathway (str(?label) as ?Metabolite) where {
 }""" ;
     schema:target <https://sparql.wikipathways.org/sparql> ;
     schema:keywords "general" ;
-    dcterms:source <https://github.com/wikipathways/SPARQLQueries/blob/f9de718ebdcca57dadb773d47fa4e342cf386857/D.%20General/MetabolitesofPathway.rq> ;
-    dcterms:modified "2026-11-10"^^xsd:date ;
+    prov:wasDerivedFrom <https://github.com/wikipathways/SPARQLQueries/blob/f9de718ebdcca57dadb773d47fa4e342cf386857/D.%20General/MetabolitesofPathway.rq> ;
+    dcterms:creator <https://orcid.org/0000-0003-2230-0840> ;
+    dcterms:contributor <https://orcid.org/0000-0001-8449-1318> ;
+    dcterms:created "2020-10-11"^^xsd:date ;
+    dcterms:modified "2026-11-11"^^xsd:date ;
+    schema:version "1.0.0" ;
+    owl:sameAs <https://sparql.wikipathways.org/.well-known/sparql-examples/WPQ038> ;
+    dcterms:source <https://github.com/wikipathways/SPARQLQueries/blob/fed6a2dc597c5bd82160de17a46cbe36185f21a6/D.%20General/MetabolitesofPathway.ttl> ;
     dcterms:license <https://www.gnu.org/licenses/gpl-3.0.html> .

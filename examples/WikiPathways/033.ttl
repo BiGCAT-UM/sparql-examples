@@ -1,5 +1,7 @@
 @prefix dcterms: <http://purl.org/dc/terms/> .
 @prefix ex: <https://bigcat-um.github.io/sparql-examples/WikiPathways/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix schema: <https://schema.org/> .
@@ -10,7 +12,7 @@
 ex:033 a sh:SPARQLExecutable,
        sh:SPARQLSelectExecutable ;
     rdfs:label "Pathways for a PubChem Compound (MolMeDB)"@en ;
-    rdfs:comment "Finds all human pathways containing a specific MolMeDB compound by resolving its PubChem identifier through the MolMeDB SPARQL endpoint. May be slower due to external endpoint dependency. This example uses the default value (Species \"Homo sapiens\"); the WikiPathways SNORQL UI lets you change it."@en ;
+    rdfs:comment "Finds all human pathways containing a specific MolMeDB compound by resolving its PubChem identifier through the MolMeDB SPARQL endpoint. May be slower due to external endpoint dependency. This example uses the default values (Species \"Homo sapiens\"); open it in the WikiPathways SPARQL editor to change them: https://sparql.wikipathways.org/?example=WPQ033"@en ;
     sh:prefixes _:sparql_examples_prefixes ;
     sh:select """PREFIX dc: <http://purl.org/dc/elements/1.1/>
 PREFIX dcterms: <http://purl.org/dc/terms/>
@@ -29,14 +31,21 @@ SELECT DISTINCT ?pathwayRes (str(?wpid) as ?pathway) (str(?title) as ?pathwayTit
     dcterms:isPartOf ?pathwayRes ;
     wp:bdbPubChem ?COMPOUND .
   
+  VALUES ?species { "Homo sapiens" }
   ?pathwayRes a wp:Pathway ;
-    wp:organismName "Homo sapiens";
+    wp:organismName ?species;
     dcterms:identifier ?wpid ;
     dc:title ?title . 
 }""" ;
     schema:target <https://sparql.wikipathways.org/sparql> ;
     schema:keywords "collaborations", "MolMeDB", "PubChem" ;
     spex:federatesWith <https://idsm.elixir-czech.cz/sparql/endpoint/molmedb> ;
-    dcterms:source <https://github.com/wikipathways/SPARQLQueries/blob/c42d381565e5c49c7c754d037d6f253b3214601f/C.%20Collaborations/MolMeDB/ONEpubchem_MANYpathways.rq> ;
-    dcterms:modified "2026-03-09"^^xsd:date ;
+    prov:wasDerivedFrom <https://github.com/wikipathways/SPARQLQueries/blob/c42d381565e5c49c7c754d037d6f253b3214601f/C.%20Collaborations/MolMeDB/ONEpubchem_MANYpathways.rq> ;
+    dcterms:creator <https://orcid.org/0000-0001-8449-1318> ;
+    dcterms:contributor <https://orcid.org/0000-0003-2230-0840> ;
+    dcterms:created "2021-11-12"^^xsd:date ;
+    dcterms:modified "2026-11-11"^^xsd:date ;
+    schema:version "1.0.0" ;
+    owl:sameAs <https://sparql.wikipathways.org/.well-known/sparql-examples/WPQ033> ;
+    dcterms:source <https://github.com/wikipathways/SPARQLQueries/blob/fed6a2dc597c5bd82160de17a46cbe36185f21a6/C.%20Collaborations/MolMeDB/ONEpubchem_MANYpathways.ttl> ;
     dcterms:license <https://www.gnu.org/licenses/gpl-3.0.html> .

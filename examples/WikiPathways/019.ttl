@@ -1,5 +1,7 @@
 @prefix dcterms: <http://purl.org/dc/terms/> .
 @prefix ex: <https://bigcat-um.github.io/sparql-examples/WikiPathways/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix schema: <https://schema.org/> .
@@ -10,16 +12,16 @@
 ex:019 a sh:SPARQLExecutable,
        sh:SPARQLSelectExecutable ;
     rdfs:label "Community Proteins"@en ;
-    rdfs:comment "Lists all proteins found in pathways tagged with a selected community. This example uses the default value (Community \"AOP\"); the WikiPathways SNORQL UI lets you change it."@en ;
+    rdfs:comment "Lists all proteins found in pathways tagged with a selected community. This example uses the default values (Community \"AOP\"); open it in the WikiPathways SPARQL editor to change them: https://sparql.wikipathways.org/?example=WPQ019"@en ;
     sh:prefixes _:sparql_examples_prefixes ;
-    sh:select """PREFIX cur: <http://vocabularies.wikipathways.org/wp#Curation:>
-PREFIX dcterms: <http://purl.org/dc/terms/>
+    sh:select """PREFIX dcterms: <http://purl.org/dc/terms/>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX wp: <http://vocabularies.wikipathways.org/wp#>
 
 SELECT DISTINCT ?pathway (str(?label) AS ?Protein)
 WHERE {
-  ?pathway wp:ontologyTag cur:AOP ;
+  VALUES ?community { <http://vocabularies.wikipathways.org/wp#Curation:AOP> }
+  ?pathway wp:ontologyTag ?community ;
     a wp:Pathway .
   ?protein a wp:Protein ;
     rdfs:label ?label ;
@@ -27,6 +29,11 @@ WHERE {
 }""" ;
     schema:target <https://sparql.wikipathways.org/sparql> ;
     schema:keywords "communities" ;
-    dcterms:source <https://github.com/wikipathways/SPARQLQueries/blob/3fd553e6b24c4c9d88604eda578ecd8ad192a5c6/B.%20Communities/communityProteins.rq> ;
-    dcterms:modified "2026-03-30"^^xsd:date ;
+    prov:wasDerivedFrom <https://github.com/wikipathways/SPARQLQueries/blob/3fd553e6b24c4c9d88604eda578ecd8ad192a5c6/B.%20Communities/communityProteins.rq> ;
+    dcterms:creator <https://orcid.org/0000-0003-2230-0840> ;
+    dcterms:created "2026-03-30"^^xsd:date ;
+    dcterms:modified "2026-11-11"^^xsd:date ;
+    schema:version "1.0.0" ;
+    owl:sameAs <https://sparql.wikipathways.org/.well-known/sparql-examples/WPQ019> ;
+    dcterms:source <https://github.com/wikipathways/SPARQLQueries/blob/fed6a2dc597c5bd82160de17a46cbe36185f21a6/B.%20Communities/communityProteins.ttl> ;
     dcterms:license <https://www.gnu.org/licenses/gpl-3.0.html> .

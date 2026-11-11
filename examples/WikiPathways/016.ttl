@@ -1,5 +1,7 @@
 @prefix dcterms: <http://purl.org/dc/terms/> .
 @prefix ex: <https://bigcat-um.github.io/sparql-examples/WikiPathways/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix schema: <https://schema.org/> .
@@ -27,7 +29,13 @@ SELECT ?pred (COUNT(DISTINCT ?entity) AS ?count) WHERE {
 } GROUP BY ?pred
   ORDER BY DESC(?count)""" ;
     schema:target <https://sparql.wikipathways.org/sparql> ;
-    schema:keywords "metadata", "counts" ;
-    dcterms:source <https://github.com/wikipathways/SPARQLQueries/blob/56af22ea28b931bcc0f93575c2e65a5c585b8a12/A.%20Metadata/datacounts/linkoutCounts.rq> ;
-    dcterms:modified "2026-03-08"^^xsd:date ;
+    schema:keywords "counts", "metadata", "data counts" ;
+    prov:wasDerivedFrom <https://github.com/wikipathways/SPARQLQueries/blob/56af22ea28b931bcc0f93575c2e65a5c585b8a12/A.%20Metadata/datacounts/linkoutCounts.rq> ;
+    dcterms:creator <https://orcid.org/0000-0001-7542-0286> ;
+    dcterms:contributor <https://orcid.org/0000-0003-2230-0840> ;
+    dcterms:created "2024-01-07"^^xsd:date ;
+    dcterms:modified "2026-11-11"^^xsd:date ;
+    schema:version "1.0.0" ;
+    owl:sameAs <https://sparql.wikipathways.org/.well-known/sparql-examples/WPQ016> ;
+    dcterms:source <https://github.com/wikipathways/SPARQLQueries/blob/fed6a2dc597c5bd82160de17a46cbe36185f21a6/A.%20Metadata/datacounts/linkoutCounts.ttl> ;
     dcterms:license <https://www.gnu.org/licenses/gpl-3.0.html> .

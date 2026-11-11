@@ -1,19 +1,24 @@
+@prefix dcterms: <http://purl.org/dc/terms/> .
 @prefix ex: <https://bigcat-um.github.io/sparql-examples/WikiPathways/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix schema: <https://schema.org/> .
 @prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix spex: <https://purl.expasy.org/sparql-examples/ontology#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
 ex:001 a sh:SPARQLExecutable,
        sh:SPARQLSelectExecutable ;
     rdfs:label "Dataset Metadata"@en ;
-    rdfs:comment "Returns the title of the dataset, creation date, and license."@en ;
+    rdfs:comment "Returns all VoID datasets in the WikiPathways RDF with their title, creation date, and license information."@en ;
     sh:prefixes _:sparql_examples_prefixes ;
-    sh:select """PREFIX void: <http://rdfs.org/ns/void#>
-PREFIX dcterms: <http://purl.org/dc/terms/>
+    sh:select """PREFIX dcterms: <http://purl.org/dc/terms/>
 PREFIX pav: <http://purl.org/pav/>
+PREFIX void: <http://rdfs.org/ns/void#>
 
-SELECT DISTINCT ?dataset (str(?titleLit) as ?title) ?date ?license
+SELECT DISTINCT ?dataset (str(?titleLit) as ?title) ?date ?license 
 WHERE {
    ?dataset a void:Dataset ;
    dcterms:title ?titleLit ;
@@ -21,5 +26,13 @@ WHERE {
    pav:createdOn ?date .
 }""" ;
     schema:target <https://sparql.wikipathways.org/sparql> ;
-    schema:keywords "license", "metadata" ;
-    rdfs:seeAlso <https://github.com/wikipathways/SPARQLQueries/blob/master/A.%20Metadata/metadata.rq> .
+    schema:keywords "metadata" ;
+    prov:wasDerivedFrom <https://github.com/wikipathways/SPARQLQueries/blob/e7888dc71b1cb7fb1540decc7e1f8f8a29848bfa/A.%20Metadata/metadata.rq> ;
+    dcterms:creator <https://orcid.org/0000-0003-2230-0840> ;
+    dcterms:contributor <https://orcid.org/0000-0001-7542-0286> ;
+    dcterms:created "2020-08-12"^^xsd:date ;
+    dcterms:modified "2026-11-11"^^xsd:date ;
+    schema:version "1.0.0" ;
+    owl:sameAs <https://sparql.wikipathways.org/.well-known/sparql-examples/WPQ001> ;
+    dcterms:source <https://github.com/wikipathways/SPARQLQueries/blob/fed6a2dc597c5bd82160de17a46cbe36185f21a6/A.%20Metadata/metadata.ttl> ;
+    dcterms:license <https://www.gnu.org/licenses/gpl-3.0.html> .

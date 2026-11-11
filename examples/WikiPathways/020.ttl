@@ -1,5 +1,7 @@
 @prefix dcterms: <http://purl.org/dc/terms/> .
 @prefix ex: <https://bigcat-um.github.io/sparql-examples/WikiPathways/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix schema: <https://schema.org/> .
@@ -26,6 +28,11 @@ FILTER regex(str(?label), "metabolic pathway")
 }""" ;
     schema:target <https://sparql.wikipathways.org/sparql> ;
     schema:keywords "communities", "inborn errors of metabolism", "metabolism" ;
-    dcterms:source <https://github.com/wikipathways/SPARQLQueries/blob/fa9e83ba0da9ac61f188219e5b7d91ea73f7a5cc/B.%20Communities/Inborn%20Errors%20of%20Metabolism/allMetabolicPWs.rq> ;
-    dcterms:modified "2026-03-08"^^xsd:date ;
+    prov:wasDerivedFrom <https://github.com/wikipathways/SPARQLQueries/blob/fa9e83ba0da9ac61f188219e5b7d91ea73f7a5cc/B.%20Communities/Inborn%20Errors%20of%20Metabolism/allMetabolicPWs.rq> ;
+    dcterms:creator <https://orcid.org/0000-0003-2230-0840> ;
+    dcterms:created "2020-08-12"^^xsd:date ;
+    dcterms:modified "2026-11-11"^^xsd:date ;
+    schema:version "1.0.0" ;
+    owl:sameAs <https://sparql.wikipathways.org/.well-known/sparql-examples/WPQ020> ;
+    dcterms:source <https://github.com/wikipathways/SPARQLQueries/blob/fed6a2dc597c5bd82160de17a46cbe36185f21a6/B.%20Communities/Inborn%20Errors%20of%20Metabolism/allMetabolicPWs.ttl> ;
     dcterms:license <https://www.gnu.org/licenses/gpl-3.0.html> .
