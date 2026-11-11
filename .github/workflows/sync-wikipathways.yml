@@ -1,0 +1,77 @@
+name: Sync WikiPathways examples
+
+# Copies the WikiPathways examples from wikipathways/SPARQLQueries (see
+# scripts/wikipathways/README.md) and opens a pull request when they changed.
+# A pull request opened with the workflow's own token does not start other
+# workflows, so this job runs the SPARQL checks itself before opening it.
+
+on:
+  schedule:
+    - cron: '17 5 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: sync-wikipathways
+  cancel-in-progress: false
+
+env:
+  SIB_JAR_URL: https://github.com/sib-swiss/sparql-examples-utils/releases/download/v2.0.22/sparql-examples-utils-2.0.22-uber.jar
+  SIB_JAR_SHA256: 5b7fda7136e3ae9cc73acb41a143581ff50284412da4c8a88a0807ee81f503a9
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Sync
+        run: |
+          pip install rdflib
+          python scripts/wikipathways/sync.py | tee "$RUNNER_TEMP/sync.txt"
+      - name: Anything to do?
+        id: diff
+        run: |
+          if git diff --quiet -- examples/WikiPathways; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+      - uses: actions/setup-java@v5
+        if: steps.diff.outputs.changed == 'true'
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+      - name: Run the SPARQL checks
+        if: steps.diff.outputs.changed == 'true'
+        run: |
+          wget -q "$SIB_JAR_URL" -O "$RUNNER_TEMP/sparql-examples-utils.jar"
+          echo "$SIB_JAR_SHA256  $RUNNER_TEMP/sparql-examples-utils.jar" | sha256sum -c -
+          java -jar "$RUNNER_TEMP/sparql-examples-utils.jar" test --input-directory=examples/
+      - name: Open or update the pull request
+        if: steps.diff.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          branch=sync/wikipathways
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git checkout -B "$branch"
+          git add examples/WikiPathways
+          git commit -qm "Sync the WikiPathways examples from SPARQLQueries"
+          git push --force origin "$branch"
+          if [ -z "$(gh pr list --head "$branch" --state open --json number -q '.[].number')" ]; then
+            {
+              echo "Weekly copy of the WikiPathways examples from wikipathways/SPARQLQueries (scripts/wikipathways/sync.py). The SPARQL checks passed in the sync run."
+              echo
+              echo '```'
+              cat "$RUNNER_TEMP/sync.txt"
+              echo '```'
+            } > "$RUNNER_TEMP/body.md"
+            gh pr create --head "$branch" --base master --title "Sync the WikiPathways examples" --body-file "$RUNNER_TEMP/body.md"
+          fi
