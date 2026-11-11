@@ -1,5 +1,7 @@
 @prefix dcterms: <http://purl.org/dc/terms/> .
 @prefix ex: <https://bigcat-um.github.io/sparql-examples/WikiPathways/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix schema: <https://schema.org/> .
@@ -10,7 +12,7 @@
 ex:012 a sh:SPARQLExecutable,
        sh:SPARQLSelectExecutable ;
     rdfs:label "Average Entity Type per Pathway"@en ;
-    rdfs:comment "Calculates the average, minimum, and maximum number of a selected entity type per pathway in WikiPathways. This example uses the default value (Entity Type \"DataNode\"); the WikiPathways SNORQL UI lets you change it."@en ;
+    rdfs:comment "Calculates the average, minimum, and maximum number of a selected entity type per pathway in WikiPathways. This example uses the default values (Entity Type \"DataNode\"); open it in the WikiPathways SPARQL editor to change them: https://sparql.wikipathways.org/?example=WPQ012"@en ;
     sh:prefixes _:sparql_examples_prefixes ;
     sh:select """PREFIX dcterms: <http://purl.org/dc/terms/>
 PREFIX wp: <http://vocabularies.wikipathways.org/wp#>
@@ -21,13 +23,19 @@ SELECT (AVG(?no) AS ?avg)
 WHERE {
     SELECT ?Pathway (COUNT(?entity) AS ?no)
     WHERE {
-    ?entity a wp:DataNode ;
+    VALUES ?entityType { <http://vocabularies.wikipathways.org/wp#DataNode> }
+    ?entity a ?entityType ;
        dcterms:isPartOf ?Pathway .
     ?Pathway a wp:Pathway .}
     GROUP BY ?Pathway
 }""" ;
     schema:target <https://sparql.wikipathways.org/sparql> ;
-    schema:keywords "metadata", "counts" ;
-    dcterms:source <https://github.com/wikipathways/SPARQLQueries/blob/f9de718ebdcca57dadb773d47fa4e342cf386857/A.%20Metadata/datacounts/averagePerPathway.rq> ;
-    dcterms:modified "2026-11-10"^^xsd:date ;
+    schema:keywords "counts", "metadata", "data counts" ;
+    prov:wasDerivedFrom <https://github.com/wikipathways/SPARQLQueries/blob/f9de718ebdcca57dadb773d47fa4e342cf386857/A.%20Metadata/datacounts/averagePerPathway.rq> ;
+    dcterms:creator <https://orcid.org/0000-0003-2230-0840> ;
+    dcterms:created "2026-03-30"^^xsd:date ;
+    dcterms:modified "2026-11-11"^^xsd:date ;
+    schema:version "1.0.0" ;
+    owl:sameAs <https://sparql.wikipathways.org/.well-known/sparql-examples/WPQ012> ;
+    dcterms:source <https://github.com/wikipathways/SPARQLQueries/blob/fed6a2dc597c5bd82160de17a46cbe36185f21a6/A.%20Metadata/datacounts/averagePerPathway.ttl> ;
     dcterms:license <https://www.gnu.org/licenses/gpl-3.0.html> .

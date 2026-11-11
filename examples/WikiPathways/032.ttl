@@ -1,5 +1,7 @@
 @prefix dcterms: <http://purl.org/dc/terms/> .
 @prefix ex: <https://bigcat-um.github.io/sparql-examples/WikiPathways/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix schema: <https://schema.org/> .
@@ -50,6 +52,12 @@ VALUES ?PWID {"WP5275"}
     schema:target <https://sparql.wikipathways.org/sparql> ;
     schema:keywords "collaborations", "MetaNetX", "reaction" ;
     spex:federatesWith <https://rdf.metanetx.org/sparql/> ;
-    dcterms:source <https://github.com/wikipathways/SPARQLQueries/blob/769e44d643956539cbb80185e3de0477ad3d4d45/C.%20Collaborations/MetaNetX/reactionID_mapping.rq> ;
-    dcterms:modified "2026-11-10"^^xsd:date ;
+    prov:wasDerivedFrom <https://github.com/wikipathways/SPARQLQueries/blob/769e44d643956539cbb80185e3de0477ad3d4d45/C.%20Collaborations/MetaNetX/reactionID_mapping.rq> ;
+    dcterms:creator <https://orcid.org/0000-0001-8449-1318> ;
+    dcterms:contributor <https://orcid.org/0000-0003-2230-0840> ;
+    dcterms:created "2022-11-08"^^xsd:date ;
+    dcterms:modified "2026-11-11"^^xsd:date ;
+    schema:version "1.0.0" ;
+    owl:sameAs <https://sparql.wikipathways.org/.well-known/sparql-examples/WPQ032> ;
+    dcterms:source <https://github.com/wikipathways/SPARQLQueries/blob/fed6a2dc597c5bd82160de17a46cbe36185f21a6/C.%20Collaborations/MetaNetX/reactionID_mapping.ttl> ;
     dcterms:license <https://www.gnu.org/licenses/gpl-3.0.html> .

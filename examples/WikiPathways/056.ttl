@@ -1,5 +1,7 @@
 @prefix dcterms: <http://purl.org/dc/terms/> .
 @prefix ex: <https://bigcat-um.github.io/sparql-examples/WikiPathways/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix schema: <https://schema.org/> .
@@ -20,6 +22,12 @@ SELECT ?mol ?smilesDepict WHERE {
 } LIMIT 25""" ;
     schema:target <https://sparql.wikipathways.org/sparql> ;
     schema:keywords "chemistry" ;
-    dcterms:source <https://github.com/wikipathways/SPARQLQueries/blob/85c9912c600413a9ae0f5f9a3529420e38747f04/H.%20Chemistry/smiles.rq> ;
-    dcterms:modified "2026-03-08"^^xsd:date ;
+    prov:wasDerivedFrom <https://github.com/wikipathways/SPARQLQueries/blob/85c9912c600413a9ae0f5f9a3529420e38747f04/H.%20Chemistry/smiles.rq> ;
+    dcterms:creator <https://orcid.org/0000-0001-8449-1318> ;
+    dcterms:contributor <https://orcid.org/0000-0003-2230-0840> ;
+    dcterms:created "2022-03-14"^^xsd:date ;
+    dcterms:modified "2026-11-11"^^xsd:date ;
+    schema:version "1.0.0" ;
+    owl:sameAs <https://sparql.wikipathways.org/.well-known/sparql-examples/WPQ056> ;
+    dcterms:source <https://github.com/wikipathways/SPARQLQueries/blob/fed6a2dc597c5bd82160de17a46cbe36185f21a6/H.%20Chemistry/smiles.ttl> ;
     dcterms:license <https://www.gnu.org/licenses/gpl-3.0.html> .

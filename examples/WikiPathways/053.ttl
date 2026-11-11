@@ -1,5 +1,7 @@
 @prefix dcterms: <http://purl.org/dc/terms/> .
 @prefix ex: <https://bigcat-um.github.io/sparql-examples/WikiPathways/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix schema: <https://schema.org/> .
@@ -26,6 +28,13 @@ FILTER NOT EXISTS {?node dcterms:isPartOf ?pathway.
 }""" ;
     schema:target <https://sparql.wikipathways.org/sparql> ;
     schema:keywords "curation" ;
-    dcterms:source <https://github.com/wikipathways/SPARQLQueries/blob/fa9e83ba0da9ac61f188219e5b7d91ea73f7a5cc/G.%20Curation/PWsWithoutDatanodes.rq> ;
-    dcterms:modified "2026-03-08"^^xsd:date ;
+    prov:wasDerivedFrom <https://github.com/wikipathways/SPARQLQueries/blob/fa9e83ba0da9ac61f188219e5b7d91ea73f7a5cc/G.%20Curation/PWsWithoutDatanodes.rq> ;
+    dcterms:creator <https://github.com/laurent2207> ;
+    dcterms:contributor <https://orcid.org/0000-0001-7542-0286> ;
+    dcterms:contributor <https://orcid.org/0000-0003-2230-0840> ;
+    dcterms:created "2020-10-09"^^xsd:date ;
+    dcterms:modified "2026-11-11"^^xsd:date ;
+    schema:version "1.0.0" ;
+    owl:sameAs <https://sparql.wikipathways.org/.well-known/sparql-examples/WPQ053> ;
+    dcterms:source <https://github.com/wikipathways/SPARQLQueries/blob/fed6a2dc597c5bd82160de17a46cbe36185f21a6/G.%20Curation/PWsWithoutDatanodes.ttl> ;
     dcterms:license <https://www.gnu.org/licenses/gpl-3.0.html> .

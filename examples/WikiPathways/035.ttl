@@ -1,5 +1,7 @@
 @prefix dcterms: <http://purl.org/dc/terms/> .
 @prefix ex: <https://bigcat-um.github.io/sparql-examples/WikiPathways/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix schema: <https://schema.org/> .
@@ -58,8 +60,14 @@ SERVICE <https://idsm.elixir-czech.cz/sparql/endpoint/chebi> {
   
  }""" ;
     schema:target <https://sparql.wikipathways.org/sparql> ;
-    schema:keywords "collaborations", "Rhea", "IDSM", "reaction" ;
+    schema:keywords "collaborations", "IDSM", "reaction", "Rhea", "rhea and idsm" ;
     spex:federatesWith <https://idsm.elixir-czech.cz/sparql/endpoint/chebi> ;
-    dcterms:source <https://github.com/wikipathways/SPARQLQueries/blob/2f50cac7505b9a201527cde7ad60e510508180a9/C.%20Collaborations/smallMolecules_Rhea_IDSM/molecularSimularity_Reactions.rq> ;
-    dcterms:modified "2026-03-08"^^xsd:date ;
+    prov:wasDerivedFrom <https://github.com/wikipathways/SPARQLQueries/blob/2f50cac7505b9a201527cde7ad60e510508180a9/C.%20Collaborations/smallMolecules_Rhea_IDSM/molecularSimularity_Reactions.rq> ;
+    dcterms:creator <https://orcid.org/0000-0001-8449-1318> ;
+    dcterms:contributor <https://orcid.org/0000-0003-2230-0840> ;
+    dcterms:created "2022-11-09"^^xsd:date ;
+    dcterms:modified "2026-11-11"^^xsd:date ;
+    schema:version "1.0.0" ;
+    owl:sameAs <https://sparql.wikipathways.org/.well-known/sparql-examples/WPQ035> ;
+    dcterms:source <https://github.com/wikipathways/SPARQLQueries/blob/fed6a2dc597c5bd82160de17a46cbe36185f21a6/C.%20Collaborations/smallMolecules_Rhea_IDSM/molecularSimularity_Reactions.ttl> ;
     dcterms:license <https://www.gnu.org/licenses/gpl-3.0.html> .

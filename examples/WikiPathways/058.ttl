@@ -1,5 +1,7 @@
 @prefix dcterms: <http://purl.org/dc/terms/> .
 @prefix ex: <https://bigcat-um.github.io/sparql-examples/WikiPathways/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix schema: <https://schema.org/> .
@@ -10,7 +12,7 @@
 ex:058 a sh:SPARQLExecutable,
        sh:SPARQLSelectExecutable ;
     rdfs:label "Extracting Directed Metabolic Reactions"@en ;
-    rdfs:comment "Extracts directed metabolite-to-metabolite interactions from human pathways in the AnalysisCollection, returning source and target identifiers, interaction types, and Rhea IDs as part of the DSMN workflow. This example uses the default value (Species \"Homo sapiens\"); the WikiPathways SNORQL UI lets you change it."@en ;
+    rdfs:comment "Extracts directed metabolite-to-metabolite interactions from human pathways in the AnalysisCollection, returning source and target identifiers, interaction types, and Rhea IDs as part of the DSMN workflow. This example uses the default values (Species \"Homo sapiens\"); open it in the WikiPathways SPARQL editor to change them: https://sparql.wikipathways.org/?example=WPQ058"@en ;
     sh:prefixes _:sparql_examples_prefixes ;
     sh:select """PREFIX cur: <http://vocabularies.wikipathways.org/wp#Curation:>
 PREFIX dc: <http://purl.org/dc/elements/1.1/>
@@ -24,8 +26,9 @@ SELECT DISTINCT ?interaction ?sourceDb ?targetDb ?mimtype
 WHERE {  
 
 ### Part 2: ###
+VALUES ?species { "Homo sapiens" }
 ?pathway a wp:Pathway ;
-         wp:organismName "Homo sapiens" ;
+         wp:organismName ?species ;
          dc:title ?titleLit . 	
          
 ### Part 3A: ###
@@ -58,7 +61,13 @@ OPTIONAL{?target wp:bdbHmdb ?targetDbHMDB}.
 OPTIONAL{?interaction wp:bdbRhea ?InteractionID} .
 } ORDER BY DESC(?InteractionID)""" ;
     schema:target <https://sparql.wikipathways.org/sparql> ;
-    schema:keywords "DSMN", "directed small molecules network" ;
-    dcterms:source <https://github.com/wikipathways/SPARQLQueries/blob/c42d381565e5c49c7c754d037d6f253b3214601f/I.%20DirectedSmallMoleculesNetwork%20%28DSMN%29/extracting%20directed%20metabolic%20reactions.rq> ;
-    dcterms:modified "2026-03-09"^^xsd:date ;
+    schema:keywords "directed small molecules network", "DSMN", "directed small molecules network (dsmn)" ;
+    prov:wasDerivedFrom <https://github.com/wikipathways/SPARQLQueries/blob/c42d381565e5c49c7c754d037d6f253b3214601f/I.%20DirectedSmallMoleculesNetwork%20%28DSMN%29/extracting%20directed%20metabolic%20reactions.rq> ;
+    dcterms:creator <https://orcid.org/0000-0001-8449-1318> ;
+    dcterms:contributor <https://orcid.org/0000-0003-2230-0840> ;
+    dcterms:created "2023-11-09"^^xsd:date ;
+    dcterms:modified "2026-11-11"^^xsd:date ;
+    schema:version "1.0.0" ;
+    owl:sameAs <https://sparql.wikipathways.org/.well-known/sparql-examples/WPQ058> ;
+    dcterms:source <https://github.com/wikipathways/SPARQLQueries/blob/fed6a2dc597c5bd82160de17a46cbe36185f21a6/I.%20DirectedSmallMoleculesNetwork%20%28DSMN%29/extracting%20directed%20metabolic%20reactions.ttl> ;
     dcterms:license <https://www.gnu.org/licenses/gpl-3.0.html> .
